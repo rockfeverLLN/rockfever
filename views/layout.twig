@@ -57,6 +57,32 @@
     {%- if block('canonical_path') is defined %}
     <link rel="canonical" href="https://rockfever.be{{ block('canonical_path') }}"/>
     {%- endif %}
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt"/>
+    {#- Who runs the site, for search engines and AI assistants. The events on each page name it as organizer by its @id #}
+    <script type="application/ld+json">{{ {
+        '@context': 'https://schema.org',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                '@id': 'https://rockfever.be/#organization',
+                name: 'Rock Fever',
+                url: 'https://rockfever.be/',
+                logo: 'https://rockfever.be/images/favicon.png',
+                description: 'Soirées rock et valse ouvertes aux 18-35 ans à Louvain-la-Neuve, au Hall Sainte-Barbe.',
+                address: {'@type': 'PostalAddress', addressLocality: 'Louvain-la-Neuve', postalCode: '1348', addressCountry: 'BE'},
+                contactPoint: {'@type': 'ContactPoint', contactType: 'customer service', url: 'https://rockfever.be/contact', availableLanguage: 'fr'},
+                sameAs: ['https://www.facebook.com/rockfeverlln', 'https://www.instagram.com/rockfeverlln/']
+            },
+            {
+                '@type': 'WebSite',
+                '@id': 'https://rockfever.be/#website',
+                url: 'https://rockfever.be/',
+                name: 'Rock Fever',
+                inLanguage: 'fr-BE',
+                publisher: {'@id': 'https://rockfever.be/#organization'}
+            }
+        ]
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
 
     <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2?v=4c26ce59" as="font" type="font/woff2" crossorigin/>
     <link rel="preload" href="{{ __DIR__ }}/fonts/inter.woff2?v=8e433c05" as="font" type="font/woff2" crossorigin/>

@@ -8,25 +8,7 @@
 
 {% block head %}
     <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
-    {#- The coming soirées as schema.org events, for search engines #}
-    {%- set events = [] %}
-    {%- for soirees in semesters %}{% for soiree in soirees %}{% if not soiree.past %}
-        {%- set events = events|merge([{
-            '@context': 'https://schema.org',
-            '@type': 'DanceEvent',
-            name: 'Soirée Rock Fever',
-            startDate: soiree.start|date('c', false),
-            endDate: soiree.end|date('c', false),
-            eventStatus: 'https://schema.org/EventScheduled',
-            eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-            location: {'@type': 'Place', name: place, address: address},
-            organizer: {'@type': 'Organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
-            url: 'https://rockfever.be/calendrier'
-        }]) %}
-    {%- endif %}{% endfor %}{% endfor %}
-    {%- if events %}
-    <script type="application/ld+json">{{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
-    {%- endif %}
+    {% include '@main/soireesJsonLd.twig' with {soirees: semesters|reduce((all, soirees) => all|merge(soirees), [])} %}
 {% endblock %}
 
 {% block body %}

@@ -7,6 +7,7 @@
 
 namespace App\Main\Actions;
 
+use App\Main\Calendar;
 use App\Main\Table\AboutTable;
 use Framework\Renderer\RendererInterface;
 
@@ -24,7 +25,7 @@ class HomeAction
      */
     private $renderer;
 
-    public function __construct(RendererInterface $renderer, AboutTable $table)
+    public function __construct(RendererInterface $renderer, AboutTable $table, private Calendar $calendar)
     {
         $this->table = $table;
         $this->renderer = $renderer;
@@ -48,7 +49,12 @@ class HomeAction
             $staffFound = mb_strtolower(trim($item->title)) === 'le staff';
         }
 
-        return $this->renderer->render($this->viewPath, compact('items', 'members'));
+        // The coming soirées, marked up as events in the page's head
+        return $this->renderer->render($this->viewPath, compact('items', 'members') + [
+            'soirees' => $this->calendar->getSoirees(),
+            'place' => $this->calendar->getPlace(),
+            'address' => $this->calendar->getAddress(),
+        ]);
     }
 
     /**

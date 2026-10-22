@@ -36,7 +36,8 @@ class Router
      */
     public function get(string $path, $callable, ?string $name = null)
     {
-        $this->router->addRoute(new MezzioRoute($path, new MiddlewareCallback($callable), ['GET'], $name));
+        // HEAD too: link checkers and agents use it to see if a page exists (the web server drops the body)
+        $this->router->addRoute(new MezzioRoute($path, new MiddlewareCallback($callable), ['GET', 'HEAD'], $name));
     }
 
     /**

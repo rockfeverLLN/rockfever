@@ -11,6 +11,7 @@ use Framework\Auth\LoggedInMiddleWare;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
 use Framework\Middleware\ExceptionCatcherMiddleware;
+use Framework\Middleware\MarkdownMiddleware;
 use Framework\Middleware\MethodMiddleware;
 use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
@@ -39,7 +40,8 @@ if ($env == 'dev') {
     $app->pipe(ExceptionCatcherMiddleware::class);
 }
 
-$app->pipe(TrailingSlashMiddleWare::class)
+$app->pipe(MarkdownMiddleware::class)
+    ->pipe(TrailingSlashMiddleWare::class)
     ->pipe(ForbiddenMiddleware::class)
     ->pipe('/event', NextEventMiddleware::class)
     ->pipe($container->get('admin.prefix'), LoggedInMiddleWare::class)

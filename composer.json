@@ -8,6 +8,7 @@
         "guzzlehttp/psr7": "^3.2",
         "intervention/image": "^4.4",
         "laminas/laminas-httphandlerrunner": "^2.10",
+        "league/html-to-markdown": "^5.1",
         "mezzio/mezzio-fastroute": "^3.11",
         "middlewares/whoops": "^2.0",
         "pagerfanta/pagerfanta": "^4.7",

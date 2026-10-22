@@ -6,6 +6,7 @@
 
 {% block head %}
     <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
+    {% include '@main/soireesJsonLd.twig' %}
 {% endblock %}
 
 {% block body %}

@@ -21,7 +21,7 @@
             name: event.place,
             address: {'@type': 'PostalAddress', addressLocality: 'Louvain-la-Neuve', addressCountry: 'BE'}
         },
-        organizer: {'@type': 'Organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
+        organizer: {'@type': 'Organization', '@id': 'https://rockfever.be/#organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
         url: 'https://rockfever.be/event'
     }|json_encode(constant('JSON_HEX_TAG'))|raw }}</script>
 {% endblock %}

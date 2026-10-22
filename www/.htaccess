@@ -14,6 +14,22 @@ RewriteRule ^(.*)$ /index.php [NC,L,QSA]
 </IfModule>
 
 AddType font/woff2 .woff2
+AddType "text/markdown; charset=utf-8" .md
+AddType "text/plain; charset=utf-8" .txt
+
+# Security headers, on every response (pages, files and errors). The CSP doesn't list script or image sources:
+# the admin loads TinyMCE and fonts from CDNs, and the About sections can embed videos
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Header always set Cross-Origin-Opener-Policy "same-origin"
+    Header always set Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
+</IfModule>
 
 # Let browsers cache static files. Images are replaced under a new name; CSS/JS without a ?v= version get less.
 <IfModule mod_expires.c>
