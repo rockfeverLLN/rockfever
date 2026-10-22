@@ -3,28 +3,42 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+
+# Never run two uploads to the server at the same time
+concurrency:
+  group: deploy-ovh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+# No marketplace actions on purpose: plain git and official Docker images,
+# so there are no action versions or Node runtimes to keep up to date.
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
+      - name: Checkout
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git clone --quiet "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git checkout --quiet "$GITHUB_SHA"
+      # Same PHP version as the server, read from .ovhconfig
+      - name: Read PHP version
+        run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
       - name: Install dependencies
-        run: composer install --no-dev --optimize-autoloader --no-interaction
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
+            composer:2 install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
+      - name: Check PHP syntax
+        run: |
+          docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
+            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
-      # Uploads the project to the hosting root (www/ is the web root).
-      # config/database.php is not in git and stays on the server untouched.
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-        run: |
-          lftp --env-password -u rockfevexj sftp://$FTP_HOST -e "
-            set sftp:auto-confirm yes;
-            set mirror:parallel-transfer-count 4;
-            mirror --reverse --verbose --exclude '^\.git' --exclude '^vendor/' --exclude '^tmp/' ./ ./;
-            mirror --reverse --delete --verbose vendor/ vendor/;
-            rm -r -f tmp/views tmp/routes tmp/di tmp/proxies;
-            quit"
+        run: bin/deploy.sh
