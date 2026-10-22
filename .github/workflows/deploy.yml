@@ -1,0 +1,16 @@
+name: Deploy to OVH
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.cluster105.hosting.ovh.net
+          username: rockfevexj
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: www/
