@@ -13,7 +13,6 @@ use App\Photos\Actions\PhotoAdminAction;
 use App\Photos\Actions\PhotoDeleteAction;
 use App\Photos\Actions\PhotoFileAction;
 use App\Photos\Actions\PhotoIndexAction;
-use App\Photos\Actions\PhotoPasswordAction;
 use App\Photos\Actions\PhotoUploadAction;
 use Framework\Module;
 use Framework\Renderer\RendererInterface;
@@ -32,12 +31,12 @@ class PhotosModule extends Module
         /** @var Router $router */
         $router = $container->get(Router::class);
 
-        // The gallery's albums and photos, behind its password (PhotoAccess)
+        // The gallery's albums and photos, each behind its soirée's password (PhotoAccess)
         $router->get('/photos', PhotoIndexAction::class, 'photos');
-        $router->post('/photos', PhotoIndexAction::class);
         $router->get('/photos/{id:\d+}/{size:480|960|1600|full}', PhotoFileAction::class, 'photos.file');
         $router->post('/photos/{id:\d+}/suppression', DeletionRequestAction::class, 'photos.request');
         $router->get('/photos/{slug:[a-z0-9-]+}', AlbumShowAction::class, 'photos.album');
+        $router->post('/photos/{slug:[a-z0-9-]+}', AlbumShowAction::class);
         $router->get('/photos/{slug:[a-z0-9-]+}/zip', AlbumZipAction::class, 'photos.album.zip');
 
         if ($container->has('admin.prefix')) {
@@ -58,7 +57,6 @@ class PhotosModule extends Module
                 'admin.photos.upload'
             );
             $router->post($adminPrefix . '/photos/delete', PhotoDeleteAction::class, 'admin.photos.delete');
-            $router->post($adminPrefix . '/photos/password', PhotoPasswordAction::class, 'admin.photos.password');
             $router->post(
                 $adminPrefix . '/photos/requests/{id:\d+}/dismiss',
                 DeletionRequestDismissAction::class,

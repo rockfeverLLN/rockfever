@@ -2,92 +2,81 @@
 
 namespace App\Photos;
 
-use App\Main\Table\ValueTable;
+use App\Photos\Entity\Album;
 use Framework\Auth;
-use Framework\Database\NoRecordException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * The gallery's password. Visitors who give it get a cookie for 30 days; the team, logged in, doesn't need it.
+ * Who sees an album: the team, logged in, and visitors who gave the photo password of the album's soirée (set on
+ * the event in the admin). They get a cookie for that album, for 30 days. An album whose soirée has no password
+ * is only for the team.
  *
- * The cookie holds an HMAC keyed with the password's hash: nobody can make one without the database, and changing
- * the password makes every cookie handed out before it useless. No session, so the browser loads the photos in
- * parallel (PHP locks the session for the length of each request)
+ * The cookie holds an HMAC keyed with the password: nobody can make one without knowing it, and changing the
+ * password makes the cookies handed out before useless. No session, so the browser loads the photos in parallel
+ * (PHP locks the session for the length of each request)
  */
 class PhotoAccess
 {
-    const COOKIE = 'rf_photos';
-
-    const VALUE = 'PHOTOS_PASSWORD';
+    const COOKIE = 'rf_album_';
 
     const LIFETIME = 30 * 24 * 3600;
-
-    /**
-     * @var ValueTable
-     */
-    private $valueTable;
 
     /**
      * @var Auth
      */
     private $auth;
 
-    private $hash;
+    private $team;
 
-    public function __construct(ValueTable $valueTable, Auth $auth)
+    public function __construct(Auth $auth)
     {
-        $this->valueTable = $valueTable;
         $this->auth = $auth;
     }
 
     /**
-     * Whether a password has been set, so visitors can get in at all
+     * Whether visitors can get into the album at all
      */
-    public function isOpen() : bool
+    public function isOpen(Album $album) : bool
     {
-        return $this->getHash() !== '';
+        return (string) $album->photosPassword !== '';
     }
 
-    public function canView(ServerRequestInterface $request) : bool
+    public function isTeam() : bool
     {
-        $cookie = $request->getCookieParams()[self::COOKIE] ?? '';
-        if ($this->isOpen() && is_string($cookie) && hash_equals($this->getToken(), $cookie)) {
+        if ($this->team === null) {
+            $this->team = $this->auth->getUser() !== null;
+        }
+        return $this->team;
+    }
+
+    public function canView(ServerRequestInterface $request, Album $album) : bool
+    {
+        $cookie = $request->getCookieParams()[self::COOKIE . $album->id] ?? '';
+        if ($this->isOpen($album) && is_string($cookie) && hash_equals($this->getToken($album), $cookie)) {
             return true;
         }
-        return $this->auth->getUser() !== null;
-    }
-
-    public function checkPassword(string $password) : bool
-    {
-        return $this->isOpen() && password_verify($password, $this->getHash());
-    }
-
-    public function setPassword(string $password) : void
-    {
-        $this->hash = password_hash($password, PASSWORD_DEFAULT);
-        try {
-            $value = $this->valueTable->findBy('name', self::VALUE);
-            $this->valueTable->update($value->id, ['value' => $this->hash]);
-        } catch (NoRecordException $e) {
-            $this->valueTable->insert([
-                'name'  => self::VALUE,
-                'label' => 'Mot de passe de la galerie photos',
-                'type'  => 'password',
-                'value' => $this->hash
-            ]);
-        }
+        return $this->isTeam();
     }
 
     /**
-     * Adds the cookie that opens the gallery to a response
+     * Not case sensitive, and spaces around it don't count: it's typed on a phone in the middle of a soirée
      */
-    public function grant(ResponseInterface $response, ServerRequestInterface $request) : ResponseInterface
+    public function checkPassword(Album $album, string $password) : bool
     {
-        if (!$this->isOpen()) {
+        return $this->isOpen($album)
+            && hash_equals(mb_strtolower(trim($album->photosPassword)), mb_strtolower(trim($password)));
+    }
+
+    /**
+     * Adds the cookie that opens the album to a response
+     */
+    public function grant(ResponseInterface $response, ServerRequestInterface $request, Album $album) : ResponseInterface
+    {
+        if (!$this->isOpen($album)) {
             return $response;
         }
-        $cookie = self::COOKIE . '=' . $this->getToken()
+        $cookie = self::COOKIE . $album->id . '=' . $this->getToken($album)
             . '; Path=/photos; Max-Age=' . self::LIFETIME . '; HttpOnly; SameSite=Lax';
         if ($request->getUri()->getScheme() === 'https') {
             $cookie .= '; Secure';
@@ -95,20 +84,8 @@ class PhotoAccess
         return $response->withAddedHeader('Set-Cookie', $cookie);
     }
 
-    private function getToken() : string
+    private function getToken(Album $album) : string
     {
-        return hash_hmac('sha256', 'rockfever-photos', $this->getHash());
-    }
-
-    private function getHash() : string
-    {
-        if ($this->hash === null) {
-            try {
-                $this->hash = (string) $this->valueTable->getValue(self::VALUE);
-            } catch (NoRecordException $e) {
-                $this->hash = '';
-            }
-        }
-        return $this->hash;
+        return hash_hmac('sha256', 'rockfever-album-' . $album->id, $album->photosPassword);
     }
 }

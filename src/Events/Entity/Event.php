@@ -29,6 +29,8 @@ class Event
 
     public $facebookLink;
 
+    public $photosPassword;
+
     public $participantsCount;
 
     public function setDate(string $date)

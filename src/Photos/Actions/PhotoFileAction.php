@@ -4,6 +4,7 @@ namespace App\Photos\Actions;
 
 use App\Photos\PhotoAccess;
 use App\Photos\PhotoUpload;
+use App\Photos\Table\AlbumTable;
 use App\Photos\Table\PhotoTable;
 use Framework\Database\NoRecordException;
 use GuzzleHttp\Psr7\Response;
@@ -24,6 +25,11 @@ class PhotoFileAction
     private $photoTable;
 
     /**
+     * @var AlbumTable
+     */
+    private $albumTable;
+
+    /**
      * @var PhotoUpload
      */
     private $upload;
@@ -33,22 +39,24 @@ class PhotoFileAction
      */
     private $access;
 
-    public function __construct(PhotoTable $photoTable, PhotoUpload $upload, PhotoAccess $access)
+    public function __construct(PhotoTable $photoTable, AlbumTable $albumTable, PhotoUpload $upload, PhotoAccess $access)
     {
         $this->photoTable = $photoTable;
+        $this->albumTable = $albumTable;
         $this->upload = $upload;
         $this->access = $access;
     }
 
     public function __invoke(Request $request) : ResponseInterface
     {
-        if (!$this->access->canView($request)) {
-            return new Response(403, ['X-Robots-Tag' => 'noindex'], 'Accès refusé');
-        }
         try {
             $photo = $this->photoTable->find((int) $request->getAttribute('id'));
+            $album = $this->albumTable->findForAccess((int) $photo->albumId);
         } catch (NoRecordException $e) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Photo introuvable');
+        }
+        if (!$this->access->canView($request, $album)) {
+            return new Response(403, ['X-Robots-Tag' => 'noindex'], 'Accès refusé');
         }
         $original = $this->upload->getPath() . '/' . $photo->filename;
         $download = isset($request->getQueryParams()['download']);

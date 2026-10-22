@@ -46,6 +46,9 @@ class AlbumCreateAction
             $this->flash->error('Donne un titre et une collection à l\'album (100 caractères au plus)');
             return $this->redirect('admin.photos.index');
         }
+        if ($params['event_id'] !== null && !$this->albumTable->eventExists($params['event_id'])) {
+            $params['event_id'] = null;
+        }
         $params['slug'] = $this->albumTable->makeSlug($params['title']);
         $this->albumTable->insert($params);
         $this->flash->success('L\'album a été créé : ajoutes-y les photos');

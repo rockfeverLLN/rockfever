@@ -4,9 +4,11 @@ namespace App\Photos\Actions;
 
 use App\Main\Table\ValueTable;
 use App\Photos\PhotoAccess;
+use App\Photos\Table\AlbumTable;
 use App\Photos\Table\DeletionRequestTable;
 use App\Photos\Table\PhotoTable;
 use Framework\Actions\RouterAwareAction;
+use Framework\Database\NoRecordException;
 use Framework\Router;
 use Framework\Session\FlashService;
 use Framework\Validator;
@@ -31,6 +33,11 @@ class DeletionRequestAction
      * @var PhotoTable
      */
     private $photoTable;
+
+    /**
+     * @var AlbumTable
+     */
+    private $albumTable;
 
     /**
      * @var DeletionRequestTable
@@ -60,6 +67,7 @@ class DeletionRequestAction
     public function __construct(
         Router $router,
         PhotoTable $photoTable,
+        AlbumTable $albumTable,
         DeletionRequestTable $requestTable,
         PhotoAccess $access,
         FlashService $flash,
@@ -68,6 +76,7 @@ class DeletionRequestAction
     ) {
         $this->router = $router;
         $this->photoTable = $photoTable;
+        $this->albumTable = $albumTable;
         $this->requestTable = $requestTable;
         $this->access = $access;
         $this->flash = $flash;
@@ -78,7 +87,12 @@ class DeletionRequestAction
     public function __invoke(Request $request) : ResponseInterface
     {
         $id = (int) $request->getAttribute('id');
-        if (!$this->access->canView($request) || !$this->photoTable->exists($id)) {
+        try {
+            $album = $this->albumTable->findForAccess((int) $this->photoTable->find($id)->albumId);
+        } catch (NoRecordException $e) {
+            $album = null;
+        }
+        if (!$album || !$this->access->canView($request, $album)) {
             return $this->answer($request, false, 'Cette photo n\'est plus disponible.', 404);
         }
         $params = array_map(
@@ -103,14 +117,22 @@ class DeletionRequestAction
         return $this->answer(
             $request,
             true,
-            'Merci, ta demande a bien été envoyée. L\'équipe retirera la photo au plus vite.'
+            'Merci, ta demande a bien été envoyée. L\'équipe retirera la photo au plus vite.',
+            200,
+            $album->slug
         );
     }
 
     /**
      * JSON for the gallery's script, a redirection with a message without it
      */
-    private function answer(Request $request, bool $ok, string $message, int $status = 200) : ResponseInterface
+    private function answer(
+        Request $request,
+        bool $ok,
+        string $message,
+        int $status = 200,
+        ?string $album = null
+    ) : ResponseInterface
     {
         if (str_contains($request->getHeaderLine('Accept'), 'application/json')) {
             return new Response(
@@ -120,7 +142,7 @@ class DeletionRequestAction
             );
         }
         $ok ? $this->flash->success($message) : $this->flash->error($message);
-        return $this->redirect('photos');
+        return $album ? $this->redirect('photos.album', ['slug' => $album]) : $this->redirect('photos');
     }
 
     /**

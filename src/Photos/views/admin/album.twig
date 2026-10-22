@@ -13,6 +13,24 @@
             <a href="{{ path('photos.album', {slug: album.slug}) }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir l'album</a>
         </h1>
 
+        {% if album.photosPassword %}
+            <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
+                <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe de sa soirée :
+                <b>{{ album.photosPassword }}</b>. Pour le changer, modifie la soirée dans
+                <a href="{{ path('admin.events.edit', {id: album.eventId}) }}">Événements</a>.
+            </div></div></div>
+        {% else %}
+            <div class="row"><div class="col s12"><div class="card-panel orange lighten-5">
+                <i class="mdi mdi-lock-open"></i> <b>Seule l'équipe voit cet album</b> :
+                {% if album.eventId %}
+                    sa soirée n'a pas de mot de passe des photos. Ajoutes-en un dans
+                    <a href="{{ path('admin.events.edit', {id: album.eventId}) }}">Événements</a>.
+                {% else %}
+                    choisis sa soirée ci-dessous, puis donne-lui un mot de passe des photos dans Événements.
+                {% endif %}
+            </div></div></div>
+        {% endif %}
+
         <div class="row">
             <div class="col s12 l8">
                 <div class="card-panel">
@@ -42,7 +60,7 @@
                     <h2>Album</h2>
                     <form action="{{ path('admin.photos.album', {id: album.id}) }}" method="post">
                         {{ tokenInput|raw }}
-                        {% include '@photos/admin/album-fields.twig' with {suffix: '-edit'} %}
+                        {% include '@photos/admin/album-fields.twig' with {suffix: '-edit', event: null} %}
                         <button class="btn koamaru waves-effect waves-light">Enregistrer</button>
                     </form>
                     <form action="{{ path('admin.photos.album.delete', {id: album.id}) }}" method="post" style="margin-top: 16px"

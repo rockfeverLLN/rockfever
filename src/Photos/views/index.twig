@@ -10,8 +10,9 @@
     <div class="photos-page">
         <header class="photos-index-header">
             <h1>Photos</h1>
-            <p>Les photos de nos soirées, par quadrimestre. Tu es sur une photo et tu préfères qu'elle soit retirée ?
-                Ouvre-la et choisis <strong>Demander la suppression</strong>.</p>
+            <p>Les photos de nos soirées, par quadrimestre. Chaque album s'ouvre avec le mot de passe donné aux danseurs
+                de la soirée. Tu es sur une photo et tu préfères qu'elle soit retirée ? Ouvre-la et choisis
+                <strong>Demander la suppression</strong>.</p>
         </header>
 
         {% include '@photos/flash.twig' %}
@@ -23,10 +24,18 @@
                     {% for album in albums %}
                         <li>
                             <a href="{{ path('photos.album', {slug: album.slug}) }}">
-                                <span class="photos-album-cover">
-                                    <img src="{{ path('photos.file', {id: album.coverId, size: '960'}) }}" alt=""
-                                         {% if loop.parent.loop.index > 1 or loop.index > 6 %}loading="lazy" {% endif %}decoding="async">
-                                </span>
+                                {% if album.id in unlocked %}
+                                    <span class="photos-album-cover">
+                                        <img src="{{ path('photos.file', {id: album.coverId, size: '960'}) }}" alt=""
+                                             {% if loop.parent.loop.index > 1 or loop.index > 6 %}loading="lazy" {% endif %}decoding="async">
+                                    </span>
+                                {% else %}
+                                    {#- No photo before the password, not even the cover #}
+                                    <span class="photos-album-cover photos-album-locked">
+                                        <i class="mdi mdi-lock" aria-hidden="true"></i>
+                                        <span>Mot de passe de la soirée</span>
+                                    </span>
+                                {% endif %}
                                 <span class="photos-album-title">{{ album.title }}</span>
                                 <span class="photos-album-meta">
                                     {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}{% if album.photographer %} · par {{ album.photographer }}{% endif %}

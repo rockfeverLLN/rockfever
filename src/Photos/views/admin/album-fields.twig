@@ -1,4 +1,4 @@
-{#- Title, collection and photographer of an album (new album, and edit). album is optional #}
+{#- Title, collection, photographer and soirée of an album (new album, and edit). album is optional #}
 <div class="input-field">
     <input type="text" id="album-title{{ suffix }}" name="title" value="{{ album.title|default('') }}" maxlength="100" required placeholder="Semaine 5 26-27">
     <label for="album-title{{ suffix }}" class="active">Titre (la soirée)</label>
@@ -11,6 +11,16 @@
     <input type="text" id="album-photographer{{ suffix }}" name="photographer" value="{{ album.photographer|default('') }}" maxlength="100" list="album-photographers" placeholder="Facultatif">
     <label for="album-photographer{{ suffix }}" class="active">Photographe</label>
 </div>
+{% set selected = album ? album.eventId : (event ? event.id : null) %}
+<label for="album-event{{ suffix }}">Soirée : son mot de passe des photos ouvre l'album</label>
+<select id="album-event{{ suffix }}" name="event_id" class="browser-default" style="margin-bottom: 20px">
+    <option value="">Aucune : album visible par l'équipe seulement</option>
+    {% for item in events %}
+        <option value="{{ item.id }}" {{ item.id == selected ? 'selected' }}>
+            {{ item.date|date('d/m/Y') }} · {{ item.title }}{{ item.photos_password ? '' : ' (pas de mot de passe)' }}
+        </option>
+    {% endfor %}
+</select>
 <datalist id="album-collections">
     {% for collection in collections %}<option value="{{ collection }}">{% endfor %}
 </datalist>

@@ -6,11 +6,16 @@ use Phinx\Migration\AbstractMigration;
 class CreatePhotosTables extends AbstractMigration
 {
     /**
-     * Albums and photos of the gallery (/photos), the requests to take one down, and the gallery's password.
+     * Albums and photos of the gallery (/photos), the requests to take one down, and each soirée's photo password.
      * The same changes as SQL for phpMyAdmin: src/Photos/db/create-photos-tables.sql
      */
     public function change()
     {
+        // Given to the soirée's dancers: it opens the soirée's album. Kept readable, so the team can find it again
+        $this->table('events')
+            ->addColumn('photos_password', 'string', ['limit' => 100, 'null' => true])
+            ->update();
+
         // An album is a soirée ("Semaine 5 26-27"), in a collection (the quadrimestre: "Q1-26-27")
         $this->table('photo_albums')
             ->addColumn('title', 'string', ['limit' => 100])
@@ -18,6 +23,9 @@ class CreatePhotosTables extends AbstractMigration
             ->addIndex('slug', ['unique' => true])
             ->addColumn('collection', 'string', ['limit' => 100])
             ->addColumn('photographer', 'string', ['limit' => 100, 'null' => true])
+            // Its soirée, whose photo password opens it. Without one, only the team sees the album
+            ->addColumn('event_id', 'integer', ['null' => true])
+            ->addForeignKey('event_id', 'events', ['id'], ['delete' => 'SET_NULL'])
             ->addColumn('created_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
             ->create();
 
@@ -40,15 +48,5 @@ class CreatePhotosTables extends AbstractMigration
             ->addColumn('reason', 'text', ['null' => true])
             ->addColumn('created_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])
             ->create();
-
-        // Empty until an admin sets it on /admin/photos: until then, only the team sees the photos
-        if ($this->isMigratingUp()) {
-            $this->table('values')->insert([
-                'name'  => 'PHOTOS_PASSWORD',
-                'label' => 'Mot de passe de la galerie photos',
-                'type'  => 'password',
-                'value' => ''
-            ])->save();
-        }
     }
 }
