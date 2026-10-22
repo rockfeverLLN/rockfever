@@ -17,6 +17,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
+    timeout-minutes: 20
     steps:
       - name: Checkout
         env:
@@ -36,8 +38,13 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
             sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
+      # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
       - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        timeout-minutes: 5
+        run: |
+          APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
+          $APT update
+          $APT install -y --no-install-recommends lftp
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
