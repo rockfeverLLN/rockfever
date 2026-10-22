@@ -3,16 +3,13 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Google tag (gtag.js) and the footer's Facebook frame, loaded once the page has finished loading so they don't compete with it -->
+    <!-- Google tag (gtag.js), loaded once the page has finished loading so it doesn't compete with it -->
     <script>
         window.addEventListener('load', function () {
             var tag = document.createElement('script');
             tag.async = true;
             tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W';
             document.head.appendChild(tag);
-            document.querySelectorAll('iframe[data-src]').forEach(function (frame) {
-                frame.src = frame.dataset.src;
-            });
         });
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
