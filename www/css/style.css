@@ -116,6 +116,15 @@ h6 {
     height: 380px;
 }
 
+/* No upcoming event, so no sign-up card over the bottom of the photo: a shorter header */
+.home-parallax-compact {
+    height: 280px;
+}
+
+.home-parallax-compact .home-title {
+    margin-top: 96px;
+}
+
 /* Darkens the bottom of the header photo so the white text and the next event link stand out */
 .parallax-container::before {
     content: "";
@@ -913,6 +922,14 @@ table tbody tr td .input-field {
     .home-title {
         margin-top: 96px;
         font-size: 3.2rem;
+    }
+
+    .home-parallax-compact {
+        height: 190px;
+    }
+
+    .home-parallax-compact .home-title {
+        margin-top: 66px;
     }
 
     .next-event-link {
