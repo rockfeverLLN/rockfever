@@ -651,6 +651,11 @@ table tbody tr td .input-field {
     line-height: 1.7;
 }
 
+/* Lines up with the logo and the copyright row, at a width that stays easy to read */
+.footer-social {
+    max-width: 760px;
+}
+
 .page-footer .footer-copyright {
     min-height: 0;
     padding: 18px 0;
