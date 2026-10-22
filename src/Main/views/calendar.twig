@@ -88,7 +88,7 @@
                             {% if not soiree.past %}
                                 <div class="soiree-actions">
                                     <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light">
-                                        <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon agenda<span class="sr-only"> : {{ label }}</span>
+                                        <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon calendrier<span class="sr-only"> : {{ label }}</span>
                                     </a>
                                     <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener">
                                         <i class="mdi mdi-google left" aria-hidden="true"></i>Google<span class="sr-only"> Agenda : {{ label }}</span>
@@ -100,5 +100,16 @@
                 {% endfor %}
             </ol>
         {% endfor %}
+
+        {% if nextSemester %}
+            <h2 class="calendar-semester">{{ nextSemester }}</h2>
+            <div class="soirees-soon">
+                <i class="mdi mdi-calendar-multiple" aria-hidden="true"></i>
+                <p>
+                    <strong>Les dates arrivent bientôt !</strong>
+                    Les soirées du prochain quadrimestre seront annoncées ici. Si tu as ajouté toutes les dates à ton agenda, elles y apparaîtront toutes seules.
+                </p>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

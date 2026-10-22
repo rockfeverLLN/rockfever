@@ -34,6 +34,7 @@ class CalendarAction
         }
         return $this->renderer->render('@main/calendar', [
             'semesters' => $this->calendar->getSemesters(),
+            'nextSemester' => $this->calendar->getNextSemester(),
             'place' => $this->calendar->getPlace(),
             'address' => $this->calendar->getAddress(),
         ]);

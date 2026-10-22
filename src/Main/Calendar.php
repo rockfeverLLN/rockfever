@@ -83,6 +83,19 @@ class Calendar
         return $semesters;
     }
 
+    /**
+     * The quadrimestre after the last listed soirée, announced on the page until its dates are added
+     */
+    public function getNextSemester() : ?string
+    {
+        $last = end($this->soirees);
+        if (!$last) {
+            return null;
+        }
+        [$year, $month] = array_map('intval', explode('-', $last['date']));
+        return $month >= 8 ? 'Février – Mai ' . ($year + 1) : 'Septembre – Décembre ' . $year;
+    }
+
     public function getPlace() : string
     {
         return $this->place;
