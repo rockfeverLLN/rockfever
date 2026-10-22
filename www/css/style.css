@@ -70,6 +70,29 @@ html, body {
     height: 100%;
 }
 
+/* Public pages fill at least the window, with the footer at the bottom instead of a white strip under it */
+.site {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.site > main {
+    flex: 1 0 auto;
+}
+
+/* Pages that are only a header photo (music, errors): the photo grows to fill that space */
+.site > main:has(> .form-parallax-container:only-child, > .error-parallax-container:only-child) {
+    display: flex;
+    flex-direction: column;
+}
+
+.site > main > .form-parallax-container:only-child, .site > main > .error-parallax-container:only-child {
+    flex: 1 0 auto;
+}
+
 h1 {
     font-size: 3.5rem;
     margin: 2rem 0 1.5rem 0;
