@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Liste</title>
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.1.19/css/materialdesignicons.min.css">
+    <style>
+        html {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            font-weight: normal;
+        }
+
+        table {
+            border-collapse: collapse;
+            float: left;
+            margin-right: 10px;
+        }
+
+        table thead tr th {
+            background-color: #dddddd;
+            padding-top: 2px;
+            padding-bottom: 2px;
+            font-weight: bold;
+            min-width: 130px;
+            text-align: center;
+        }
+
+        table tr td, table tr th {
+            border:1px solid #000000;
+            padding-left: 3px;
+        }
+
+        .amber-text {
+            color: #ffc107 !important;
+        }
+
+        .green-text {
+            color: #4CAF50 !important;
+        }
+    </style>
+</head>
+<body>
+
+<table>
+    <thead>
+    <tr>
+        <th>Status</th>
+        <th>Prénom</th>
+        <th>Nom</th>
+        {% if type == "all" or type == "attendees" %}
+            <th>Heure d'arrivée</th>
+        {% endif %}
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for dancer in dancers %}
+        <tr>
+            <td style="text-align: center;">{{ dancer.status|statusToText }}</td>
+            <td>{{ dancer.firstname }}</td>
+            <td>{{ dancer.lastname }}</td>
+            {% if type == "all" or type == "attendees" %}
+                <td style="text-align: center;">
+                    {% if dancer.date is not null and dancer.date != "0000-00-00 00:00:00" %}
+                        {{ dancer.date|date('H:i') }}
+                    {% else %}
+                        --:--
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<strong>Légende :</strong><br>
+<i class='material-icons' style="vertical-align: bottom">check_box_outline_blank</i> = Inscrit <br>
+<i class='material-icons green-text' style="vertical-align: bottom">check_box</i> = Présent <br>
+<i class='material-icons amber-text' style="vertical-align: bottom">star</i> = VIP <br>
+<i class='material-icons' style="vertical-align: bottom">exposure_plus_1</i> = Venue improvisée
+<script>
+    window.print();
+</script>
+</body>
+</html>

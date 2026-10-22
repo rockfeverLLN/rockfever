@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Rock Fever{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.1.19/css/materialdesignicons.min.css">
+    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/style.css"  media="screen,projection"/>
+    <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
+    <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<nav class="koamaru">
+    <div class="nav-wrapper container">
+        <a href="{{ path('home') }}" class="brand-logo">Gallerie</a>
+    </div>
+</nav>
+<div class="container">
+    {% include 'flash.twig' %}
+</div>
+{% block body %}
+{% endblock %}
+
+<script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js"></script>
+<script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://unpkg.com/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+<script type="text/javascript" src="{{ __DIR__ }}/js/script.js"></script>
+<script>
+    new ClipboardJS('.to-clipboard');
+    $(document).ready(function(){
+        $('.grid').masonry({
+            itemSelector: '.col'
+        });
+    });
+</script>
+</body>
+</html>

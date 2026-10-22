@@ -1,0 +1,186 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}Liste de l'événement {{ id }} - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="row" style="height: calc(85% - 64px); margin-bottom: 0;">
+        <div class="col s12 m7 l8 dancers-list dancers-list-background white-text">
+            <div class="container">
+                <div class="row">
+                    <h1 style="margin-top: 80px">Recherchez un danseur :</h1>
+                    <div class="col s12 m10 offset-m1">
+                        <input type="text" name="dancers-search" autocomplete="off" placeholder="Nom du danseur" id="guest-search">
+                    </div>
+                    <div class="col s12 m4 offset-m1 center-align event-list-stat">
+                        <strong id="attendees">-</strong>
+                        <br>
+                        personnes au total
+                        (<span id="revenue">- €</span>)
+                        <br>
+                        <span id="venue-stats">- % des pré-inscrits</span>
+                    </div>
+                    <div class="col hide-on-small-only m4 offset-m2 center-align event-list-stat">
+                        <strong id="improvised">-</strong>
+                        <br>
+                        venues improvisées
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m5 l4 guests-list">
+            <ul class="collection" id="guests-list" style="margin: 0;">
+
+            </ul>
+            <div class="grey lighten-1 white-text guests-list-nothing" style="width: 100%; height: 100%;">
+                <div>
+                    <i class="material-icons" style="font-size:100px; display: block;">search</i>
+                    Aucun élément à afficher
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row koamaru dancers-list white-text" style="height: 15%; width: 100%; margin-bottom: 0;">
+        <div class="container">
+            <div class="row">
+                <div class="col s12" style="margin-top: 8px; margin-bottom: 3px">
+                    <span style="font-size: 20px; font-weight: 400; margin-top: 0;">Ajouter un participant :</span>
+                </div>
+                <div class="col s12 m5">
+                    <input type="text" id="improvised-firstname" name="firstname" autocomplete="off" placeholder="Prénom">
+                </div>
+                <div class="col s12 m5">
+                    <input type="text" id="improvised-lastname" name="lastname" autocomplete="off" placeholder="Nom">
+                </div>
+                <div class="col s12 m2">
+                    <button id="improvised-button">Ajouter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        function updateStatus(elmnt, id, status) {
+            $(elmnt).parent().find(".loader").show();
+            $.post(
+                "{{ path('admin.ajax.dancer.update-status') }}",
+                {
+                    id: id,
+                    status: status,
+                    nocsrf: "0487415359"
+                },
+                function (data) {
+                    console.log(data);
+                    if (data === "OK") {
+                        loadList();
+                        console.log("Dancer : " + id + " has status " + status)
+                    } else {
+                        alert("Oops");
+                    }
+                    $("#guest-search").val("");
+                    $("#guest-search").focus();
+                }
+            )
+        }
+
+        function loadList() {
+            $.get(
+                "{{ path('admin.ajax.dancers.load-list', {id:id}) }}",
+                function (data) {
+                    $("#guests-list").html(data);
+                    filterList();
+                    loadStats();
+                }
+            );
+        }
+
+        function nothingToShow() {
+            if($('#guests-list').children(':visible').length === 0) {
+                $('.guests-list-nothing').show();
+            } else {
+                $('.guests-list-nothing').hide();
+            }
+        }
+
+        function filterList() {
+            var value = $("#guest-search").val().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            console.log(value);
+            $("#guests-list .collection-item").filter(function () {
+                $(this).toggle($("span", this).text().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").indexOf(value) > -1 || value.length === 0);
+            });
+            nothingToShow();
+        }
+
+        function loadStats() {
+            $.get(
+                "{{ path('admin.ajax.dancers.get-stats', {id:id}) }}",
+                function (data) {
+                    var stats = JSON.parse(data);
+
+                    var registered = parseInt(stats[0]);
+                    var here = parseInt(stats[1]);
+                    var vip = parseInt(stats[2]);
+                    var improvised = parseInt(stats[3]);
+
+                    var totalAttendees = here + vip + improvised;
+                    $("#attendees").html(totalAttendees);
+
+                    $("#revenue").html( (here * 2 + improvised * 3) + "€");
+                    $("#improvised").html(improvised);
+                    var venueStat = (totalAttendees/(here + vip + registered));
+                    $("#venue-stats").html(Math.round(venueStat * 10000)/100 + "% des pré-inscrits");
+                }
+            );
+        }
+
+        $(document).ready(function(){
+            loadList();
+
+            $("#guest-search").on("keyup", function() {
+                filterList();
+            });
+
+            $("#improvised-button").click(function () {
+                var $firstname = $("#improvised-firstname");
+                var $lastname = $("#improvised-lastname");
+
+                var firstname = $firstname.val();
+                var lastname = $lastname.val();
+                var status = 3;
+
+                $firstname.val("");
+                $lastname.val("");
+
+                $.post(
+                    "{{ path('admin.ajax.dancer.add-improvised') }}",
+                    {
+                        firstname: firstname,
+                        lastname: lastname,
+                        status: status,
+                        event_id: {{ id }},
+                        nocsrf: "0487415359"
+                    },
+                    function (data) {
+                        if (data === "OK") {
+                            M.toast({html: '<i class="material-icons left">check</i> Ajouté !'});
+                            loadList();
+                            console.log("Dancer : " + id + " has status " + status)
+                            alert(firstname + " " + lastname + " a bien été ajouté");
+                        } else if (data === "ALREADY") {
+                            alert(firstname + " " + lastname + " figurait déjà dans la liste");
+                        } else {
+                            alert("Oops");
+                        }
+                    }
+                )
+            })
+
+            $("#attendees").click(function () {
+                loadList();
+                loadStats();
+            })
+        });
+    </script>
+{% endblock %}

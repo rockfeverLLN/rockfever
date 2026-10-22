@@ -1,0 +1,63 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}A propos - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container">
+        <h1>Sections "A propos"</h1>
+        <table class="striped">
+            <thead>
+            <col width="64px">
+            <col>
+            <col>
+            <col width="200px">
+            <!--<tr>
+                <th>Position</th>
+                <th>Titre</th>
+                <th>Contenu</th>
+                <th></th>
+            </tr>-->
+            </thead>
+            <tbody>
+            {% set tokenInput = csrfInput() %}
+            {% for section in items %}
+                <tr>
+                    <td class="reordering-cell">
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.moveup',{id: section.id}) }}" method="post">
+                            {{ tokenInput | raw }}
+                            <button type="submit" name="moveup" class="btn-flat {% if loop.first %}waves-effect disabled{% endif %}">
+                                <i class="mdi mdi-chevron-up"></i>
+                            </button>
+                        </form>
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.movedown',{id: section.id}) }}" method="post">
+                            {{ tokenInput | raw }}
+                            <button type="submit" name="movedown" class="btn-flat {% if loop.last %}waves-effect disabled{% endif %}">
+                                <i class="mdi mdi-chevron-down"></i>
+                            </button>
+                        </form>
+                    </td>
+                    <td>{{ section.title }}</td>
+                    <td>{{ section.content | excerpt(200) | raw }}</td>
+                    <td>
+                        <a href="{{ path(routePrefix ~ '.edit', {id: section.id}) }}" class="green-text text-lighten-1 tooltipped about-button" data-position="top" data-tooltip="Modifier la section">
+                            <i class="mdi mdi-pencil"></i>
+                        </a>
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: section.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette section ?");'>
+                            {{ tokenInput | raw }}
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="red-text text-lighten-1 tooltipped about-button" data-position="top" data-tooltip="Supprimer la section">
+                                <i class="mdi mdi-delete"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ paginate(items, routePrefix ~ '.index') }}
+    </div>
+
+    <div class="fixed-action-btn">
+        <a href="{{ path('admin.about.create') }}" class="btn-floating btn-large koamaru">
+            <i class="mdi mdi-plus"></i>
+        </a>
+    </div>
+{% endblock %}

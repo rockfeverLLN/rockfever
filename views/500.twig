@@ -1,0 +1,25 @@
+{% extends "layout.twig" %}
+
+{% block title %}Erreur 500 - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="parallax-container error-parallax-container">
+        <div class="white-text container">
+            <div class="center">
+                <h1 class="home-title">
+                    Erreur 500
+                    <br>
+                    <small><small>Une erreur interne est survenue...</small></small>
+                </h1>
+                <br><br>
+                <a href="{{ path('home') }}" class="send-button">
+                    <i class="mdi mdi-home left"></i>
+                    Retourner à l'accueil
+                </a>
+            </div>
+        </div>
+        <div class="parallax">
+            <img src="{{ __DIR__ }}/images/body/bg.png" alt="People dancing rock">
+        </div>
+    </div>
+{% endblock %}

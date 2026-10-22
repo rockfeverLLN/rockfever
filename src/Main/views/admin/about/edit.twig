@@ -1,0 +1,22 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}{{ item.title }} - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ item.title }}</h1>
+        <form action="{{ path('admin.about.edit', {id: item.id}) }}" method="post">
+            {{ csrfInput() }}
+            <div class="row">
+                {% include '@main/admin/about/form.twig' %}
+                <div class="col s12">
+                    <button class="btn koamaru right">Modifier</button>
+                    <a href="{{ path('admin.about.index') }}" class="btn-flat red-text right">Annuler</a>
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+
+{% endblock %}

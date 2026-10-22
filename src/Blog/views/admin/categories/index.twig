@@ -1,0 +1,41 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Categories list{% endblock %}
+
+{% block body %}
+    <h1>Categories</h1>
+
+    <p class="text-right">
+        <a href="{{ path(routePrefix ~ '.create') }}" class="btn btn-primary">
+            Create a category
+        </a>
+    </p>
+    
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <td>Title</td>
+            <td>Actions</td>
+        </tr>
+        </thead>
+        <tbody>
+            {% set tokenInput = csrfInput() %}
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <a href="{{ path(routePrefix ~ '.edit', {id: item.id}) }}" class="btn btn-primary">Edit</a>
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: item.id}) }}" method="post" onsubmit="return confirm('Are you sure?')">
+                            {{ tokenInput | raw }}
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ paginate(items, routePrefix ~ '.index') }}
+{% endblock %}
+

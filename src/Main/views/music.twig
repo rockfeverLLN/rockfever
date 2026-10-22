@@ -1,0 +1,23 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Proposer une musique - Rock Fever{% endblock %}
+
+{% block body %}
+
+<div class="parallax-container">
+    <div class="container">
+        {% include 'flash.twig' %}
+        <div class="center">
+            <h1 class="white-text home-title">Rock Fever</h1>
+            <div class="call-to-action">
+                Tu connais une musique qui n'est encore jamais passée ? Nous ne la connaissons peut-etre pas encore. Fais-la nous découvrir !
+            </div>
+            {% include "@main/musicForm.twig" %}
+        </div>
+    </div>
+    <div class="parallax">
+        <img src="{{ __DIR__ }}/images/body/bg.png" alt="Blue background">
+    </div>
+</div>
+
+{% endblock %}

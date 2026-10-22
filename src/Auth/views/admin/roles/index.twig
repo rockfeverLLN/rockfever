@@ -1,0 +1,31 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Utilisateurs - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container">
+        <h1>Utilisateurs</h1>
+        <div class="row">
+            {% for role in roles %}
+            <div class="col s12 m6">
+                <div class="card" style="border: none; box-shadow: none">
+                    <div class="card-content">
+                        <div class="center">
+                            <img src="{{ __DIR__ }}/images/body/{{ role.role }}.svg" alt="{{ role.label }}">
+                        </div>
+                        <h1 class="center" style="font-size: 2rem; margin-top: 0">{{ role.label }}</h1>
+                        <form action="{{ path('admin.roles.index') }}" method="post">
+                            {{ csrfInput() }}
+                            <input type="hidden" name="id" value="{{ role.id }}">
+                            {{ field('label', role.label, 'Label', {idSuffix:role.id}) }}
+                            {{ field('password', null, 'Nouveau mot de passe', {type:'password', idSuffix:role.id}) }}
+                            <center>
+                                <button class="btn koamaru waves-effect waves-light">Modifier</button>
+                            </center>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

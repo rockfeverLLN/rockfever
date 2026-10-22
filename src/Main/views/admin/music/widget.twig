@@ -1,0 +1,34 @@
+<div class="col s12">
+    <div class="card-panel koamaru white-text" style="padding-top: 10px; background: linear-gradient(45deg, #2980b9, #3bb9fd); border-radius: 15px">
+        <h3 class="center" style="margin-top: 0;">Dernières musiques proposées</h3>
+        {% if items.isEmpty %}
+            <hr>
+            <center>Aucune nouvelle musique n'a été proposée</center>
+            <hr>
+        {% else %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Artiste</th>
+                    <th>Youtube</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set tokenInput = csrfInput() %}
+                {% for music in items %}
+                    <tr>
+                        <td>{{ music.title | excerpt(50) }}</td>
+                        <td>{{ music.artist | excerpt(50) }}</td>
+                        <td>
+                            <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}" class="btn-floating red tooltipped" data-position="top" data-tooltip="Voir sur youtube" target="_blank">
+                                <i class="mdi mdi-play"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,15 @@
+<form action="{{ path('event') }}" method="post">
+    {{ csrfInput() }}
+    <input type="text" name="firstname" placeholder="Prénom" class="register-input">
+    <input type="text" name="lastname" placeholder="Nom" class="register-input">
+    <br>
+    <small class="white-text">
+        En m'inscrivant à cet événement, j'accepte le
+        <a href="{{ path('legal') }}" class="underlined-link" target="_blank">R.O.I. et les conditions générales</a>
+    </small>
+    <br>
+    <button class="send-button disabled">
+        M'inscrire à l'événement
+        <i class="mdi mdi-send right"></i>
+    </button>
+</form>

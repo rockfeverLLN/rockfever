@@ -1,0 +1,59 @@
+<?php
+/**.
+ * Author: Nicolas van de Walle
+ * Website: http://www.nicwalle.com
+ * Date: 03-Mar-18
+ */
+
+namespace App\Events\Table;
+
+use App\Events\Entity\Event;
+use Framework\Database\NoRecordException;
+use Framework\Database\Query;
+use Framework\Database\QueryResult;
+use Framework\Database\Table;
+
+class EventTable extends Table
+{
+
+    protected $entity = Event::class;
+
+    protected $table = 'events';
+
+    public function findAll(): Query
+    {
+        $dancers = new DancerTable($this->getPdo());
+        return $this->makeQuery()
+            ->select('e.*', 'count(d.id) as participantsCount')
+            ->join($dancers->getTable() . ' as d', 'd.event_id = e.id')
+            ->groupBy('e.id')
+            ->order('e.date DESC');
+    }
+
+    public function countByEvent(int $maxResults)
+    {
+        $queryResults = $this->makeQuery()
+            ->select('e.title', 'count(d.id) as count')
+            ->where('d.status != 0', 'e.date < NOW()')
+            ->join('dancers as d', 'd.event_id = e.id')
+            ->groupBy('e.id')
+            ->order('e.date DESC')
+            ->fetchAll();
+        $results = [];
+        for ($i=0; $queryResults->offsetExists($i) && $i < $maxResults; $i++) {
+            $results[] = $queryResults->get($i);
+        }
+        return array_reverse($results);
+    }
+
+    public function findNext()
+    {
+        return $this->makeQuery()
+            ->select('e.*, count(d.id) as participantsCount')
+            ->join('dancers as d', 'd.event_id = e.id')
+            ->where('e.date >= CURDATE()')
+            ->order('e.date ASC')
+            ->groupBy('e.id')
+            ->fetch();
+    }
+}

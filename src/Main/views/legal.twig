@@ -1,0 +1,176 @@
+{% extends 'layout.twig' %}
+{% block title %}R.O.I. & Conditions - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container" style="text-align: justify">
+        {{ roi | raw }}
+        {{ terms | raw }}
+        <!--<h2>Règlement d’ordre intérieur</h2>
+        1. Rock Fever décline toute responsabilité en cas d&#39;accident pendant les activités.
+        Dès lors, il est entre autre du ressort des danseurs d&#39;adapter leurs passes à leur
+        niveau.
+        <br>
+        2. Les participants se tiendront en très bon père de famille.
+        <br>
+        3. Les participants ayant atteint l’âge de 35 ans accomplis ne pourront être autorisés
+        à rentrer.
+        <br>
+        4. Des poubelles sont prévues aux fins de les utiliser.
+        <br>
+        5. Rock Fever décline toute responsabilité en cas de vol ou d&#39;objets endommagés
+        pendant les activités. Nous déconseillons aux danseurs de prendre des objets de
+        valeur avec eux.
+        <br>
+        6. Il est strictement interdit de fumer ou de se trouver en possession de boissons
+        alcoolisées et de stupéfiants au sein du bâtiment abritant les soirées, ainsi que
+        d&#39;être en possession de tout objet ou substance illicite aux yeux de la loi belge. Les
+        alentours du bâtiment sont également concernés.
+        <br>
+        7. Toute personne démontrant des signes de consommation d’alcool ou de
+        stupéfiant se verra quoiqu’il arrive refuser l’entrée et d’autre part expulsée manu
+        militari en dehors du bâtiment.
+        <br>
+        8. Rock Fever se réserve le droit de refuser des personnes à l&#39;entrée et d&#39;expulser
+        des personnes au comportement ne respectant pas ce règlement et/ou évalué
+        comme inopportun ou inadéquat par le staff. Sera entre autres considéré comme
+        inopportun tout comportement vexatoire, insultant ou impoli ; se faire passer
+        pour membre du staff sans l’être ; tenue vestimentaire inadéquate ; etc.
+        <br>
+        9. Le droit d&#39;entrée est réservé en priorité aux personnes s&#39;étant au préalable
+        inscrites sur la liste prévue sur le net. Toute personne ne s&#39;étant inscrite au
+        préalable devra payer un supplément à l&#39;entrée et inscrire son nom sur la liste
+        prévue à cet effet.
+        <br>
+        10. Pour raisons d’assurances, seules les personnes habilitées par le staff à donner
+        des cours de danse (valse, rock, etc.) pourront s’y adonner. A défaut, il est
+        strictement interdit de donner des cours de danse.
+        <br>
+        11. Il est strictement défendu aux danseurs de s&#39;occuper de la caisse et de toucher au
+        matériel, sauf autorisation spéciale par un membre du staff.
+
+        <h2>Terms & conditions</h2>
+        <h6>1. Introduction</h6>
+        These terms and conditions shall govern your use of our website. By using our website, you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions or any part of these terms and conditions, you must not use our website.
+
+        <h6>2. Copyright notice</h6>
+        Copyright &copy; 2018 Rock Fever. Subject to the express provisions of these terms and conditions:
+        we, together with our licensors, own and control all the material on our website;
+        some content may be subject to individual copyright notices (always visible in our website) and are subject to reserved usage rights; and
+        all the copyright and other intellectual property rights in our website and the material on our website are reserved.
+
+        <h6>3. Licence to use the website</h6>
+        You may:
+        view pages from our website in a web browser;
+        download pages from our website for caching in a web browser;
+        download pages from our website for personal, academic or non-profit purposes; and
+        print pages from our website for personal, academic or non-profit usages;
+        subject to the other provisions of these terms and conditions.
+        Except as expressly permitted by Section 3.1 or the other provisions of these terms and conditions, you must not download any material from our website or save any such material to your computer.
+        You may only use our website for your own personal, academic, or non-profit purposes, and you must not use our website for any other purposes.
+        Except as expressly permitted by these terms and conditions, you must not edit or otherwise modify any material that has been extracted from our website.
+        Except the content explicitly licensed under third-party copyrights, you may :
+        republish material from our website; and
+        show any material from our website in public;
+        provided appropriate and explicit credit to our website, in a visible and non-ambiguous manner.
+        <br>
+        You may not :
+        sell, rent or sub-license material from our website; or
+        exploit material from our website for a commercial purpose
+        We reserve the right to restrict access to areas of our website, or indeed our whole website, at our discretion; you must not circumvent or bypass, or attempt to circumvent or bypass, any access restriction measures on our website.
+
+        <h6>4. Acceptable use</h6>
+        You must not:
+        use our website in any way or take any action that causes, or may cause, damage to the website or impairment of the performance, availability or accessibility of the website;
+        use our website in any way that is unlawful, illegal, fraudulent or harmful, or in connection with any unlawful, illegal, fraudulent or harmful purpose or activity;
+        use our website to copy, store, host, transmit, send, use, publish or distribute any material which consists of (or is linked to) any spyware, computer virus, Trojan horse, worm, keystroke logger, rootkit or other malicious computer software;
+        conduct any systematic or automated data collection activities (including without limitation scraping, data mining, data extraction and data harvesting) on or in relation to our website without our express written consent;
+        access or otherwise interact with our website using any robot, spider or other automated means, except for the purpose of search engine indexing;
+        violate the directives set out in the robots.txt file for our website;
+        or use data collected from our website for any direct marketing activity (including without limitation email marketing, SMS marketing, telemarketing and direct mailing).
+        You must not use data collected from our website to contact individuals, companies or other persons or entities.
+        You must ensure that all the information you supply to the website, or in relation to our website, is true, accurate, current, complete and non-misleading.
+
+        <h6>5. Your content : Licenses</h6>
+        In these terms and conditions, "your content" means all works and materials (including without limitation text, graphics, images, audio material, video material, audio-visual material, scripts, software and files) that you submit to our website for storage or publication on, processing by, or transmission via, our website.
+        You grant to us and to other users of our website a worldwide, irrevocable, non-exclusive, royalty-free licence to use, reproduce, store, adapt, publish, translate and distribute your content in any existing or future media under these terms and conditions.
+        You hereby waive all your moral rights in your content to the maximum extent permitted by applicable law; and, apart from content subject to individual copyright applying to linked external resources and clearly indentified as such, you warrant and represent that all other moral rights in your content have been waived to the maximum extent permitted by applicable law.
+        You may edit your content, as well as other users content to the extent permitted using the editing functionality made available on our website.
+        Without prejudice to our other rights under these terms and conditions, if you breach any provision of these terms and conditions in any way, or if we reasonably suspect that you have breached these terms and conditions in any way, we may delete, unpublish or edit any or all of your content.
+
+        <h6>6. Your content: Rules</h6>
+        You warrant and represent that your content will comply with these terms and conditions.
+        Your content must not be illegal or unlawful, must not infringe any person's legal rights, and must not be capable of giving rise to legal action against any person (in each case in any jurisdiction and under any applicable law).
+        Your content refer to appropriate original source, when this source is subject to an individual copyright.
+        Your content, and the use of your content by us in accordance with these terms and conditions, must not:
+        be libellous or maliciously false;
+        be obscene or indecent;
+        infringe any copyright, moral right, database right, trade mark right, design right, right in passing off, or other intellectual property right;
+        infringe any right of confidence, right of privacy or right under data protection legislation;
+        constitute negligent advice or contain any negligent statement;
+        constitute an incitement to commit a crime, instructions for the commission of a crime or the promotion of criminal activity;
+        be in contempt of any court, or in breach of any court order;
+        be in breach of racial or religious hatred or discrimination legislation;
+        be in breach of official secrets legislation;
+        be in breach of any contractual obligation owed to any person;
+        be pornographic, lewd, suggestive or sexually explicit;
+        be untrue, false, inaccurate or misleading;
+        consist of or contain any instructions, advice or other information which may be acted upon and could, if acted upon, cause illness, injury or death, or any other loss or damage; and
+        constitute spam;
+
+        <h6>7. Limited warranties</h6>
+        We do not warrant or represent:
+        the completeness or accuracy of the information published on our website;
+        that the material on the website is up to date; or
+        that the website or any service on the website will remain available.
+        We reserve the right to discontinue or alter any or all of our website services, and to stop publishing our website, at any time in our sole discretion without notice or explanation; and save to the extent expressly provided otherwise in these terms and conditions, you will not be entitled to any compensation or other payment upon the discontinuance or alteration of any website services, or if we stop publishing the website.
+        To the maximum extent permitted by applicable law and subject to Section 8.1, we exclude all representations and warranties relating to the subject matter of these terms and conditions, our website and the use of our website.
+
+        <h6>8. Limitations and exclusions of liability</h6>
+        Nothing in these terms and conditions will:
+        limit or exclude any liability for death or personal injury resulting from negligence;
+        limit or exclude any liability for fraud or fraudulent misrepresentation;
+        limit any liabilities in any way that is not permitted under applicable law; or
+        exclude any liabilities that may not be excluded under applicable law.
+        The limitations and exclusions of liability set out in this Section 8 and elsewhere in these terms and conditions:
+        are subject to Section 8.1; and
+        govern all liabilities arising under these terms and conditions or relating to the subject matter of these terms and conditions, including liabilities arising in contract, in tort (including negligence) and for breach of statutory duty, except to the extent expressly provided otherwise in these terms and conditions.
+        To the extent that our website and the information and services on our website are provided free of charge, we will not be liable for any loss or damage of any nature.
+        We will not be liable to you in respect of any losses arising out of any event or events beyond our reasonable control.
+        We will not be liable to you in respect of any business losses, including (without limitation) loss of or damage to profits, income, revenue, use, production, anticipated savings, business, contracts, commercial opportunities or goodwill.
+        We will not be liable to you in respect of any loss or corruption of any data, database or software.
+        We will not be liable to you in respect of any special, indirect or consequential loss or damage.
+        You accept that we have an interest in limiting the personal liability of our officers and employees and, having regard to that interest, you acknowledge that we are a limited liability entity; you agree that you will not bring any claim personally against our officers or employees in respect of any losses you suffer in connection with the website or these terms and conditions (this will not, of course, limit or exclude the liability of the limited liability entity itself for the acts and omissions of our officers and employees).
+
+        <h6>9. Breaches of these terms and conditions</h6>
+        Without prejudice to our other rights under these terms and conditions, if you breach these terms and conditions in any way, or if we reasonably suspect that you have breached these terms and conditions in any way, we may:
+        send you one or more formal warnings;
+        temporarily suspend your access to our website;
+        permanently prohibit you from accessing our website;
+        block computers using your IP address from accessing our website;
+        contact any or all of your internet service providers and request that they block your access to our website;
+        commence legal action against you, whether for breach of contract or otherwise;
+        Where we suspend or prohibit or block your access to our website or a part of our website, you must not take any action to circumvent such suspension or prohibition or blocking.
+
+        <h6>10. Variation</h6>
+        We may revise these terms and conditions from time to time. We will give you written notice of any revision of these terms and conditions, and the revised terms and conditions will apply to the use of our website from the date that we give you such notice; if you do not agree to the revised terms and conditions, you must stop using our website.
+
+        <h6>11. Assignment</h6>
+        You hereby agree that we may assign, transfer, sub-contract or otherwise deal with our rights and/or obligations under these terms and conditions. You may not without our prior written consent assign, transfer, sub-contract or otherwise deal with any of your rights and/or obligations under these terms and conditions.
+
+        <h6>12. Severability</h6>
+        If a provision of these terms and conditions is determined by any court or other competent authority to be unlawful and/or unenforceable, the other provisions will continue in effect. If any unlawful and/or unenforceable provision of these terms and conditions would be lawful or enforceable if part of it were deleted, that part will be deemed to be deleted, and the rest of the provision will continue in effect.
+
+        <h6>13. Third party rights</h6>
+        A contract under these terms and conditions is for our benefit and your benefit, and is not intended to benefit or be enforceable by any third party. The exercise of the parties rights under a contract under these terms and conditions is not subject to the consent of any third party.
+
+        <h6>14. Entire agreement</h6>
+        Subject to Section 8.1, these terms and conditions, shall constitute the entire agreement between you and us in relation to your use of our website and shall supersede all previous agreements between you and us in relation to your use of our website.
+
+        <h6>15. Law and jurisdiction</h6>
+        These terms and conditions shall be governed by and construed in accordance with Belgian law. Any disputes relating to these terms and conditions shall be subject to the exclusive jurisdiction of the courts of Belgium.
+
+        <h6>16. Statutory and regulatory disclosures</h6>
+        You can contact us by email, as published in our contact tab.
+        -->
+    </div>
+    <br>
+{% endblock %}

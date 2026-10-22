@@ -1,0 +1,19 @@
+<li class="{{ isSubPath('admin.music.index') ? 'active' }}">
+    <a href="{{ path('admin.music.index') }}">Musiques</a>
+</li>
+{% if isAdmin() %}
+<li class="{{ isSubPath('admin.about.index') ? 'active' }}">
+    <a href="{{ path('admin.about.index') }}">A propos</a>
+</li>
+<li class="{{ (isSubPath('admin.values.index') or isSubPath('admin.roles.index')) ? 'active' }}">
+    <a class="dropdown-trigger" data-target="params-dropdown" href="#">Paramètres <i class="mdi mdi-menu-down right"></i></a>
+</li>
+<ul id="params-dropdown" class="dropdown-content">
+    <li class="{{ isSubPath('admin.roles.index') ? 'active' }}">
+        <a href="{{ path('admin.roles.index') }}">Utilisateurs</a>
+    </li>
+    <li class="{{ isSubPath('admin.values.index') ? 'active' }}">
+        <a href="{{ path('admin.values.index') }}">Valeurs</a>
+    </li>
+</ul>
+{% endif %}

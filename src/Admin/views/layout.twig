@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Rock Fever{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.1.19/css/materialdesignicons.min.css">
+    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.css"  media="screen,projection"/>
+    <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
+
+    {% block css %}{% endblock %}
+
+    <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body class="{% block bodyColor %}{% endblock %}">
+{% include "@admin/topbar.twig" %}
+
+<div class="container">
+    {% include 'flash.twig' %}
+</div>
+
+{% block body %}{% endblock %}
+
+<script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js"></script>
+<script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js"></script>
+
+<script src="https://cloud.tinymce.com/stable/tinymce.min.js?apiKey=t8w534h7okpu1ptl2yh18ppy6sv24b5nr282cdtjzq61b88x"></script>
+{% block js %}{% endblock %}
+<script type="text/javascript" src="{{ __DIR__ }}/js/script.js"></script>
+</body>
+</html>

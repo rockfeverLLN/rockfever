@@ -8,13 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
+      # Uploads the project to the hosting root (www/ is the web root).
+      # config/database.php is not in git and stays on the server untouched.
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           lftp --env-password -u rockfevexj sftp://$FTP_HOST -e "
             set sftp:auto-confirm yes;
-            mirror --reverse --verbose --exclude '^\.git' ./ www/;
+            set mirror:parallel-transfer-count 4;
+            mirror --reverse --verbose --exclude '^\.git' --exclude '^vendor/' --exclude '^tmp/' ./ ./;
+            mirror --reverse --delete --verbose vendor/ vendor/;
+            rm -r -f tmp/views tmp/routes tmp/di tmp/proxies;
             quit"
