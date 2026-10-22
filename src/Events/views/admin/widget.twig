@@ -93,7 +93,7 @@
             datasets: [
                 {% for event in countForChart %}
                 {
-                    label: "{{ event.title | removeSpecialChars }}",
+                    label: "{{ event.title | e('js') }}",
                     data: [{{ event.count }}],
                     backgroundColor: [
                         '{{ event.color }}'
