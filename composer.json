@@ -5,14 +5,14 @@
     "require": {
         "php": "^8.5",
         "ext-pdo": "*",
-        "guzzlehttp/psr7": "^2.7",
-        "intervention/image": "^2.7",
+        "guzzlehttp/psr7": "^3.2",
+        "intervention/image": "^4.4",
         "laminas/laminas-httphandlerrunner": "^2.10",
         "mezzio/mezzio-fastroute": "^3.11",
         "middlewares/whoops": "^2.0",
         "pagerfanta/pagerfanta": "^4.7",
         "php-di/php-di": "^7.0",
-        "phpmailer/phpmailer": "^6.9",
+        "phpmailer/phpmailer": "^7.1",
         "psr/container": "^2.0",
         "psr/http-server-middleware": "^1.0",
         "twig/twig": "^3.14"
