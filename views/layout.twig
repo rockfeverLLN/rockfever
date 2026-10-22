@@ -3,8 +3,24 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- The site's scripts and the Google tag (gtag.js) are only needed once the page is shown: they load after its
-         first paint, so that on a slow connection they don't hold it back -->
+    <!-- Google tag (gtag.js), as Google gives it, so Analytics' tag check finds it. async: it doesn't block the page -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
+        gtag('consent', 'default', {
+            'analytics_storage': 'denied',
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied'
+        });
+        gtag('js', new Date());
+
+        gtag('config', 'G-MKKLSTRX4W');
+    </script>
+    <!-- The site's scripts are only needed once the page is shown: they load after its first paint, so that on a slow
+         connection they don't hold it back -->
     <script>
         (function () {
             var loaded = false;
@@ -16,8 +32,7 @@
                 [
                     '{{ asset('/js/jquery.min.js') }}',
                     '{{ asset('/js/materialize.min.js') }}',
-                    '{{ asset('/js/script.js') }}',
-                    'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W'
+                    '{{ asset('/js/script.js') }}'
                 ].forEach(function (src) {
                     var tag = document.createElement('script');
                     // Run them in this order, like defer did: jQuery, then Materialize, then the site's script
@@ -38,18 +53,6 @@
                 setTimeout(loadScripts, 1000);
             });
         })();
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
-        gtag('consent', 'default', {
-            'analytics_storage': 'denied',
-            'ad_storage': 'denied',
-            'ad_user_data': 'denied',
-            'ad_personalization': 'denied'
-        });
-        gtag('js', new Date());
-
-        gtag('config', 'G-MKKLSTRX4W');
     </script>
     <title>{% block title %}Rock Fever{% endblock %}</title>
     <meta name="description" content="{% block description %}Rock Fever, le rock à Louvain-la-Neuve : prochain événement, inscriptions et propositions de musique.{% endblock %}"/>
