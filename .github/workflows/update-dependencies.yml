@@ -1,0 +1,132 @@
+name: Update dependencies
+on:
+  schedule:
+    # Every Monday at 04:00 UTC
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: update-dependencies
+  cancel-in-progress: false
+
+permissions:
+  contents: write  # push the updated composer.lock
+  actions: write   # start the deploy (pushes made with this job's token don't trigger it on their own)
+  issues: write    # keep the "breaking updates available" issue current
+
+# Installs the newest versions allowed by composer.json (minor and patch releases, never a major one),
+# boots the site on a fresh database, loads the main pages with bin/smoke-test.sh and only then
+# commits and deploys. Same rule as deploy.yml: no marketplace actions, only plain git and official images.
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_DATABASE: rockfever
+          MARIADB_USER: rockfever
+          MARIADB_PASSWORD: ci
+          MARIADB_ROOT_PASSWORD: ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git clone --quiet "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
+          git checkout --quiet main
+      # Same PHP version as the server, read from .ovhconfig
+      - name: Read PHP version
+        run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
+      - name: Update packages
+        run: |
+          composer() {
+            docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
+              composer:2 "$@"
+          }
+          # Only pick versions that run on the server's PHP, even if the Composer image has a newer one
+          composer config platform.php "$PHP_VERSION"
+          composer update --no-interaction --no-progress 2>&1 | tee composer-update.log
+          if git diff --quiet composer.json composer.lock; then
+            echo "Everything is already up to date"
+            echo "CHANGED=false" >> "$GITHUB_ENV"
+          else
+            echo "CHANGED=true" >> "$GITHUB_ENV"
+          fi
+          composer outdated --direct --major-only --no-interaction > breaking.txt || true
+      - name: Check PHP syntax
+        if: env.CHANGED == 'true'
+        run: |
+          docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
+            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
+      - name: Start the site on a test database
+        if: env.CHANGED == 'true'
+        run: |
+          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+          cat > config/database.php <<'EOF'
+          <?php
+          return [
+              'database.host'     => '127.0.0.1',
+              'database.username' => 'rockfever',
+              'database.password' => 'ci',
+              'database.name'     => 'rockfever',
+          ];
+          EOF
+          site() {
+            docker run --rm --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php "$@"
+          }
+          site vendor/bin/phinx migrate
+          site vendor/bin/phinx seed:run
+          docker run -d --name site --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php \
+            php -S 127.0.0.1:8000 -t www bin/router.php
+          sleep 2
+      - name: Load the main pages
+        if: env.CHANGED == 'true'
+        run: bin/smoke-test.sh http://127.0.0.1:8000
+      - name: Show the site's error output
+        if: failure() && env.CHANGED == 'true'
+        run: docker logs site
+      - name: Commit and deploy
+        if: env.CHANGED == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          {
+            echo "Update PHP packages"
+            echo
+            # Only the version changes written to composer.lock, not the install of every package that follows
+            sed -n '/^Lock file operations/,/^Writing lock file/p' composer-update.log | grep -E '^\s*- ' | sed 's/^\s*//'
+          } > commit-message.txt
+          git commit --quiet -F commit-message.txt composer.json composer.lock
+          git push --quiet origin HEAD:main
+          gh workflow run deploy.yml --ref main
+          cat commit-message.txt >> "$GITHUB_STEP_SUMMARY"
+      # Major versions can break the site, so they are only reported, in one issue kept up to date
+      - name: Report breaking updates
+        if: always()
+        run: |
+          TITLE="Breaking package updates available"
+          ISSUE=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITLE\" in:title" --json number --jq '.[0].number')
+          if grep -q '\S' breaking.txt; then
+            {
+              echo "These packages have a new major version. It may need code changes, so it isn't installed automatically:"
+              echo
+              echo '```'
+              cat breaking.txt
+              echo '```'
+            } > issue.md
+            if [ -n "$ISSUE" ]; then
+              gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file issue.md
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file issue.md
+            fi
+          elif [ -n "$ISSUE" ]; then
+            gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY" --comment "All packages are on their latest major version now."
+          fi

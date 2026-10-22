@@ -1,6 +1,7 @@
 <?php
 namespace Framework;
 
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\ImageManager;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -39,7 +40,7 @@ class Upload
             $targetPath = $this->addCopySuffix($this->path . '/' . $file->getClientFilename());
             $dirname = pathinfo($targetPath, PATHINFO_DIRNAME);
             if (!file_exists($dirname)) {
-                mkdir($dirname, 777, true);
+                mkdir($dirname, 0755, true);
             }
             $file->moveTo($targetPath);
 
@@ -97,15 +98,10 @@ class Upload
             return;
         }
         try {
-            $manager = new ImageManager(['driver' => 'gd']);
-            $image = $manager->make($targetPath);
-            if (function_exists('exif_read_data')) {
-                $image->orientate();
-            }
-            $image->resize($this->maxSize, $this->maxSize, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })->save($targetPath, 80);
+            // Photos are turned upright from their EXIF data when they are read
+            (new ImageManager(GdDriver::class))->decodePath($targetPath)
+                ->scaleDown($this->maxSize, $this->maxSize)
+                ->save($targetPath, quality: 80);
         } catch (\Throwable $e) {
             // Keep the original file if it can't be processed
         }
@@ -113,11 +109,11 @@ class Upload
 
     private function generateFormats($targetPath)
     {
+        $manager = new ImageManager(GdDriver::class);
         foreach ($this->formats as $format => $size) {
-            $manager = new ImageManager(['driver' => 'gd']);
             $destination = $this->getPathWithSuffix($targetPath, $format);
             [$width, $height] = $size;
-            $manager->make($targetPath)->fit($width, $height)->save($destination);
+            $manager->decodePath($targetPath)->cover($width, $height)->save($destination);
         }
     }
 }
