@@ -6,15 +6,20 @@
     <title>{% block title %}Rock Fever{% endblock %}</title>
     <meta name="description" content="{% block description %}Rock Fever, le rock à Louvain-la-Neuve : prochain événement, inscriptions et propositions de musique.{% endblock %}"/>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
+    <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2" as="font" type="font/woff2" crossorigin/>
     {% block head %}{% endblock %}
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet"/>
+    {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
+    <style>{{ source('critical.css') }}</style>
     {# Icon font loaded without blocking the first paint #}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css"></noscript>
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/style.css"  media="screen,projection"/>
+    <link rel="preload" href="{{ __DIR__ }}/css/materialize.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="{{ __DIR__ }}/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <noscript>
+        <link rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"/>
+        <link rel="stylesheet" href="{{ __DIR__ }}/css/style.css"/>
+    </noscript>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
 </head>
 
