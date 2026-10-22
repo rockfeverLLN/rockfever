@@ -1,6 +1,9 @@
 <?php
 // Builds views/critical.css: the rules of materialize.min.css and style.css that the public pages use.
 // layout.twig inlines it so the first paint doesn't wait for the stylesheets, which then load in the background.
+// Also builds www/css/site.css, the one stylesheet those pages load: the part of Materialize they use (with the classes
+// its scripts add on them: side menu, modal, waves, form fields), then all of style.css. One file, so both apply at
+// the same moment: loaded apart, Materialize alone briefly overrode the first-paint rules and moved the page.
 // Run it again after changing the CSS or the classes used in the public templates:
 //
 //   php bin/critical-css.php                                     # pages of https://www.rockfever.be
@@ -14,7 +17,12 @@ $bases = array_slice($argv, 1) ?: ['https://www.rockfever.be'];
 if (!array_filter($bases, fn ($base) => !is_file($base))) {
     array_unshift($bases, 'https://www.rockfever.be');
 }
-$paths = ['/', '/event', '/music', '/contact', '/legal', '/login', '/page-not-found'];
+$paths = ['/', '/event', '/calendrier', '/music', '/contact', '/legal', '/login', '/page-not-found'];
+// Classes that only exist once Materialize's scripts run: sidenav(), modal(), Waves, the labels and textarea of
+// text fields, formSelect() (the login's role)
+$scriptClasses = '/sidenav-overlay|drag-target|waves-|modal-overlay|\.open\b|\.active\b|\.valid\b|\.invalid\b'
+    . '|select-wrapper|select-dropdown|dropdown-content|\.caret\b|hiddendiv|character-counter|helper-text|\.selected\b'
+    . '|\.disabled\b|optgroup/';
 $stylesheets = ["$root/www/css/materialize.min.css", "$root/www/css/style.css"];
 
 $context = stream_context_create(['http' => [
@@ -139,22 +147,30 @@ function minify(string $css): string
     return trim(preg_replace('/\s*([{};])\s*/', '$1', $css));
 }
 
-function keepUsed(array $items, array $documents): string
+/**
+ * @param string|null $keep selectors matching this pattern are kept even when no page uses them
+ * @param bool $animations keep the @keyframes too (the first paint doesn't need them)
+ */
+function keepUsed(array $items, array $documents, ?string $keep = null, bool $animations = false): string
 {
     $css = '';
     foreach ($items as $item) {
         if (isset($item['children'])) {
-            $inner = keepUsed($item['children'], $documents);
+            $inner = keepUsed($item['children'], $documents, $keep, $animations);
             if ($inner !== '') {
                 $css .= minify($item['prelude']) . '{' . $inner . '}';
             }
         } elseif (isset($item['at'])) {
-            // Fonts are needed for the first paint, animations are not
             if (stripos($item['prelude'], '@font-face') === 0) {
                 $css .= '@font-face{' . minify($item['body']) . '}';
+            } elseif ($animations && preg_match('/^@(-webkit-)?keyframes\b/i', $item['prelude'])) {
+                $css .= minify($item['prelude']) . '{' . minify($item['body']) . '}';
             }
         } else {
-            $used = array_filter(splitSelectors($item['selector']), fn ($s) => isUsed($s, $documents));
+            $used = array_filter(
+                splitSelectors($item['selector']),
+                fn ($s) => ($keep && preg_match($keep, $s)) || isUsed($s, $documents)
+            );
             if ($used) {
                 $css .= minify(implode(',', $used)) . '{' . minify($item['body']) . '}';
             }
@@ -170,3 +186,13 @@ foreach ($stylesheets as $file) {
 }
 file_put_contents("$root/views/critical.css", $output . "\n");
 printf("views/critical.css: %d KB from %d pages\n", strlen($output) / 1024, count($documents));
+
+$materialize = preg_replace('#/\*.*?\*/#s', '', file_get_contents("$root/www/css/materialize.min.css"));
+$site = keepUsed(parseCss($materialize), $documents, $scriptClasses, true)
+    . minify(preg_replace('#/\*.*?\*/#s', '', file_get_contents("$root/www/css/style.css")));
+file_put_contents(
+    "$root/www/css/site.css",
+    "/* Built by bin/critical-css.php: the part of materialize.min.css (MIT, materializecss.com) the public pages use, then style.css */\n"
+    . $site . "\n"
+);
+printf("www/css/site.css: %d KB (all of Materialize and style.css: %d KB)\n", strlen($site) / 1024, (strlen($materialize) + filesize("$root/www/css/style.css")) / 1024);

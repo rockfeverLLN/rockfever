@@ -42,8 +42,19 @@ if [ -n "$DEPLOYED_SHA" ] && git cat-file -e "$DEPLOYED_SHA^{commit}" 2>/dev/nul
     done < <(git -c core.quotePath=false diff -z --name-status --no-renames "$DEPLOYED_SHA" HEAD -- . "${EXCLUDE[@]}")
 else
     echo "No previous deploy recorded, uploading everything"
-    COMMANDS+=" mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' ./ ./;"
+    COMMANDS+=" mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' --exclude '^config/database\.php$' ./ ./;"
 fi
+
+# Built by bin/critical-css.php in deploy.yml and not in git, so not in the diff above: always upload them,
+# over the previous build (after any "rm" above, for the deploy that took them out of git)
+for built in views/critical.css www/css/site.css; do
+    if [ -f "$built" ]; then
+        echo "  upload $built (built)"
+        COMMANDS+=" put $(quote "$built") -o $(quote "$built");"
+    fi
+done
+# Built by earlier deploys and no longer used (merged into site.css)
+COMMANDS+=" rm -f www/css/materialize.site.css;"
 
 LOCK_HASH=$(sha256sum composer.lock | cut -c1-64)
 if [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; then

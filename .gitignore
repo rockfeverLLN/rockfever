@@ -21,3 +21,7 @@ Thumbs.db
 
 # Written by bin/deploy.sh
 /.deployed-sha
+
+# Built by bin/critical-css.php at every deploy (deploy.yml)
+/views/critical.css
+/www/css/site.css

@@ -31,7 +31,7 @@
         {% for item in items %}
             <section class="home-section rich-text">
                 <h2>{{ item.title }}</h2>
-                <div>{{ item.content | lazyImages(loop.first ? 1 : 0) | raw }}</div>
+                <div>{{ item.content | lazyImages | raw }}</div>
             </section>
         {% endfor %}
         {% if members %}

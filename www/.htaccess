@@ -15,7 +15,7 @@ RewriteRule ^(.*)$ /index.php [NC,L,QSA]
 
 AddType font/woff2 .woff2
 
-# Let browsers cache static files. Images are replaced under a new name, CSS/JS keep their name so they get less.
+# Let browsers cache static files. Images are replaced under a new name; CSS/JS without a ?v= version get less.
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/webp "access plus 1 year"
@@ -27,4 +27,15 @@ AddType font/woff2 .woff2
     ExpiresByType text/css "access plus 1 week"
     ExpiresByType application/javascript "access plus 1 week"
     ExpiresByType text/javascript "access plus 1 week"
+</IfModule>
+
+# Versioned CSS, JS and fonts (?v=, see src/Framework/Twig/AssetExtension.php) get a new URL whenever they change:
+# keep them for a year
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff2)$">
+        <If "%{QUERY_STRING} =~ /(^|&)v=/">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+            Header unset Expires
+        </If>
+    </FilesMatch>
 </IfModule>
