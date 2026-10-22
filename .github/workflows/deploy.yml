@@ -19,6 +19,20 @@ jobs:
     runs-on: ubuntu-latest
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
+    # Test database for the site that bin/critical-css.php reads to build the trimmed CSS
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_DATABASE: rockfever
+          MARIADB_USER: rockfever
+          MARIADB_PASSWORD: ci
+          MARIADB_ROOT_PASSWORD: ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - name: Checkout
         env:
@@ -30,14 +44,53 @@ jobs:
       # Same PHP version as the server, read from .ovhconfig
       - name: Read PHP version
         run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
+      # With the dev packages first: Phinx sets up the test database below
       - name: Install dependencies
         run: |
           docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
-            composer:2 install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
+            composer:2 install --no-interaction --ignore-platform-req=php
       - name: Check PHP syntax
         run: |
           docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
             sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
+      # views/critical.css and www/css/materialize.site.css aren't in git: they're built here from the pages of this
+      # commit, so they always match its templates and CSS, and bin/deploy.sh uploads them over the previous ones
+      - name: Build the trimmed CSS
+        run: |
+          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+          cat > config/database.php <<'EOF'
+          <?php
+          return [
+              'database.host'     => '127.0.0.1',
+              'database.username' => 'rockfever',
+              'database.password' => 'ci',
+              'database.name'     => 'rockfever',
+          ];
+          EOF
+          site() {
+            docker run --rm --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php "$@"
+          }
+          site vendor/bin/phinx migrate
+          site vendor/bin/phinx seed:run
+          docker run -d --name site --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php \
+            php -S 127.0.0.1:8000 -t www bin/router.php
+          sleep 2
+          # The seeded events are past: save the home page like this (shorter header), then add an upcoming event
+          # so the sign-up link and the event page are read too
+          curl -sf http://127.0.0.1:8000/ > home-no-event.html
+          docker run --rm --network host mariadb:11 mariadb -h 127.0.0.1 -u rockfever -pci rockfever -e "
+            INSERT INTO events (title, description, date, waltz_time, rock_time, place, price, facebook_link, covevent_link, closed)
+            VALUES ('Soirée', 'Description', CURDATE() + INTERVAL 7 DAY, '20:00', '21:00', 'Hall Sainte-Barbe', '3 €',
+                    'https://www.facebook.com/rockfeverlln', '', 0)"
+          # The live pages add the real content written in the admin; build without them if the site doesn't answer
+          site php bin/critical-css.php https://www.rockfever.be http://127.0.0.1:8000 home-no-event.html \
+            || site php bin/critical-css.php http://127.0.0.1:8000 home-no-event.html
+          docker rm -f site
+          rm config/database.php home-no-event.html
+      - name: Remove the dev dependencies
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
+            composer:2 install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
       # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
       - name: Install lftp
         timeout-minutes: 5

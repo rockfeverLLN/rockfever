@@ -34,12 +34,14 @@
     <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2?v=4c26ce59" as="font" type="font/woff2" crossorigin/>
     <link rel="preload" href="{{ __DIR__ }}/fonts/inter.woff2?v=8e433c05" as="font" type="font/woff2" crossorigin/>
     {% block head %}{% endblock %}
-    {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
-    <style>{{ source('critical.css') }}</style>
-    <link rel="preload" href="{{ asset('/css/materialize.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    {# Rules the public pages need for the first paint, the full stylesheets load in the background. critical.css and
+       materialize.site.css are built by bin/critical-css.php at every deploy (not in git): without them, as in a fresh
+       checkout, the page simply waits for the stylesheets and uses all of Materialize #}
+    <style>{{ source('critical.css', ignore_missing = true) }}</style>
+    <link rel="preload" href="{{ asset('/css/materialize.site.css', '/css/materialize.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
     <link rel="preload" href="{{ asset('/css/style.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
     <noscript>
-        <link rel="stylesheet" href="{{ asset('/css/materialize.min.css') }}"/>
+        <link rel="stylesheet" href="{{ asset('/css/materialize.site.css', '/css/materialize.min.css') }}"/>
         <link rel="stylesheet" href="{{ asset('/css/style.css') }}"/>
     </noscript>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>

@@ -24,10 +24,16 @@ class AssetExtension extends \Twig\Extension\AbstractExtension
         ];
     }
 
-    public function asset(string $path) : string
+    /**
+     * @param string|null $fallback file to use when $path doesn't exist, e.g. a file only built by the deploy
+     */
+    public function asset(string $path, ?string $fallback = null) : string
     {
         if (!isset($this->urls[$path])) {
             $file = dirname(__DIR__, 3) . '/www' . $path;
+            if (!is_file($file) && $fallback !== null) {
+                return $this->asset($fallback);
+            }
             $this->urls[$path] = is_file($file) ? $path . '?v=' . hash_file('crc32b', $file) : $path;
         }
         return $this->urls[$path];
