@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block body %}
-    <div class="parallax-container home-parallax-container">
+    {%- set hasNextEvent = nextEventExist() %}
+    <div class="parallax-container home-parallax-container{{ hasNextEvent ? '' : ' home-parallax-compact' }}">
         <div class="container">
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
@@ -19,7 +20,7 @@
             <img src="{{ __DIR__ }}/images/body/bg.webp" alt="People dancing rock" width="1412" height="796" fetchpriority="high">
         </div>
     </div>
-    {% if nextEventExist() %}
+    {% if hasNextEvent %}
     <a href="{{ path('event') }}" class="next-event-link koamaru">
         Inscris-toi à notre prochain événement !
     </a>

@@ -70,6 +70,29 @@ html, body {
     height: 100%;
 }
 
+/* Public pages fill at least the window, with the footer at the bottom instead of a white strip under it */
+.site {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.site > main {
+    flex: 1 0 auto;
+}
+
+/* Pages that are only a header photo (music, errors): the photo grows to fill that space */
+.site > main:has(> .form-parallax-container:only-child, > .error-parallax-container:only-child) {
+    display: flex;
+    flex-direction: column;
+}
+
+.site > main > .form-parallax-container:only-child, .site > main > .error-parallax-container:only-child {
+    flex: 1 0 auto;
+}
+
 h1 {
     font-size: 3.5rem;
     margin: 2rem 0 1.5rem 0;
@@ -114,6 +137,15 @@ h6 {
 
 .home-parallax-container {
     height: 380px;
+}
+
+/* No upcoming event, so no sign-up card over the bottom of the photo: a shorter header */
+.home-parallax-compact {
+    height: 280px;
+}
+
+.home-parallax-compact .home-title {
+    margin-top: 96px;
 }
 
 /* Darkens the bottom of the header photo so the white text and the next event link stand out */
@@ -642,6 +674,11 @@ table tbody tr td .input-field {
     line-height: 1.7;
 }
 
+/* Lines up with the logo and the copyright row, at a width that stays easy to read */
+.footer-social {
+    max-width: 760px;
+}
+
 .page-footer .footer-copyright {
     min-height: 0;
     padding: 18px 0;
@@ -913,6 +950,14 @@ table tbody tr td .input-field {
     .home-title {
         margin-top: 96px;
         font-size: 3.2rem;
+    }
+
+    .home-parallax-compact {
+        height: 190px;
+    }
+
+    .home-parallax-compact .home-title {
+        margin-top: 66px;
     }
 
     .next-event-link {

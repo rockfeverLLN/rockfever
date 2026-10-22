@@ -3,16 +3,13 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Google tag (gtag.js) and the footer's Facebook frame, loaded once the page has finished loading so they don't compete with it -->
+    <!-- Google tag (gtag.js), loaded once the page has finished loading so it doesn't compete with it -->
     <script>
         window.addEventListener('load', function () {
             var tag = document.createElement('script');
             tag.async = true;
             tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W';
             document.head.appendChild(tag);
-            document.querySelectorAll('iframe[data-src]').forEach(function (frame) {
-                frame.src = frame.dataset.src;
-            });
         });
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -39,11 +36,11 @@
     {% block head %}{% endblock %}
     {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
     <style>{{ source('critical.css') }}</style>
-    <link rel="preload" href="{{ __DIR__ }}/css/materialize.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
-    <link rel="preload" href="{{ __DIR__ }}/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="{{ asset('/css/materialize.min.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="{{ asset('/css/style.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
     <noscript>
-        <link rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"/>
-        <link rel="stylesheet" href="{{ __DIR__ }}/css/style.css"/>
+        <link rel="stylesheet" href="{{ asset('/css/materialize.min.css') }}"/>
+        <link rel="stylesheet" href="{{ asset('/css/style.css') }}"/>
     </noscript>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
 </head>
@@ -60,8 +57,8 @@
 
     {% include "footer.twig" %}
 
-    <script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js" defer></script>
-    <script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js" defer></script>
-    <script type="text/javascript" src="{{ __DIR__ }}/js/script.js" defer></script>
+    <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('/js/materialize.min.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('/js/script.js') }}" defer></script>
 </body>
 </html>
