@@ -2,15 +2,19 @@ name: Deploy to OVH
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftp.cluster105.hosting.ovh.net
-          username: rockfevexj
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          server-dir: www/
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+      - name: Upload via SFTP
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net -e "
+            set sftp:auto-confirm yes;
+            mirror --reverse --verbose --exclude '^\.git' ./ www/;
+            quit"
