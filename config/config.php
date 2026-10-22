@@ -37,7 +37,9 @@ return [
     PHPMailer::class => \DI\autowire(PHPMailer::class)->constructor(true),
     \PDO::class => function(ContainerInterface $c){
         return new \PDO(
-            'mysql:host=' . $c->get('database.host') . ';dbname=' . $c->get('database.name'),
+            // Without a charset, PDO talks in the server's default (latin1 on old MySQL setups) and stores
+            // accented input double-encoded: "Måneskin" becomes "MÃ¥neskin"
+            'mysql:host=' . $c->get('database.host') . ';dbname=' . $c->get('database.name') . ';charset=utf8mb4',
             $c->get('database.username'),
             $c->get('database.password'),
             [
