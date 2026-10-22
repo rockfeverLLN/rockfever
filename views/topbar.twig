@@ -14,6 +14,9 @@
             <li class="{{ isSubPath('calendar') ? 'active' }}">
                 <a href="{{ path('calendar') }}"><i class="mdi mdi-calendar-multiple left" aria-hidden="true"></i> Calendrier</a>
             </li>
+            <li class="{{ isSubPath('photos') ? 'active' }}">
+                <a href="{{ path('photos') }}"><i class="mdi mdi-camera left" aria-hidden="true"></i> Photos</a>
+            </li>
             <li class="{{ isSubPath('music') ? 'active' }}">
                 <a href="{{ path('music') }}"><i class="mdi mdi-music left" aria-hidden="true"></i> Proposer un rock</a>
             </li>
@@ -37,6 +40,9 @@
         {% endif %}
         <li class="{{ isSubPath('calendar') ? 'active' }}">
             <a href="{{ path('calendar') }}">Calendrier</a>
+        </li>
+        <li class="{{ isSubPath('photos') ? 'active' }}">
+            <a href="{{ path('photos') }}">Photos</a>
         </li>
         <li class="{{ isSubPath('music') ? 'active' }}">
             <a href="{{ path('music') }}">Proposer un rock</a>

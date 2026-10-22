@@ -1,0 +1,276 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Photos - Rock Fever{% endblock %}
+
+{% block css %}
+    <style>
+        .photos-admin h1 { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .photos-admin h1 .btn-flat { margin-left: auto; }
+        .photos-admin h2 { font-size: 1.6rem; margin: 0 0 16px; }
+        .photos-admin .card-panel { border-radius: 12px; }
+        .photos-drop { display: block; padding: 32px 16px; border: 2px dashed #9fb3c8; border-radius: 12px; text-align: center; color: #52606d; cursor: pointer; transition: background .2s, border-color .2s; }
+        .photos-drop:hover, .photos-drop.is-over { background: #f0f4f8; border-color: #072d55; }
+        .photos-drop .mdi { display: block; font-size: 48px; color: #072d55; }
+        .photos-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+        .photos-progress { margin: 16px 0 0; }
+        .photos-progress:empty { display: none; }
+        .photos-progress .progress { margin: 4px 0 12px; }
+        .photos-requests li { display: flex; gap: 16px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #e4e7eb; }
+        .photos-requests li:first-child { border-top: 0; }
+        .photos-requests img { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; flex: none; }
+        .photos-requests .details { flex: 1; min-width: 0; }
+        .photos-requests .details p { margin: 4px 0; white-space: pre-line; }
+        .photos-requests .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+        .photos-requests form { display: inline; }
+        .photos-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+        .photos-admin-tile { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #e4e7eb; }
+        .photos-admin-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .photos-admin-tile label { position: absolute; inset: 0; cursor: pointer; }
+        .photos-admin-tile [type="checkbox"].filled-in + span { position: absolute; top: 8px; left: 8px; }
+        .photos-admin-tile [type="checkbox"].filled-in:not(:checked) + span:after { background: rgba(255, 255, 255, .85); }
+        .photos-admin-tile:has(:checked) { outline: 4px solid #072d55; outline-offset: -4px; }
+        .photos-admin-tile:has(:checked) img { opacity: .75; }
+        .photos-admin-tile .requested { position: absolute; right: 6px; bottom: 6px; padding: 2px 8px; border-radius: 10px; background: #c62828; color: #fff; font-size: .8rem; }
+        .photos-toolbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 0; margin-bottom: 8px; background: #fff; }
+        .photos-toolbar .count { margin-right: auto; color: #52606d; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% set tokenInput = csrfInput() %}
+    <div class="container photos-admin">
+        <h1>
+            Photos
+            <a href="{{ path('photos') }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir la galerie</a>
+        </h1>
+
+        {% if requests|length %}
+            <div class="row"><div class="col s12"><div class="card-panel" id="demandes">
+                <h2 class="red-text text-darken-2">Demandes de suppression ({{ requests|length }})</h2>
+                <ul class="photos-requests">
+                    {% for request in requests %}
+                        <li>
+                            <a href="{{ path('photos.file', {id: request.photoId, size: 'full'}) }}" target="_blank">
+                                <img src="{{ path('photos.file', {id: request.photoId, size: '480'}) }}" alt="Photo concernée">
+                            </a>
+                            <div class="details">
+                                <b>{{ request.name }}</b>
+                                {% if request.email %}
+                                    · <a href="mailto:{{ request.email }}">{{ request.email }}</a>
+                                {% endif %}
+                                · <span class="grey-text">{{ request.createdAt|date('d/m/Y H:i') }}</span>
+                                {% if request.reason %}<p>{{ request.reason }}</p>{% endif %}
+                                <div class="actions">
+                                    <form action="{{ path('admin.photos.delete') }}" method="post" onsubmit="return confirm('Supprimer définitivement cette photo ?')">
+                                        {{ tokenInput|raw }}
+                                        <input type="hidden" name="ids[]" value="{{ request.photoId }}">
+                                        <button class="btn red waves-effect waves-light"><i class="mdi mdi-delete left"></i>Supprimer la photo</button>
+                                    </form>
+                                    <form action="{{ path('admin.photos.request.dismiss', {id: request.id}) }}" method="post" onsubmit="return confirm('Garder la photo et ignorer cette demande ?')">
+                                        {{ tokenInput|raw }}
+                                        <button class="btn-flat waves-effect">Ignorer la demande</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div></div></div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col s12 l8">
+                <div class="card-panel">
+                    <h2>Ajouter des photos</h2>
+                    <form action="{{ path('admin.photos.upload') }}" method="post" enctype="multipart/form-data" id="photos-upload">
+                        {{ tokenInput|raw }}
+                        <label class="photos-drop" id="photos-drop">
+                            <i class="mdi mdi-cloud-upload" aria-hidden="true"></i>
+                            Glisse tes photos ici, ou clique pour les choisir
+                            <br><small>JPEG, PNG ou WebP. Elles sont réduites à 2400 pixels et la position GPS est retirée.</small>
+                            <input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple>
+                        </label>
+                        <noscript><button class="btn koamaru" style="margin-top: 12px">Envoyer</button></noscript>
+                        <div class="photos-progress" id="photos-progress" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="col s12 l4">
+                <div class="card-panel">
+                    <h2><i class="mdi {{ open ? 'mdi-lock' : 'mdi-lock-open' }}"></i> Mot de passe</h2>
+                    {% if open %}
+                        <p>La galerie est ouverte à ceux qui ont le mot de passe. En le changeant, tout le monde devra entrer le nouveau.</p>
+                    {% else %}
+                        <p class="red-text text-darken-2"><b>Aucun mot de passe : la galerie est fermée aux visiteurs.</b> Choisis-en un pour l'ouvrir.</p>
+                    {% endif %}
+                    <form action="{{ path('admin.photos.password') }}" method="post">
+                        {{ tokenInput|raw }}
+                        <div class="input-field">
+                            <input type="text" id="photos-password" name="password" minlength="6" required autocomplete="off">
+                            <label for="photos-password">{{ open ? 'Nouveau mot de passe' : 'Mot de passe' }}</label>
+                        </div>
+                        <button class="btn koamaru waves-effect waves-light">{{ open ? 'Changer' : 'Ouvrir la galerie' }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row"><div class="col s12"><div class="card-panel">
+            <h2>Dans la galerie ({{ photos|length }})</h2>
+            {% if photos|length %}
+                {% set requested = requests|map(r => r.photoId) %}
+                <form action="{{ path('admin.photos.delete') }}" method="post" id="photos-delete">
+                    {{ tokenInput|raw }}
+                    <div class="photos-toolbar">
+                        <span class="count" id="photos-count">Coche des photos pour les supprimer</span>
+                        <button type="button" class="btn-flat waves-effect" id="photos-all">Tout cocher</button>
+                        <button class="btn red waves-effect waves-light" id="photos-delete-button" disabled><i class="mdi mdi-delete left"></i>Supprimer</button>
+                    </div>
+                    <div class="photos-admin-grid">
+                        {% for photo in photos %}
+                            <div class="photos-admin-tile">
+                                <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}" alt="" loading="lazy">
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}">
+                                    <span></span>
+                                </label>
+                                {% if photo.id in requested %}<span class="requested">Suppression demandée</span>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <p class="grey-text">Pas encore de photo.</p>
+            {% endif %}
+        </div></div></div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        (function () {
+            // Delete: count the checked photos
+            var deleteForm = document.getElementById('photos-delete');
+            if (deleteForm) {
+                var boxes = deleteForm.querySelectorAll('input[name="ids[]"]');
+                var count = document.getElementById('photos-count');
+                var button = document.getElementById('photos-delete-button');
+                var update = function () {
+                    var checked = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length;
+                    button.disabled = checked === 0;
+                    count.textContent = checked ? checked + ' photo' + (checked > 1 ? 's' : '') + ' cochée' + (checked > 1 ? 's' : '') : 'Coche des photos pour les supprimer';
+                };
+                deleteForm.addEventListener('change', update);
+                document.getElementById('photos-all').addEventListener('click', function () {
+                    var all = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length !== boxes.length;
+                    boxes.forEach(function (box) { box.checked = all; });
+                    this.textContent = all ? 'Tout décocher' : 'Tout cocher';
+                    update();
+                });
+                deleteForm.addEventListener('submit', function (event) {
+                    var checked = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length;
+                    if (!confirm('Supprimer définitivement ' + checked + ' photo' + (checked > 1 ? 's' : '') + ' ?')) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            // Upload: one photo per request, made smaller in the browser first (quicker, under the server's size
+            // limit, and the canvas drops the GPS position). The server makes them smaller too, for the no-script form
+            var uploadForm = document.getElementById('photos-upload');
+            var drop = document.getElementById('photos-drop');
+            var input = uploadForm.querySelector('input[type="file"]');
+            var progress = document.getElementById('photos-progress');
+            var MAX = 2400;
+
+            function shrink(file) {
+                if (!window.createImageBitmap) {
+                    return Promise.resolve(file);
+                }
+                return createImageBitmap(file, {imageOrientation: 'from-image'}).then(function (bitmap) {
+                    var scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+                    var canvas = document.createElement('canvas');
+                    canvas.width = Math.round(bitmap.width * scale);
+                    canvas.height = Math.round(bitmap.height * scale);
+                    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+                    return new Promise(function (resolve) {
+                        canvas.toBlob(function (blob) {
+                            resolve(blob ? new File([blob], file.name.replace(/\.[^.]*$/, '') + '.jpg', {type: 'image/jpeg'}) : file);
+                        }, 'image/jpeg', 0.88);
+                    });
+                }).catch(function () {
+                    // A format the browser can't read: the server says if it can't either
+                    return file;
+                });
+            }
+
+            function upload(files) {
+                files = Array.prototype.slice.call(files);
+                if (!files.length) {
+                    return;
+                }
+                var done = 0, added = 0, errors = [];
+                progress.innerHTML = '<span></span><div class="progress"><div class="determinate" style="width: 0"></div></div>';
+                var label = progress.querySelector('span');
+                var bar = progress.querySelector('.determinate');
+                var step = function () {
+                    label.textContent = 'Envoi des photos : ' + done + ' / ' + files.length;
+                    bar.style.width = (100 * done / files.length) + '%';
+                };
+                step();
+                files.reduce(function (previous, file) {
+                    return previous.then(function () {
+                        return shrink(file);
+                    }).then(function (photo) {
+                        var data = new FormData();
+                        data.append('photos[]', photo, photo.name);
+                        return fetch(uploadForm.action, {method: 'POST', body: data, headers: {'Accept': 'application/json'}, credentials: 'same-origin'});
+                    }).then(function (response) {
+                        return response.json().catch(function () {
+                            return {added: 0, errors: [file.name + ' : erreur du serveur (' + response.status + ')']};
+                        });
+                    }).then(function (result) {
+                        added += result.added;
+                        errors = errors.concat(result.errors);
+                    }).catch(function () {
+                        errors.push(file.name + " n'a pas pu être envoyée");
+                    }).then(function () {
+                        done++;
+                        step();
+                    });
+                }, Promise.resolve()).then(function () {
+                    label.textContent = added + ' photo' + (added > 1 ? 's' : '') + ' ajoutée' + (added > 1 ? 's' : '') + (errors.length ? '. Erreurs : ' + errors.join(', ') : '');
+                    if (added && !errors.length) {
+                        location.reload();
+                    } else if (added) {
+                        var reload = document.createElement('a');
+                        reload.href = location.href;
+                        reload.className = 'btn-flat koamaru-text';
+                        reload.textContent = 'Voir les photos ajoutées';
+                        progress.appendChild(reload);
+                    }
+                });
+            }
+
+            input.addEventListener('change', function () {
+                upload(input.files);
+                input.value = '';
+            });
+            ['dragenter', 'dragover'].forEach(function (type) {
+                drop.addEventListener(type, function (event) {
+                    event.preventDefault();
+                    drop.classList.add('is-over');
+                });
+            });
+            ['dragleave', 'drop'].forEach(function (type) {
+                drop.addEventListener(type, function () {
+                    drop.classList.remove('is-over');
+                });
+            });
+            drop.addEventListener('drop', function (event) {
+                event.preventDefault();
+                upload(event.dataTransfer.files);
+            });
+        })();
+    </script>
+{% endblock %}

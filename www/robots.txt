@@ -1,6 +1,6 @@
 # Rock Fever crawler policy
 # - Every crawler is welcome on the public pages: search engines, AI assistants and AI training.
-# - /admin and /login are for the team only.
+# - /admin and /login are for the team only, /photos for the dancers who have its password.
 # Content-Signal (https://contentsignals.org) is advisory: it is only followed by crawlers that support it.
 
 User-agent: *
@@ -8,5 +8,6 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 Allow: /
 Disallow: /admin
 Disallow: /login
+Disallow: /photos
 
 Sitemap: https://rockfever.be/sitemap.xml

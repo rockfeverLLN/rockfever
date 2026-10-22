@@ -5,6 +5,7 @@ use App\Auth\AuthModule;
 use App\Events\EventsModule;
 use App\Events\Middleware\NextEventMiddleware;
 use App\Main\MainModule;
+use App\Photos\PhotosModule;
 use Framework\App;
 use Framework\Auth\ForbiddenMiddleware;
 use Framework\Auth\LoggedInMiddleWare;
@@ -28,7 +29,8 @@ $app = (new App('config/config.php'))
     ->addModule(AdminModule::class)
     ->addModule(AuthModule::class)
     ->addModule(EventsModule::class)
-    ->addModule(MainModule::class);
+    ->addModule(MainModule::class)
+    ->addModule(PhotosModule::class);
 
 
 $container = $app->getContainer();
