@@ -1,0 +1,499 @@
+/* The photo gallery (/photos, src/Photos/views). Its own file: the page is behind a password, so
+   bin/critical-css.php never sees it and site.css only has the rules of the other pages */
+
+.photos-page, .photos-lock, .photos-viewer {
+    --photos-blue: #072d55;
+    --photos-text: #1f2933;
+    --photos-muted: #52606d;
+    --photos-line: #d9e2ec;
+    --photos-gap: 6px;
+}
+
+/* Password */
+
+.photos-lock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 40px 16px;
+    background: linear-gradient(160deg, #072d55 0%, #0e4a85 100%);
+}
+
+.photos-lock-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 32px 28px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+.photos-lock-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #e8eef5;
+    color: var(--photos-blue);
+    font-size: 28px;
+}
+
+.photos-lock h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 16px 0 8px;
+}
+
+.photos-lock p {
+    color: var(--photos-muted);
+    margin: 0 0 24px;
+}
+
+.photos-lock form {
+    text-align: left;
+}
+
+.photos-lock .photos-button {
+    width: 100%;
+    margin-top: 16px;
+}
+
+/* Form fields, without Materialize's (its rules for inputs would apply here too: reset them) */
+
+.photos-label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--photos-text);
+}
+
+.photos-label span {
+    font-weight: 400;
+    color: var(--photos-muted);
+}
+
+.site .photos-input, .site .photos-input:focus {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--photos-text);
+    background: #fff;
+    border: 1px solid #bcccdc;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.site .photos-input:focus {
+    outline: 2px solid var(--photos-blue);
+    outline-offset: 1px;
+    border-color: var(--photos-blue);
+}
+
+.site textarea.photos-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.photos-error {
+    margin: 8px 0 0 !important;
+    color: #c62828 !important;
+    font-size: 0.9rem;
+}
+
+.photos-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--photos-blue);
+    background: #fff;
+    border: 1px solid var(--photos-line);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.photos-button:hover {
+    background: #f0f4f8;
+}
+
+.photos-button-primary, .photos-button-primary:hover {
+    color: #fff;
+    background: var(--photos-blue);
+    border-color: var(--photos-blue);
+}
+
+.photos-button-primary:hover {
+    background: #0b3d70;
+}
+
+.photos-button[hidden] {
+    display: none;
+}
+
+.photos-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Gallery */
+
+.photos-page {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+}
+
+.photos-header {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 0 24px;
+    text-align: center;
+}
+
+.photos-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+.photos-intro {
+    margin: 0 0 12px;
+    color: var(--photos-muted);
+}
+
+.photos-note {
+    display: inline-block;
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: var(--photos-muted);
+    background: #f0f4f8;
+    border-radius: 8px;
+}
+
+.photos-flash {
+    max-width: 720px;
+    margin: 0 auto 20px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.photos-flash-success {
+    color: #1b5e20;
+    background: #e8f5e9;
+}
+
+.photos-flash-error {
+    color: #b71c1c;
+    background: #ffebee;
+}
+
+/* Rows of the same height, each photo as wide as its shape asks: none is cropped by more than a little */
+.photos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--photos-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Keeps the last row from stretching its photos */
+.photos-grid::after {
+    content: '';
+    flex-grow: 1000;
+}
+
+.photos-tile {
+    position: relative;
+    flex-grow: var(--ratio);
+    flex-basis: calc(var(--ratio) * 220px);
+    aspect-ratio: var(--ratio);
+    max-height: 440px;
+    overflow: hidden;
+    border-radius: 6px;
+    background: #e4e7eb;
+}
+
+.photos-tile a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.photos-tile img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.photos-tile a:hover img {
+    transform: scale(1.03);
+    filter: brightness(1.05);
+}
+
+.photos-tile a:focus-visible {
+    outline: 3px solid var(--photos-blue);
+    outline-offset: -3px;
+}
+
+@media (max-width: 600px) {
+    .photos-page {
+        --photos-gap: 3px;
+        padding: 0 3px 32px;
+    }
+
+    .photos-header {
+        padding: 24px 13px 16px;
+    }
+
+    .photos-header h1 {
+        font-size: 2rem;
+    }
+
+    .photos-tile {
+        flex-basis: calc(var(--ratio) * 130px);
+        border-radius: 3px;
+    }
+}
+
+.photos-empty {
+    padding: 64px 16px;
+    text-align: center;
+    color: var(--photos-muted);
+}
+
+.photos-empty .mdi {
+    font-size: 56px;
+    color: #bcccdc;
+}
+
+/* Photo viewer */
+
+.photos-viewer {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: #fff;
+    background: #0b0f14;
+    overflow: hidden;
+}
+
+.photos-viewer[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.photos-viewer::backdrop {
+    background: #0b0f14;
+}
+
+.photos-viewer-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 8px 8px 16px;
+}
+
+.photos-viewer-count {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #9aa5b1;
+}
+
+.photos-viewer-action, .photos-viewer-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: #fff;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.photos-viewer-action .mdi, .photos-viewer-icon .mdi {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.photos-viewer-action:hover, .photos-viewer-icon:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.photos-viewer-action:focus-visible, .photos-viewer-icon:focus-visible {
+    outline: 2px solid #fff;
+}
+
+.photos-viewer-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px 16px;
+    touch-action: pan-y pinch-zoom;
+}
+
+.photos-viewer-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+    transition: opacity 0.15s ease;
+}
+
+.photos-viewer-image.is-loading {
+    opacity: 0.4;
+}
+
+.photos-viewer-prev, .photos-viewer-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+}
+
+.photos-viewer-prev .mdi, .photos-viewer-next .mdi {
+    font-size: 32px;
+}
+
+.photos-viewer-prev {
+    left: 12px;
+}
+
+.photos-viewer-next {
+    right: 12px;
+}
+
+.photos-viewer-prev:disabled, .photos-viewer-next:disabled {
+    visibility: hidden;
+}
+
+@media (max-width: 600px) {
+    /* Swipe instead, and only the icons in the bar */
+    .photos-viewer-prev, .photos-viewer-next {
+        display: none;
+    }
+
+    .photos-viewer-action span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .photos-viewer-stage {
+        padding: 0 0 8px;
+    }
+}
+
+/* Deletion request, over the photo */
+
+.photos-request {
+    position: absolute;
+    inset: auto 0 0 0;
+    max-width: 480px;
+    max-height: calc(100% - 60px);
+    margin: 0 auto;
+    padding: 24px;
+    overflow-y: auto;
+    color: var(--photos-text);
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 601px) {
+    .photos-request {
+        inset: 50% 0 auto 0;
+        transform: translateY(-50%);
+        border-radius: 16px;
+    }
+}
+
+.photos-request[hidden] {
+    display: none;
+}
+
+.photos-request h2 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.photos-request p {
+    margin: 0;
+    color: #52606d;
+    font-size: 0.95rem;
+}
+
+.photos-request-message:empty {
+    display: none;
+}
+
+.photos-request-message {
+    margin-top: 12px !important;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f0f4f8;
+}
+
+.photos-request-message.is-error {
+    color: #b71c1c !important;
+    background: #ffebee;
+}
+
+.photos-request-message.is-success {
+    color: #1b5e20 !important;
+    background: #e8f5e9;
+}
+
+.photos-request-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.photos-request label, .photos-request .photos-button {
+    color: inherit;
+}
+
+.photos-request .photos-button-primary {
+    color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photos-tile img, .photos-viewer-image {
+        transition: none;
+    }
+}

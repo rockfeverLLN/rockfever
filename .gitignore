@@ -4,6 +4,9 @@
 # Twig / proxy caches written at runtime
 /tmp/
 
+# Photos of the gallery, uploaded in the admin (src/Photos/PhotoUpload.php)
+/storage/
+
 # Database credentials: copy config/database.example.php to create it
 /config/database.php
 

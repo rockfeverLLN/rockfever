@@ -1,0 +1,99 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Photos - Rock Fever{% endblock %}
+
+{% block head %}
+    {% include '@photos/head.twig' %}
+    <script src="{{ asset('/js/photos.js') }}" defer></script>
+{% endblock %}
+
+{% block body %}
+    <div class="photos-page">
+        <header class="photos-header">
+            <h1>Photos des soirées</h1>
+            <p class="photos-intro">
+                {% if photos|length %}
+                    {{ photos|length }} photo{{ photos|length > 1 ? 's' }}. Clique sur une photo pour l'agrandir ou la télécharger.
+                {% endif %}
+            </p>
+            <p class="photos-note">
+                Tu es sur une photo et tu préfères qu'elle soit retirée ? Ouvre-la et choisis
+                <strong>Demander la suppression</strong> : l'équipe s'en occupe.
+            </p>
+        </header>
+
+        {% if flash('success') %}
+            <p class="photos-flash photos-flash-success" role="status">{{ flash('success') }}</p>
+        {% endif %}
+        {% if flash('error') %}
+            <p class="photos-flash photos-flash-error" role="alert">{{ flash('error') }}</p>
+        {% endif %}
+
+        {% if photos|length %}
+            <ul class="photos-grid">
+                {% for photo in photos %}
+                    <li class="photos-tile" style="--ratio: {{ photo.ratio }}">
+                        {#- Without the script, the link opens the photo itself #}
+                        <a href="{{ path('photos.file', {id: photo.id, size: 'full'}) }}"
+                           data-large="{{ path('photos.file', {id: photo.id, size: '1600'}) }}"
+                           data-download="{{ path('photos.file', {id: photo.id, size: 'full'}) }}?download"
+                           data-request="{{ path('photos.request', {id: photo.id}) }}"
+                           aria-label="Agrandir la photo {{ loop.index }}">
+                            <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}"
+                                 srcset="{{ path('photos.file', {id: photo.id, size: '480'}) }} 480w, {{ path('photos.file', {id: photo.id, size: '960'}) }} 960w"
+                                 sizes="(max-width: 600px) 50vw, 320px"
+                                 width="{{ photo.width }}" height="{{ photo.height }}"
+                                 alt="" {% if loop.index > 12 %}loading="lazy" {% endif %}decoding="async">
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="photos-empty">
+                <i class="mdi mdi-camera" aria-hidden="true"></i>
+                <p>Pas encore de photos ici. Reviens après la prochaine soirée !</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <dialog class="photos-viewer" id="photos-viewer" aria-label="Photo agrandie">
+        <div class="photos-viewer-bar">
+            <span class="photos-viewer-count" aria-live="polite"></span>
+            <a class="photos-viewer-action" data-viewer="download" href="#" download>
+                <i class="mdi mdi-download" aria-hidden="true"></i><span>Télécharger</span>
+            </a>
+            <button type="button" class="photos-viewer-action" data-viewer="request">
+                <i class="mdi mdi-delete" aria-hidden="true"></i><span>Demander la suppression</span>
+            </button>
+            <button type="button" class="photos-viewer-icon" data-viewer="close" aria-label="Fermer">
+                <i class="mdi mdi-close" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="photos-viewer-stage">
+            <button type="button" class="photos-viewer-icon photos-viewer-prev" data-viewer="prev" aria-label="Photo précédente">
+                <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+            </button>
+            <img class="photos-viewer-image" alt="">
+            <button type="button" class="photos-viewer-icon photos-viewer-next" data-viewer="next" aria-label="Photo suivante">
+                <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <form class="photos-request" method="post" hidden>
+            {{ csrfInput() }}
+            <h2>Demander la suppression</h2>
+            <p>Tu es sur cette photo et tu ne veux pas qu'elle soit en ligne ? Dis-nous qui tu es : l'équipe la retirera au plus vite.</p>
+            <label class="photos-label" for="photos-request-name">Ton nom</label>
+            <input class="photos-input browser-default" id="photos-request-name" name="name" maxlength="100" autocomplete="name" required>
+            <label class="photos-label" for="photos-request-email">Ton adresse email <span>(facultatif, pour qu'on te réponde)</span></label>
+            <input class="photos-input browser-default" id="photos-request-email" name="email" type="email" maxlength="255" autocomplete="email">
+            <label class="photos-label" for="photos-request-reason">Un mot pour l'équipe <span>(facultatif)</span></label>
+            <textarea class="photos-input browser-default" id="photos-request-reason" name="reason" rows="3" maxlength="2000"></textarea>
+            <p class="photos-request-message" role="status"></p>
+            <div class="photos-request-buttons">
+                <button type="button" class="photos-button" data-viewer="cancel">Annuler</button>
+                <button type="submit" class="photos-button photos-button-primary">Envoyer la demande</button>
+            </div>
+        </form>
+    </dialog>
+{% endblock %}

@@ -31,6 +31,7 @@ class ValueTable extends Table
 
     public function findAll(): Query
     {
-        return parent::findAll()->order("v.label ASC");
+        // The photo gallery's password is stored hashed and set on /admin/photos, not as a plain value here
+        return parent::findAll()->where("v.type != 'password'")->order("v.label ASC");
     }
 }

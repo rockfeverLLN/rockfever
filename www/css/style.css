@@ -1379,7 +1379,7 @@ input:not([type]).mce-textbox {
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/mdi.woff2?v=f79816bb) format('woff2');
+    src: url(/fonts/mdi.woff2?v=976904fb) format('woff2');
 }
 
 .mdi:before {
@@ -1393,13 +1393,18 @@ input:not([type]).mce-textbox {
 .mdi-calendar:before { content: "\F0ED"; }
 .mdi-calendar-multiple:before { content: "\F0F1"; }
 .mdi-calendar-plus:before { content: "\F0F3"; }
+.mdi-camera:before { content: "\F100"; }
 .mdi-chart-bar:before { content: "\F128"; }
 .mdi-chevron-down:before { content: "\F140"; }
+.mdi-chevron-left:before { content: "\F141"; }
+.mdi-chevron-right:before { content: "\F142"; }
 .mdi-chevron-up:before { content: "\F143"; }
 .mdi-clock:before { content: "\F150"; }
+.mdi-close:before { content: "\F156"; }
 .mdi-cloud-upload:before { content: "\F167"; }
 .mdi-credit-card:before { content: "\F19B"; }
 .mdi-delete:before { content: "\F1C0"; }
+.mdi-download:before { content: "\F1DA"; }
 .mdi-email-outline:before { content: "\F1F0"; }
 .mdi-eye:before { content: "\F208"; }
 .mdi-eye-off:before { content: "\F209"; }
@@ -1408,7 +1413,6 @@ input:not([type]).mce-textbox {
 .mdi-format-list-bulleted:before { content: "\F279"; }
 .mdi-google:before { content: "\F2AD"; }
 .mdi-home:before { content: "\F2DC"; }
-.mdi-home-outline:before { content: "\F6A0"; }
 .mdi-instagram:before { content: "\F2FE"; }
 .mdi-laptop:before { content: "\F322"; }
 .mdi-lock:before { content: "\F33E"; }

@@ -45,7 +45,7 @@ class ValuesAction extends FormAction
     public function edit(ServerRequestInterface $request)
     {
         $value = $this->table->find($request->getParsedBody()['id']);
-        if ($value) {
+        if ($value && $value->type !== 'password') {
             $validator = $this->getValidator($request);
             if ($validator->isValid()) {
                 $this->table->update($value->id, $this->getParams($request));
