@@ -30,8 +30,9 @@ composer serve                                       # http://127.0.0.1:8000
 ## Page speed
 
 - `views/critical.css` holds the CSS rules the public pages need for their first paint. `layout.twig` inlines it and loads the full stylesheets in the background. After changing `www/css/` or the classes of the public templates, rebuild it with `php bin/critical-css.php` (reads the live pages; add a saved page such as `event.html` when the event page is closed).
-- `www/fonts/material-icons.woff2` only contains the Material Icons used in the templates. After using a new icon, run `bin/subset-icons.sh` (needs `brew install fonttools`).
-- Photos uploaded in the admin are scaled down to 1600px.
+- `www/fonts/material-icons.woff2` and `www/fonts/mdi.woff2` only contain the Material Icons and Material Design Icons (`mdi mdi-…`) used in the templates. After using a new icon, run `bin/subset-icons.sh` (needs `brew install fonttools`): it rebuilds both fonts, the `mdi-…` rules at the end of `www/css/style.css`, and the `?v=` of the font URLs.
+- Photos uploaded in the admin are scaled down to 1600px, and smaller WebP copies (320 to 1280px) are saved in `www/images/about/sizes/`. The `lazyImages` Twig filter offers them in a `srcset` for images that have a `width`. For photos uploaded before that, run `php bin/resize-images.php`.
+- Google Analytics loads after the page's `load` event so it doesn't compete with the page itself.
 
 ## Deploy
 

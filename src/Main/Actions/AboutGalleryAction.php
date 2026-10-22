@@ -40,9 +40,9 @@ class AboutGalleryAction extends FormAction
 
     public function index(Request $request): string
     {
-        $images = scandir(dirname(dirname(dirname(__DIR__))) . "/www/images/about");
-        unset($images[0]);
-        unset($images[1]);
+        $folder = dirname(dirname(dirname(__DIR__))) . "/www/images/about";
+        // Only the images: not ., .. or the sizes/ folder of smaller copies
+        $images = array_filter(scandir($folder), fn ($image) => is_file("$folder/$image"));
         return $this->renderer->render($this->viewPath . '/index', compact("images"));
     }
 

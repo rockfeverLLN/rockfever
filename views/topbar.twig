@@ -1,23 +1,23 @@
-<nav class="koamaru">
+<nav class="koamaru" aria-label="Menu principal">
     <div class="nav-wrapper container">
         <a href="{{ path('home') }}" class="brand-logo">Rock Fever</a>
-        <a href="#" data-target="mobile-demo" class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger" aria-label="Ouvrir le menu" aria-controls="mobile-demo">
+            <i class="material-icons" aria-hidden="true">menu</i>
         </a>
         <ul class="right hide-on-med-and-down">
             <li class="{{ isSubPath('home') ? 'active' }}">
-                <a href="{{ path('home') }}"><i class="mdi mdi-home-outline left"></i> Accueil</a>
+                <a href="{{ path('home') }}"><i class="mdi mdi-home-outline left" aria-hidden="true"></i> Accueil</a>
             </li>
             {% if nextEventExist() %}
             <li class="{{ isSubPath('event') ? 'active' }}">
-                <a href="{{ path('event') }}"><i class="mdi mdi-calendar left"></i> Prochain événement</a>
+                <a href="{{ path('event') }}"><i class="mdi mdi-calendar left" aria-hidden="true"></i> Prochain événement</a>
             </li>
             {% endif %}
             <li class="{{ isSubPath('music') ? 'active' }}">
-                <a href="{{ path('music') }}"><i class="mdi mdi-music left"></i> Proposer un rock</a>
+                <a href="{{ path('music') }}"><i class="mdi mdi-music left" aria-hidden="true"></i> Proposer un rock</a>
             </li>
             <li class="{{ isSubPath('contact') ? 'active' }}">
-                <a href="{{ path('contact') }}"><i class="mdi mdi-email-outline left"></i> Contact</a>
+                <a href="{{ path('contact') }}"><i class="mdi mdi-email-outline left" aria-hidden="true"></i> Contact</a>
             </li>
         </ul>
     </div>
