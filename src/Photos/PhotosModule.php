@@ -25,6 +25,8 @@ class PhotosModule extends Module
 
     const MIGRATIONS = __DIR__ . '/db/migrations';
 
+    const SEEDS = __DIR__ . '/db/seeds';
+
     public function __construct(ContainerInterface $container)
     {
         $container->get(RendererInterface::class)->addPath('photos', __DIR__ . '/views');

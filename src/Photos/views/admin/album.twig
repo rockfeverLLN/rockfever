@@ -13,7 +13,17 @@
             <a href="{{ path('photos.album', {slug: album.slug}) }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir l'album</a>
         </h1>
 
-        {% if album.photosPassword %}
+        {#- Photographers don't need the soirée's password, nor the events #}
+        {% if album.photosPassword and isPhotographer() %}
+            <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
+                <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe de sa soirée.
+            </div></div></div>
+        {% elseif isPhotographer() %}
+            <div class="row"><div class="col s12"><div class="card-panel orange lighten-5">
+                <i class="mdi mdi-lock-open"></i> <b>Seule l'équipe voit cet album</b> pour l'instant : sa soirée n'a pas
+                encore de mot de passe des photos{% if not album.eventId %}, ou choisis-la ci-dessous{% endif %}.
+            </div></div></div>
+        {% elseif album.photosPassword %}
             <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
                 <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe de sa soirée :
                 <b>{{ album.photosPassword }}</b>. Pour le changer, modifie la soirée dans

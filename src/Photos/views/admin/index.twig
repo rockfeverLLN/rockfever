@@ -12,7 +12,8 @@
             <a href="{{ path('photos') }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir la galerie</a>
         </h1>
 
-        {% if requests|length %}
+        {#- The deletion requests are the team's: photographers don't see them (PhotographerMiddleware) #}
+        {% if requests|length and not isPhotographer() %}
             <div class="row"><div class="col s12"><div class="card-panel" id="demandes">
                 <h2 class="red-text text-darken-2">Demandes de suppression ({{ requests|length }})</h2>
                 <ul class="photos-requests">
@@ -61,9 +62,14 @@
             <div class="col s12 l4">
                 <div class="card-panel">
                     <h2><i class="mdi mdi-lock"></i> Mots de passe</h2>
-                    <p>Chaque album s'ouvre avec le <b>mot de passe des photos de sa soirée</b>, à choisir dans
-                        <a href="{{ path('admin.events.index') }}">Événements</a> en modifiant la soirée. Donne-le à ses danseurs.</p>
-                    <p class="grey-text">Un album sans soirée, ou dont la soirée n'a pas de mot de passe, n'est visible que par l'équipe.</p>
+                    {% if isPhotographer() %}
+                        <p>Chaque album s'ouvre avec le mot de passe de sa soirée, que l'équipe donne aux danseurs.
+                            Choisis bien la soirée de l'album : connecté, tu vois tous les albums sans mot de passe.</p>
+                    {% else %}
+                        <p>Chaque album s'ouvre avec le <b>mot de passe des photos de sa soirée</b>, à choisir dans
+                            <a href="{{ path('admin.events.index') }}">Événements</a> en modifiant la soirée. Donne-le à ses danseurs.</p>
+                        <p class="grey-text">Un album sans soirée, ou dont la soirée n'a pas de mot de passe, n'est visible que par l'équipe.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
