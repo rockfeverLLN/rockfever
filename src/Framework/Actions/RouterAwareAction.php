@@ -22,7 +22,7 @@ trait RouterAwareAction
     {
         $redirectUri = $this->router->generateUri($path, $params, $queryParams);
         return (new Response())
-            ->withStatus(301)
+            ->withStatus(302)
             ->withHeader('Location', $redirectUri);
     }
 }

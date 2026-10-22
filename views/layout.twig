@@ -21,6 +21,10 @@
     </script>
     <title>{% block title %}Rock Fever{% endblock %}</title>
     <meta name="description" content="{% block description %}Rock Fever, le rock à Louvain-la-Neuve : prochain événement, inscriptions et propositions de musique.{% endblock %}"/>
+    {#- Public pages set their path so duplicates (/accueil, /home, ?query) point search engines to one URL #}
+    {%- if block('canonical_path') is defined %}
+    <link rel="canonical" href="https://rockfever.be{{ block('canonical_path') }}"/>
+    {%- endif %}
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
     <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2" as="font" type="font/woff2" crossorigin/>
