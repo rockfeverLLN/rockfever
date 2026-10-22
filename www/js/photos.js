@@ -3,7 +3,7 @@
 // Without this script, each photo is a plain link to the file.
 (function () {
     var viewer = document.getElementById('photos-viewer');
-    var links = Array.prototype.slice.call(document.querySelectorAll('.photos-tile a'));
+    var links = Array.prototype.slice.call(document.querySelectorAll('.photos-tile > a[data-large]'));
     if (!viewer || !links.length || typeof viewer.showModal !== 'function') {
         return;
     }
