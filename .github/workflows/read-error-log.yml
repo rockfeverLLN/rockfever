@@ -1,0 +1,24 @@
+name: Read PHP error log
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# TEMPORARY: prints the PHP error log written by www/index.php, to debug the site without SSH
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+      - name: Print error log and tmp/ listing
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net -e "
+            set sftp:auto-confirm yes;
+            echo '== php-error.log (last 60 lines)'; cat php-error.log | tail -n 60;
+            echo '== root'; ls -la;
+            echo '== tmp/'; ls -la tmp;
+            quit" || true
