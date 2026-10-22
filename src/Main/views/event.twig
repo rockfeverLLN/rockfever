@@ -2,6 +2,30 @@
 
 {% block title %}Prochain événement - Rock Fever{% endblock %}
 
+{% block canonical_path %}/event{% endblock %}
+
+{% block head %}
+    {#- Schema.org event so search engines and assistants can show the date and place #}
+    {%- set day = event.date|split('/') %}
+    {%- set time = event.waltzTime ?: event.rockTime %}
+    <script type="application/ld+json">{{ {
+        '@context': 'https://schema.org',
+        '@type': 'DanceEvent',
+        name: event.title,
+        description: event.description,
+        startDate: day[2] ~ '-' ~ day[1] ~ '-' ~ day[0] ~ (time ? 'T' ~ time : ''),
+        eventStatus: 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: {
+            '@type': 'Place',
+            name: event.place,
+            address: {'@type': 'PostalAddress', addressLocality: 'Louvain-la-Neuve', addressCountry: 'BE'}
+        },
+        organizer: {'@type': 'Organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
+        url: 'https://rockfever.be/event'
+    }|json_encode(constant('JSON_HEX_TAG'))|raw }}</script>
+{% endblock %}
+
 {% block bodyColor %}deep-blue{% endblock %}
 
 {% block body %}

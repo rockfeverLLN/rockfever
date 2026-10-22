@@ -1,4 +1,7 @@
 RewriteEngine on
+# The site lives on https://rockfever.be: send www to it in one hop
+RewriteCond %{HTTP_HOST} ^www\.rockfever\.be$ [NC]
+RewriteRule ^ https://rockfever.be%{REQUEST_URI} [R=301,L,NE]
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f

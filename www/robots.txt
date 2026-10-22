@@ -1,0 +1,38 @@
+# Rock Fever crawler policy
+# - Search engines, and AI tools that look pages up to answer someone's question,
+#   may read the public pages so people can find the next event.
+# - AI model training is not allowed: the pages show photos and names of members.
+# - /admin and /login are for the team only.
+# Content-Signal (https://contentsignals.org) is advisory: it is only followed by crawlers that support it.
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /admin
+Disallow: /login
+
+# AI search and assistants fetching a page for a user: same access as search engines
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+Content-Signal: search=yes, ai-input=yes, ai-train=no
+Allow: /
+Disallow: /admin
+Disallow: /login
+
+# AI training crawlers: no access
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: Bytespider
+Disallow: /
+
+Sitemap: https://rockfever.be/sitemap.xml

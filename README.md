@@ -1,6 +1,6 @@
 # Rock Fever
 
-Website of Rock Fever: https://www.rockfever.be
+Website of Rock Fever: https://rockfever.be
 
 PHP 8.5, Twig 3, PHP-DI 7, Mezzio router. Hosted on OVH web hosting.
 
