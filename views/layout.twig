@@ -3,14 +3,41 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Google tag (gtag.js), loaded once the page has finished loading so it doesn't compete with it -->
+    <!-- The site's scripts and the Google tag (gtag.js) are only needed once the page is shown: they load after its
+         first paint, so that on a slow connection they don't hold it back -->
     <script>
-        window.addEventListener('load', function () {
-            var tag = document.createElement('script');
-            tag.async = true;
-            tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W';
-            document.head.appendChild(tag);
-        });
+        (function () {
+            var loaded = false;
+            function loadScripts() {
+                if (loaded) {
+                    return;
+                }
+                loaded = true;
+                [
+                    '{{ asset('/js/jquery.min.js') }}',
+                    '{{ asset('/js/materialize.min.js') }}',
+                    '{{ asset('/js/script.js') }}',
+                    'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W'
+                ].forEach(function (src) {
+                    var tag = document.createElement('script');
+                    // Run them in this order, like defer did: jQuery, then Materialize, then the site's script
+                    tag.async = false;
+                    tag.src = src;
+                    document.head.appendChild(tag);
+                });
+            }
+            // The load event often comes before the first paint: wait for the browser to report that paint
+            window.addEventListener('load', function () {
+                try {
+                    new PerformanceObserver(function () {
+                        setTimeout(loadScripts);
+                    }).observe({type: 'paint', buffered: true});
+                } catch (e) {
+                    // Browsers that don't report paints
+                }
+                setTimeout(loadScripts, 1000);
+            });
+        })();
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
@@ -58,9 +85,5 @@
     </main>
 
     {% include "footer.twig" %}
-
-    <script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}" defer></script>
-    <script type="text/javascript" src="{{ asset('/js/materialize.min.js') }}" defer></script>
-    <script type="text/javascript" src="{{ asset('/js/script.js') }}" defer></script>
 </body>
 </html>
