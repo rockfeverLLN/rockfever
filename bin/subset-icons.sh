@@ -22,7 +22,7 @@ from fontTools.ttLib import TTFont
 from fontTools import subset
 
 src, dst, names = sys.argv[1], sys.argv[2], sys.argv[3].split()
-font = TTFont(src)
+font = TTFont(src, recalcTimestamp=False)  # same icons, same file, same ?v=
 cmap = font.getBestCmap()
 letters = sorted(set(''.join(names)))
 letter_glyphs = {cmap[ord(c)] for c in letters}
@@ -69,7 +69,7 @@ from fontTools import subset
 css_src, font_src, font_dst, style, classes = sys.argv[1:6]
 codes = dict(re.findall(r'\.(mdi-[a-z0-9-]+):before\{content:"\\([0-9A-F]+)"', open(css_src).read()))
 icons = {c: codes[c] for c in classes.split() if c in codes}
-font = TTFont(font_src)
+font = TTFont(font_src, recalcTimestamp=False)
 options = subset.Options()
 options.flavor = 'woff2'
 options.name_IDs = ['*']

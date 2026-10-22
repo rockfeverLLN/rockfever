@@ -27,6 +27,10 @@ composer serve                                       # http://127.0.0.1:8000
 
 `composer serve` runs with `ENV=dev`, which shows errors with Whoops. Without `ENV`, the app runs in production mode and caches templates in `tmp/`.
 
+## Calendar
+
+`/calendrier` lists the dates of the soirées, with buttons to add one or all of them to a calendar app. The dates, times and place are in `calendar.soirees` and the lines under it in [`src/Main/config.php`](src/Main/config.php): add the next semester's dates there. `/calendrier.ics` serves them all, so calendars that subscribed to it get the new dates on their own.
+
 ## Page speed
 
 - `views/critical.css` holds the CSS rules the public pages need for their first paint. `layout.twig` inlines it and loads the full stylesheets in the background. After changing `www/css/` or the classes of the public templates, rebuild it with `php bin/critical-css.php` (reads the live pages; add a saved page such as `event.html` when the event page is closed).

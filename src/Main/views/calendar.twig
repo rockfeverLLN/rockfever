@@ -1,0 +1,104 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Calendrier des soirées - Rock Fever{% endblock %}
+
+{% block description %}Toutes les dates des soirées Rock Fever à Louvain-la-Neuve, à ajouter à ton agenda en un clic.{% endblock %}
+
+{% block canonical_path %}/calendrier{% endblock %}
+
+{% block head %}
+    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
+    {#- The coming soirées as schema.org events, for search engines #}
+    {%- set events = [] %}
+    {%- for soirees in semesters %}{% for soiree in soirees %}{% if not soiree.past %}
+        {%- set events = events|merge([{
+            '@context': 'https://schema.org',
+            '@type': 'DanceEvent',
+            name: 'Soirée Rock Fever',
+            startDate: soiree.start|date('c', false),
+            endDate: soiree.end|date('c', false),
+            eventStatus: 'https://schema.org/EventScheduled',
+            eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+            location: {'@type': 'Place', name: place, address: address},
+            organizer: {'@type': 'Organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
+            url: 'https://rockfever.be/calendrier'
+        }]) %}
+    {%- endif %}{% endfor %}{% endfor %}
+    {%- if events %}
+    <script type="application/ld+json">{{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_UNESCAPED_SLASHES'))|raw }}</script>
+    {%- endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="parallax-container home-parallax-container">
+        <div class="container">
+            <div class="center">
+                <h1 class="white-text home-title">Calendrier</h1>
+            </div>
+        </div>
+        <div class="parallax">
+            <img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high">
+        </div>
+    </div>
+    {% if nextEventExist() %}
+    <a href="{{ path('event') }}" class="full-width-link koamaru">
+        Inscris-toi à notre prochain événement !
+    </a>
+    {% endif %}
+
+    {%- set first = (semesters|first)|first %}
+    <div class="container">
+        <p class="calendar-intro">
+            Sauf exception, les soirées ont lieu le mercredi soir au <strong>{{ place }}</strong> à Louvain-la-Neuve,
+            de {{ first.start|date('H:i', false)|replace({':': 'h'}) }} à {{ first.end|date('H:i', false)|replace({':': 'h'}) }}.
+            Elles sont ouvertes aux 18-35 ans, avec ta carte d'identité.
+            Inscris-toi à l'avance sur le site pour payer 3 € au lieu de 4 € sur place.
+        </p>
+
+        <div class="calendar-subscribe">
+            <a href="webcal://rockfever.be{{ path('calendar.ics') }}" class="btn koamaru waves-effect waves-light">
+                <i class="mdi mdi-calendar-multiple left" aria-hidden="true"></i>Ajouter toutes les dates
+            </a>
+            <a href="https://calendar.google.com/calendar/render?cid={{ ('webcal://rockfever.be' ~ path('calendar.ics'))|url_encode }}" class="btn-flat calendar-google" target="_blank" rel="noopener">
+                <i class="mdi mdi-google left" aria-hidden="true"></i>Google Agenda
+            </a>
+            <p class="calendar-hint">Ton agenda se mettra à jour tout seul quand on ajoute des dates.</p>
+        </div>
+
+        {% for semester, soirees in semesters %}
+            <h2 class="calendar-semester">{{ semester }}</h2>
+            <ol class="soirees">
+                {% for soiree in soirees %}
+                    {% set label = soiree.weekday ~ ' ' ~ soiree.day ~ ' ' ~ soiree.month %}
+                    <li class="soiree{{ soiree.past ? ' soiree-past' }}{{ soiree.next ? ' soiree-next' }}">
+                        <time class="soiree-date koamaru" datetime="{{ soiree.date }}" aria-hidden="true">
+                            <span class="soiree-weekday">{{ soiree.weekday|slice(0, 3) }}</span>
+                            <span class="soiree-day">{{ soiree.day }}</span>
+                            <span class="soiree-month">{{ soiree.shortMonth }}</span>
+                        </time>
+                        <div class="soiree-content">
+                            <h3 class="soiree-title">
+                                {{ label }} {{ soiree.year }}
+                                {% if soiree.next %}<span class="soiree-badge">Prochaine soirée</span>{% endif %}
+                                {% if soiree.past %}<span class="soiree-badge soiree-badge-past">Passée</span>{% endif %}
+                            </h3>
+                            <p class="soiree-meta">
+                                {{ soiree.start|date('H:i', false)|replace({':': 'h'}) }} · {{ place }}{% if soiree.week %} · Semaine {{ soiree.week|replace({'S': ''}) }}{% endif %}
+                            </p>
+                            {% if not soiree.past %}
+                                <div class="soiree-actions">
+                                    <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light">
+                                        <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon agenda<span class="sr-only"> : {{ label }}</span>
+                                    </a>
+                                    <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener">
+                                        <i class="mdi mdi-google left" aria-hidden="true"></i>Google<span class="sr-only"> Agenda : {{ label }}</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% endfor %}
+    </div>
+{% endblock %}

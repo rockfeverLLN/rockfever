@@ -4,7 +4,7 @@
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/material-icons.woff2?v=2b1bf0b8) format('woff2');
+    src: url(/fonts/material-icons.woff2?v=4c26ce59) format('woff2');
 }
 
 .material-icons {
@@ -178,6 +178,131 @@ main:focus {
     outline: none;
 }
 
+/* Calendar page */
+.calendar-intro {
+    font-size: 1.1rem;
+    margin-top: 2rem;
+}
+
+.calendar-subscribe {
+    margin: 1.5rem 0 1rem 0;
+}
+
+.calendar-subscribe .btn, .calendar-subscribe .btn-flat {
+    margin: 0 8px 8px 0;
+}
+
+/* Materialize buttons are one 36px line: let the longer labels wrap on phones instead of being cut */
+.calendar-subscribe .btn, .soiree-actions .btn {
+    height: auto;
+    min-height: 36px;
+    line-height: 20px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.calendar-hint {
+    color: #616161;
+    margin: 0;
+}
+
+.btn-flat.calendar-google {
+    color: #072d55;
+    font-weight: 500;
+}
+
+.calendar-semester {
+    font-size: 2rem;
+    margin: 2.5rem 0 1rem 0;
+}
+
+.soirees {
+    list-style: none;
+    margin: 0 0 3rem 0;
+    padding: 0;
+}
+
+.soiree {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 16px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+}
+
+.soiree-date {
+    flex: 0 0 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 6px;
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
+.soiree-weekday, .soiree-month {
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.soiree-day {
+    font-size: 2.4rem;
+    font-weight: 900;
+}
+
+.soiree-content {
+    flex: 1;
+    min-width: 0;
+    padding: 14px 18px;
+}
+
+.soiree-title {
+    font-size: 1.35rem;
+    line-height: 1.3;
+    margin: 0 0 4px 0;
+}
+
+.soiree-meta {
+    color: #616161;
+    margin: 0 0 10px 0;
+}
+
+.soiree-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background-color: #00796b;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 500;
+    vertical-align: middle;
+}
+
+.soiree-badge-past {
+    background-color: #616161;
+}
+
+.soiree-actions .btn, .soiree-actions .btn-flat {
+    margin: 4px 8px 0 0;
+}
+
+.soiree-next {
+    box-shadow: 0 0 0 3px #00796b, 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.soiree-past .soiree-meta {
+    margin-bottom: 0;
+}
+
+.soiree-past .soiree-date {
+    background-color: #616161 !important;
+}
+
 /* Footer heading: an h2 for the page outline, sized like Materialize's h5 */
 .footer-title {
     font-size: 1.64rem;
@@ -296,6 +421,28 @@ table tbody tr td .input-field {
     font-weight: bold;
     font-size: 24px;
     color: #FFFFFF;
+}
+
+/* The menu doesn't fit next to the logo on smaller desktop screens: drop its icons there, then some spacing */
+@media only screen and (min-width: 993px) and (max-width: 1499px) {
+    nav ul a i.left {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1099px) {
+    nav ul a {
+        padding: 0 10px;
+    }
+}
+
+/* On phones the text takes two lines: 70px each made a very tall banner */
+@media only screen and (max-width: 600px) {
+    .full-width-link {
+        line-height: 1.3;
+        padding: 16px 12px;
+        font-size: 20px;
+    }
 }
 
 .full-width-link:hover, .mid-width-link:hover {
@@ -560,7 +707,7 @@ input:not([type]).mce-textbox {
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/mdi.woff2?v=7d2f91fe) format('woff2');
+    src: url(/fonts/mdi.woff2?v=f79816bb) format('woff2');
 }
 
 .mdi:before {
@@ -572,6 +719,7 @@ input:not([type]).mce-textbox {
 }
 
 .mdi-calendar:before { content: "\F0ED"; }
+.mdi-calendar-multiple:before { content: "\F0F1"; }
 .mdi-calendar-plus:before { content: "\F0F3"; }
 .mdi-chart-bar:before { content: "\F128"; }
 .mdi-chevron-down:before { content: "\F140"; }
@@ -586,6 +734,7 @@ input:not([type]).mce-textbox {
 .mdi-facebook:before { content: "\F20C"; }
 .mdi-facebook-box:before { content: "\F20D"; }
 .mdi-format-list-bulleted:before { content: "\F279"; }
+.mdi-google:before { content: "\F2AD"; }
 .mdi-home:before { content: "\F2DC"; }
 .mdi-home-outline:before { content: "\F6A0"; }
 .mdi-instagram:before { content: "\F2FE"; }

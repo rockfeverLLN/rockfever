@@ -13,6 +13,9 @@
                 <a href="{{ path('event') }}"><i class="mdi mdi-calendar left" aria-hidden="true"></i> Prochain événement</a>
             </li>
             {% endif %}
+            <li class="{{ isSubPath('calendar') ? 'active' }}">
+                <a href="{{ path('calendar') }}"><i class="mdi mdi-calendar-multiple left" aria-hidden="true"></i> Calendrier</a>
+            </li>
             <li class="{{ isSubPath('music') ? 'active' }}">
                 <a href="{{ path('music') }}"><i class="mdi mdi-music left" aria-hidden="true"></i> Proposer un rock</a>
             </li>
@@ -32,6 +35,9 @@
         <a href="{{ path('event') }}">Prochain événement</a>
     </li>
     {% endif %}
+    <li class="{{ isSubPath('calendar') ? 'active' }}">
+        <a href="{{ path('calendar') }}">Calendrier</a>
+    </li>
     <li class="{{ isSubPath('music') ? 'active' }}">
         <a href="{{ path('music') }}">Proposer un rock</a>
     </li>
