@@ -1,4 +1,4 @@
-<nav class="koamaru">
+<nav class="koamaru" aria-label="Menu principal">
     <div class="nav-wrapper container">
         <a href="{{ path('admin.dashboard') }}" class="brand-logo">Administration</a>
         <a href="#" data-target="sidenav" class="sidenav-trigger">
@@ -22,32 +22,35 @@
     </div>
 </nav>
 
-<ul class="sidenav" id="sidenav">
-    <li><a href="{{ path('admin.dashboard') }}">Tableau de bord</a></li>
-    {% if isAdmin() %}
-        <li class="{{ isSubPath('admin.about.index') ? 'active' }}">
-            <a href="{{ path('admin.about.index') }}">A propos</a>
+{#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
+<div role="navigation" aria-label="Menu mobile">
+    <ul class="sidenav" id="sidenav">
+        <li><a href="{{ path('admin.dashboard') }}">Tableau de bord</a></li>
+        {% if isAdmin() %}
+            <li class="{{ isSubPath('admin.about.index') ? 'active' }}">
+                <a href="{{ path('admin.about.index') }}">A propos</a>
+            </li>
+            <li class="{{ isSubPath('admin.music.index') ? 'active' }}">
+                <a href="{{ path('admin.music.index') }}">Musiques</a>
+            </li>
+            <li class="{{ isSubPath('admin.roles.index') ? 'active' }}">
+                <a href="{{ path('admin.roles.index') }}">Utilisateurs</a>
+            </li>
+            <li class="{{ isSubPath('admin.values.index') ? 'active' }}">
+                <a href="{{ path('admin.values.index') }}">Valeurs</a>
+            </li>
+        {% endif %}
+        <li class="{{ isSubPath('admin.events.index') ? 'active' }}">
+            <a href="{{ path('admin.events.index') }}">Événements</a>
         </li>
-        <li class="{{ isSubPath('admin.music.index') ? 'active' }}">
-            <a href="{{ path('admin.music.index') }}">Musiques</a>
-        </li>
-        <li class="{{ isSubPath('admin.roles.index') ? 'active' }}">
-            <a href="{{ path('admin.roles.index') }}">Utilisateurs</a>
-        </li>
-        <li class="{{ isSubPath('admin.values.index') ? 'active' }}">
-            <a href="{{ path('admin.values.index') }}">Valeurs</a>
-        </li>
-    {% endif %}
-    <li class="{{ isSubPath('admin.events.index') ? 'active' }}">
-        <a href="{{ path('admin.events.index') }}">Événements</a>
-    </li>
-    <li>
-        <a onclick="$('#logout-form').submit()">
-            Se déconnecter
-        </a>
+        <li>
+            <a onclick="$('#logout-form').submit()">
+                Se déconnecter
+            </a>
 
-        <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
-            {{ csrfInput() }}
-        </form>
-    </li>
-</ul>
+            <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
+                {{ csrfInput() }}
+            </form>
+        </li>
+    </ul>
+</div>
