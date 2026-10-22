@@ -5,6 +5,7 @@ use App\Auth\AuthModule;
 use App\Events\EventsModule;
 use App\Events\Middleware\NextEventMiddleware;
 use App\Main\MainModule;
+use App\Photos\PhotographerMiddleware;
 use App\Photos\PhotosModule;
 use Framework\App;
 use Framework\Auth\ForbiddenMiddleware;
@@ -47,6 +48,7 @@ $app->pipe(MarkdownMiddleware::class)
     ->pipe(ForbiddenMiddleware::class)
     ->pipe('/event', NextEventMiddleware::class)
     ->pipe($container->get('admin.prefix'), LoggedInMiddleWare::class)
+    ->pipe($container->get('admin.prefix'), PhotographerMiddleware::class)
     ->pipe($container->get('admin.prefix').'/about', AdminOnlyMiddleware::class)
     ->pipe($container->get('admin.prefix').'/roles', AdminOnlyMiddleware::class)
     ->pipe($container->get('admin.prefix').'/values', AdminOnlyMiddleware::class)

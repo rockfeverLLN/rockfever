@@ -26,12 +26,21 @@ class RoleExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('isAdmin', [$this, 'isAdmin'])
+            new TwigFunction('isAdmin', [$this, 'isAdmin']),
+            new TwigFunction('isPhotographer', [$this, 'isPhotographer'])
         ];
     }
 
     public function isAdmin()
     {
         return ($this->auth->getUser() && $this->auth->getUser()->getRole() == "administrator");
+    }
+
+    /**
+     * The photographers' login, which only opens the photo albums (App\Photos\PhotographerMiddleware)
+     */
+    public function isPhotographer()
+    {
+        return ($this->auth->getUser() && $this->auth->getUser()->getRole() == "photographer");
     }
 }
