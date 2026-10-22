@@ -20,25 +20,28 @@
         </div>
     </div>
     {% if nextEventExist() %}
-    <a href="{{ path('event') }}" class="full-width-link koamaru">
+    <a href="{{ path('event') }}" class="next-event-link koamaru">
         Inscris-toi à notre prochain événement !
     </a>
     {% endif %}
 
-
-    <div class="container">
+    <div class="container home-content">
         {% include 'flash.twig' %}
-        <div class="row">
-            {% for item in items %}
-                <div class="col s12">
-                    <div class="row">
-                        <div class="col s12 rich-text">
-                            <h2>{{ item.title }}</h2>
-                            <div>{{ item.content | lazyImages(loop.first ? 1 : 0) | raw }}</div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+        {% for item in items %}
+            <section class="home-section rich-text">
+                <h2>{{ item.title }}</h2>
+                <div>{{ item.content | lazyImages(loop.first ? 1 : 0) | raw }}</div>
+            </section>
+        {% endfor %}
+        {% if members %}
+            <div class="staff-grid">
+                {% for member in members %}
+                    <section class="staff-card rich-text">
+                        <h3>{{ member.title }}</h3>
+                        <div class="staff-card-content">{{ member.content | withoutEmptyParagraphs | lazyImages | raw }}</div>
+                    </section>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

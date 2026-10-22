@@ -35,6 +35,7 @@
     {%- endif %}
 
     <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2?v=4c26ce59" as="font" type="font/woff2" crossorigin/>
+    <link rel="preload" href="{{ __DIR__ }}/fonts/inter.woff2?v=8e433c05" as="font" type="font/woff2" crossorigin/>
     {% block head %}{% endblock %}
     {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
     <style>{{ source('critical.css') }}</style>
@@ -47,7 +48,8 @@
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
 </head>
 
-<body class="{% block bodyColor %}{% endblock %}">
+{#- "site" scopes the public pages' font, menu and footer styles: the admin uses the same style.css #}
+<body class="site {% block bodyColor %}{% endblock %}">
     <a href="#contenu" class="skip-link">Aller au contenu</a>
     {% include "topbar.twig" %}
 

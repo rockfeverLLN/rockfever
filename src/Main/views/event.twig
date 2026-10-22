@@ -30,7 +30,7 @@
 
 {% block body %}
 
-    <div class="parallax-container" {% if event.closed == 1 %} style="height:340px" {% endif %}>
+    <div class="parallax-container form-parallax-container{{ event.closed == 1 ? ' form-parallax-closed' }}">
         <div class="container">
             {% include 'flash.twig' %}
             <div class="center">
@@ -55,7 +55,7 @@
 
 
 
-    <div class="container center white-text">
+    <div class="container center white-text event-details">
         <h2>&laquo; {{ event.title }} &raquo;</h2>
         <span class="spaced-item">
             <nobr>
@@ -83,25 +83,27 @@
             </nobr>
         </span>
         <br>
-        <span class="spaced-item" style="margin: 10px auto">
+        <span class="event-reminder">
             N'oublie pas ta carte d'étudiant ou d'identité
         </span>
         <br>
-        <strong>Description :</strong>
+        <strong class="event-description-label">Description :</strong>
         <p>{{ event.description | nl2br }}</p>
         <br>
     </div>
 
+    <div class="event-links">
     {% if event.coveventLink %}
-        <a href="{{ event.facebookLink }}" class="mid-width-link blue darken-4" target="_blank">Evénement facebook</a>
-        <a href="{{ event.coveventLink }}" class="mid-width-link red darken-3" target="_blank">Covevent</a>
+        <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Evénement facebook</a>
+        <a href="{{ event.coveventLink }}" class="event-link red darken-3" target="_blank">Covevent</a>
     {% else %}
         {% if event.facebookLink %}
-            <a href="{{ event.facebookLink }}" class="full-width-link blue darken-4" target="_blank">Evénement facebook</a>
+            <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Evénement facebook</a>
         {% else %}
-            <a href="https://www.facebook.com/rockfeverlln/" class="full-width-link blue darken-4" target="_blank">Notre page facebook</a>
+            <a href="https://www.facebook.com/rockfeverlln/" class="event-link blue darken-4" target="_blank">Notre page facebook</a>
         {% endif %}
     {% endif %}
+    </div>
 
     <div id="nextEventInfos" class="modal">
         <div class="modal-footer">

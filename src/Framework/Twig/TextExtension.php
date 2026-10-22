@@ -23,8 +23,19 @@ class TextExtension extends \Twig\Extension\AbstractExtension
                 'is_safe' => ['html']
             ]),
             new \Twig\TwigFilter('round', [$this, 'round']),
-            new \Twig\TwigFilter('lazyImages', [$this, 'lazyImages'])
+            new \Twig\TwigFilter('lazyImages', [$this, 'lazyImages']),
+            new \Twig\TwigFilter('withoutEmptyParagraphs', [$this, 'withoutEmptyParagraphs'])
         ];
+    }
+
+    /**
+     * Removes the blank paragraphs (<p>&nbsp;</p>) the admin editor leaves when pressing Enter several times
+     * @param string|null $content
+     * @return string
+     */
+    public function withoutEmptyParagraphs(?string $content) : string
+    {
+        return preg_replace('#<p\b[^>]*>(?:\s|&nbsp;|\x{a0}|<br\s*/?>)*</p>\s*#iu', '', $content ?? '');
     }
 
     /**

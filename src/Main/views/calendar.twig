@@ -41,13 +41,13 @@
         </div>
     </div>
     {% if nextEventExist() %}
-    <a href="{{ path('event') }}" class="full-width-link koamaru">
+    <a href="{{ path('event') }}" class="next-event-link koamaru">
         Inscris-toi à notre prochain événement !
     </a>
     {% endif %}
 
     {%- set first = (semesters|first)|first %}
-    <div class="container">
+    <div class="container calendar-page">
         <p class="calendar-intro">
             Sauf exception, les soirées ont lieu le mercredi soir au <strong>{{ place }}</strong> à Louvain-la-Neuve,
             de {{ first.start|date('H:i', false)|replace({':': 'h'}) }} à {{ first.end|date('H:i', false)|replace({':': 'h'}) }}.
