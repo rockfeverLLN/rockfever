@@ -47,12 +47,14 @@ fi
 
 # Built by bin/critical-css.php in deploy.yml and not in git, so not in the diff above: always upload them,
 # over the previous build (after any "rm" above, for the deploy that took them out of git)
-for built in views/critical.css www/css/materialize.site.css; do
+for built in views/critical.css www/css/site.css; do
     if [ -f "$built" ]; then
         echo "  upload $built (built)"
         COMMANDS+=" put $(quote "$built") -o $(quote "$built");"
     fi
 done
+# Built by earlier deploys and no longer used (merged into site.css)
+COMMANDS+=" rm -f www/css/materialize.site.css;"
 
 LOCK_HASH=$(sha256sum composer.lock | cut -c1-64)
 if [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; then

@@ -24,4 +24,4 @@ Thumbs.db
 
 # Built by bin/critical-css.php at every deploy (deploy.yml)
 /views/critical.css
-/www/css/materialize.site.css
+/www/css/site.css

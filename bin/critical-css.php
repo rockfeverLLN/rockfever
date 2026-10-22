@@ -1,8 +1,9 @@
 <?php
 // Builds views/critical.css: the rules of materialize.min.css and style.css that the public pages use.
 // layout.twig inlines it so the first paint doesn't wait for the stylesheets, which then load in the background.
-// Also builds www/css/materialize.site.css, the stylesheet those pages load instead of all of Materialize: the rules
-// they use, and those of the classes Materialize's scripts add on them (side menu, modal, waves, form fields).
+// Also builds www/css/site.css, the one stylesheet those pages load: the part of Materialize they use (with the classes
+// its scripts add on them: side menu, modal, waves, form fields), then all of style.css. One file, so both apply at
+// the same moment: loaded apart, Materialize alone briefly overrode the first-paint rules and moved the page.
 // Run it again after changing the CSS or the classes used in the public templates:
 //
 //   php bin/critical-css.php                                     # pages of https://www.rockfever.be
@@ -187,10 +188,11 @@ file_put_contents("$root/views/critical.css", $output . "\n");
 printf("views/critical.css: %d KB from %d pages\n", strlen($output) / 1024, count($documents));
 
 $materialize = preg_replace('#/\*.*?\*/#s', '', file_get_contents("$root/www/css/materialize.min.css"));
-$site = keepUsed(parseCss($materialize), $documents, $scriptClasses, true);
+$site = keepUsed(parseCss($materialize), $documents, $scriptClasses, true)
+    . minify(preg_replace('#/\*.*?\*/#s', '', file_get_contents("$root/www/css/style.css")));
 file_put_contents(
-    "$root/www/css/materialize.site.css",
-    "/* Built by bin/critical-css.php from materialize.min.css (MIT, materializecss.com): only what the public pages use */\n"
+    "$root/www/css/site.css",
+    "/* Built by bin/critical-css.php: the part of materialize.min.css (MIT, materializecss.com) the public pages use, then style.css */\n"
     . $site . "\n"
 );
-printf("www/css/materialize.site.css: %d KB instead of %d KB\n", strlen($site) / 1024, strlen($materialize) / 1024);
+printf("www/css/site.css: %d KB (all of Materialize and style.css: %d KB)\n", strlen($site) / 1024, (strlen($materialize) + filesize("$root/www/css/style.css")) / 1024);

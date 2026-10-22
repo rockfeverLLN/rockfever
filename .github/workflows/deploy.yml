@@ -53,7 +53,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
             sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
-      # views/critical.css and www/css/materialize.site.css aren't in git: they're built here from the pages of this
+      # views/critical.css and www/css/site.css aren't in git: they're built here from the pages of this
       # commit, so they always match its templates and CSS, and bin/deploy.sh uploads them over the previous ones
       - name: Build the trimmed CSS
         run: |
