@@ -7,6 +7,14 @@ use Phinx\Seed\AbstractSeed;
 class DancersSeeder extends AbstractSeed
 {
     /**
+     * Dancers point at events 1 to 3, so those have to exist first
+     */
+    public function getDependencies(): array
+    {
+        return ['EventsSeeder'];
+    }
+
+    /**
      * Run Method.
      *
      * Write your database seeder using this method.

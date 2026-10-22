@@ -38,3 +38,9 @@ composer serve                                       # http://127.0.0.1:8000
 Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It installs the Composer dependencies, checks PHP syntax, and uploads the project over SFTP to the OVH hosting root. It needs the `FTP_PASSWORD` repository secret.
 
 The PHP version on OVH is set in [`.ovhconfig`](.ovhconfig).
+
+## Package updates
+
+Every Monday, [`.github/workflows/update-dependencies.yml`](.github/workflows/update-dependencies.yml) installs the newest minor and patch versions of the Composer packages, for the PHP version in `.ovhconfig`. It starts the site on a fresh database, loads the main pages with `bin/smoke-test.sh`, and only if they all work, commits `composer.lock` and deploys. New major versions can need code changes, so they are only listed in a "Breaking package updates available" issue. You can also start it by hand from the Actions tab.
+
+To run the same page check locally: `composer migrate && composer seed`, `composer serve`, then `bin/smoke-test.sh` in another terminal.
