@@ -1,3 +1,29 @@
+/* Material Icons, self-hosted and reduced to the icons the site uses: run bin/subset-icons.sh after using a new one */
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url(/fonts/material-icons.woff2) format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
 .koamaru {
     background-color: #072d55 !important;
 }
@@ -66,6 +92,11 @@ h6 {
 
 .home-parallax-container {
     height: 250px;
+}
+
+/* Materialize only shows parallax images once its script has run: show them from the first paint */
+.parallax-container .parallax img {
+    opacity: 1;
 }
 
 .error-parallax-container {
@@ -282,7 +313,7 @@ input:not([type]).mce-textbox {
 }
 
 .dancers-list-background {
-    background-image: url("/images/body/bg.png");
+    background-image: url("/images/body/bg.webp");
     height: 100%;
 }
 

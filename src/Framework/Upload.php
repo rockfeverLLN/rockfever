@@ -14,6 +14,12 @@ class Upload
 
     protected $formats = [];
 
+    /**
+     * Uploaded images larger than this (in pixels, on either side) are scaled down. null keeps them as is
+     * @var int|null
+     */
+    protected $maxSize = null;
+
     public function __construct(?string $path = null)
     {
         if ($path) {
@@ -37,6 +43,7 @@ class Upload
             }
             $file->moveTo($targetPath);
 
+            $this->shrink($targetPath);
             $this->generateFormats($targetPath);
 
             return pathinfo($targetPath)['basename'];
@@ -72,6 +79,36 @@ class Upload
     {
         $info = pathinfo($path);
         return $info['dirname'] . '/' . $info['filename'] . '_' . $suffix . '.' . $info['extension'];
+    }
+
+    private function shrink(string $targetPath) : void
+    {
+        $extension = strtolower(pathinfo($targetPath, PATHINFO_EXTENSION));
+        if (!$this->maxSize || !in_array($extension, ['jpg', 'jpeg', 'png', 'webp'])) {
+            return;
+        }
+        [$width, $height] = getimagesize($targetPath) ?: [0, 0];
+        if ($width <= $this->maxSize && $height <= $this->maxSize) {
+            return;
+        }
+        // GD holds the whole picture in memory: running out would be a fatal error, not an exception
+        ini_set('memory_limit', '512M');
+        if ($width * $height * 6 > 400 * 1024 * 1024) {
+            return;
+        }
+        try {
+            $manager = new ImageManager(['driver' => 'gd']);
+            $image = $manager->make($targetPath);
+            if (function_exists('exif_read_data')) {
+                $image->orientate();
+            }
+            $image->resize($this->maxSize, $this->maxSize, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($targetPath, 80);
+        } catch (\Throwable $e) {
+            // Keep the original file if it can't be processed
+        }
     }
 
     private function generateFormats($targetPath)

@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>{% block title %}Rock Fever{% endblock %}</title>
-
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.1.19/css/materialdesignicons.min.css">
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/style.css"  media="screen,projection"/>
-    <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
-    <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>{% block title %}Rock Fever{% endblock %}</title>
+    <meta name="description" content="{% block description %}Rock Fever, le rock à Louvain-la-Neuve : prochain événement, inscriptions et propositions de musique.{% endblock %}"/>
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
+    <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2" as="font" type="font/woff2" crossorigin/>
+    {% block head %}{% endblock %}
+    {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
+    <style>{{ source('critical.css') }}</style>
+    {# Icon font loaded without blocking the first paint #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css"></noscript>
+    <link rel="preload" href="{{ __DIR__ }}/css/materialize.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="{{ __DIR__ }}/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <noscript>
+        <link rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"/>
+        <link rel="stylesheet" href="{{ __DIR__ }}/css/style.css"/>
+    </noscript>
+    <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
 </head>
 
 <body class="{% block bodyColor %}{% endblock %}">
     {% include "topbar.twig" %}
 
+    <main>
     {% block body %}
     {% endblock %}
+    </main>
 
     {% include "footer.twig" %}
 

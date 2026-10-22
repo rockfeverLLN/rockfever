@@ -12,4 +12,6 @@ use Framework\Upload;
 class AboutUpload extends Upload
 {
     protected $path = 'www/images/about';
+
+    protected $maxSize = 1600;
 }
