@@ -1,0 +1,24 @@
+# Rock Fever
+
+> Soirées rock et valse ouvertes aux 18-35 ans à Louvain-la-Neuve (Belgique), au Hall Sainte-Barbe, en général le mercredi soir pendant les quadrimestres. Carte d'identité obligatoire ; l'entrée est moins chère en s'inscrivant à l'avance sur le site.
+
+Le site est en français. Chaque page existe aussi en Markdown : demande-la avec l'en-tête `Accept: text/markdown`.
+
+## Pages
+
+- [Accueil](https://rockfever.be/): qui sommes-nous, photos et présentation du staff
+- [Prochain événement](https://rockfever.be/event): date, heures, lieu, prix et inscription au prochain événement (n'existe que si un événement est annoncé)
+- [Calendrier](https://rockfever.be/calendrier): toutes les dates des soirées du quadrimestre
+- [Calendrier iCalendar](https://rockfever.be/calendrier.ics): les mêmes dates au format .ics
+- [Proposer un rock](https://rockfever.be/music): proposer une musique pour les soirées
+- [Contact](https://rockfever.be/contact): formulaire pour écrire à l'équipe
+- [R.O.I. & Conditions](https://rockfever.be/legal): règlement d'ordre intérieur et conditions d'utilisation
+
+## Réseaux sociaux
+
+- [Facebook](https://www.facebook.com/rockfeverlln)
+- [Instagram](https://www.instagram.com/rockfeverlln/)
+
+## Optional
+
+- [Consignes pour les agents](https://rockfever.be/AGENTS.md)

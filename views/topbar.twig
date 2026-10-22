@@ -24,22 +24,25 @@
     </div>
 </nav>
 
-<ul class="sidenav" id="mobile-demo">
-    <li class="{{ isSubPath('home') ? 'active' }}">
-        <a href="{{ path('home') }}">Accueil</a>
-    </li>
-    {% if nextEventExist() %}
-    <li class="{{ isSubPath('event') ? 'active' }}">
-        <a href="{{ path('event') }}">Prochain événement</a>
-    </li>
-    {% endif %}
-    <li class="{{ isSubPath('calendar') ? 'active' }}">
-        <a href="{{ path('calendar') }}">Calendrier</a>
-    </li>
-    <li class="{{ isSubPath('music') ? 'active' }}">
-        <a href="{{ path('music') }}">Proposer un rock</a>
-    </li>
-    <li class="{{ isSubPath('contact') ? 'active' }}">
-        <a href="{{ path('contact') }}">Contact</a>
-    </li>
-</ul>
+{#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
+<div role="navigation" aria-label="Menu mobile">
+    <ul class="sidenav" id="mobile-demo">
+        <li class="{{ isSubPath('home') ? 'active' }}">
+            <a href="{{ path('home') }}">Accueil</a>
+        </li>
+        {% if nextEventExist() %}
+        <li class="{{ isSubPath('event') ? 'active' }}">
+            <a href="{{ path('event') }}">Prochain événement</a>
+        </li>
+        {% endif %}
+        <li class="{{ isSubPath('calendar') ? 'active' }}">
+            <a href="{{ path('calendar') }}">Calendrier</a>
+        </li>
+        <li class="{{ isSubPath('music') ? 'active' }}">
+            <a href="{{ path('music') }}">Proposer un rock</a>
+        </li>
+        <li class="{{ isSubPath('contact') ? 'active' }}">
+            <a href="{{ path('contact') }}">Contact</a>
+        </li>
+    </ul>
+</div>

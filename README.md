@@ -38,12 +38,20 @@ The home page shows the sections of the admin's "À propos" in order. The sectio
 ## Page speed
 
 - `views/critical.css` holds the CSS rules the public pages need for their first paint: `layout.twig` inlines it and loads the full stylesheet in the background. That stylesheet, `www/css/site.css`, is the part of Materialize the public pages use (plus the classes its scripts add) followed by `style.css`, in one file so both apply at once; the admin keeps all of Materialize. Both files are built by `bin/critical-css.php` at every deploy, from this commit's pages on a test database and from the live pages, so they're not in git. Without them (a fresh checkout), the pages load all of Materialize and `style.css` the usual way. To build them locally: `php bin/critical-css.php https://www.rockfever.be http://127.0.0.1:8000`.
-- jQuery, Materialize's script, `script.js` and Google Analytics start loading once the browser reports the first paint, so on slow connections they don't delay it (the menu and forms work a moment later).
+- jQuery, Materialize's script and `script.js` start loading once the browser reports the first paint, so on slow connections they don't delay it (the menu and forms work a moment later).
 - CSS and JS URLs carry a version made from the file (`asset()` in `layout.twig`, [`AssetExtension`](src/Framework/Twig/AssetExtension.php)), so `www/.htaccess` lets browsers keep them for a year: a changed file gets a new URL.
 - `www/fonts/material-icons.woff2` and `www/fonts/mdi.woff2` only contain the Material Icons and Material Design Icons (`mdi mdi-…`) used in the templates. After using a new icon, run `bin/subset-icons.sh` (needs `brew install fonttools`): it rebuilds both fonts, the `mdi-…` rules at the end of `www/css/style.css`, and the `?v=` of the font URLs.
 - The public pages use Inter, self-hosted in `www/fonts/inter.woff2` (Latin characters, one variable file for every weight, license in `inter-LICENSE.txt`). `layout.twig` preloads it; if you replace the file, change its `?v=` there and in `www/css/style.css`.
 - Photos uploaded in the admin are scaled down to 1600px, and smaller WebP copies (320 to 1280px) are saved in `www/images/about/sizes/`. The `lazyImages` Twig filter offers them in a `srcset` for images that have a `width`. For photos uploaded before that, run `php bin/resize-images.php`.
-- Google Analytics loads after the page's `load` event so it doesn't compete with the page itself.
+- The Google tag (`G-MKKLSTRX4W`) is Google's standard snippet at the top of `<head>`, loaded `async` so it doesn't block the page, and in cookieless mode (Consent Mode denied), so no consent banner is needed.
+
+## Search engines and AI agents
+
+- `www/robots.txt` lets every crawler in, AI training included (`Content-Signal: ai-train=yes`), except `/admin` and `/login`.
+- `www/llms.txt` sums up the site and its pages for language models, and `www/AGENTS.md` tells agents what they may do (no form sent without the person's request). Update them when pages change.
+- Every page answers in Markdown (its `<main>` only) when asked with `Accept: text/markdown`: [`MarkdownMiddleware`](src/Framework/Middleware/MarkdownMiddleware.php).
+- `layout.twig` marks up Rock Fever as a schema.org `Organization`. The home and calendar pages list the coming soirées as `DanceEvent`s (`@main/soireesJsonLd.twig`), and `/event` marks up the next event.
+- `www/.htaccess` sends the security headers (HSTS, CSP, nosniff…) on every response.
 
 ## Deploy
 
