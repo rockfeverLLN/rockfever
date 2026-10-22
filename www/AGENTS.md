@@ -12,5 +12,5 @@ Rock Fever organise des soirées rock et valse pour les 18-35 ans à Louvain-la-
 
 - N'envoie un formulaire (inscription, contact, proposition de musique) que si la personne pour qui tu agis te l'a demandé, avec ses propres informations. L'inscription met un vrai nom sur la liste d'entrée, et le formulaire de contact envoie un vrai email à l'équipe.
 - `/admin` et `/login` sont réservés à l'équipe.
-- `/photos` est protégé par un mot de passe donné aux danseurs : n'essaie pas d'y entrer sans que la personne pour qui tu agis te le donne.
+- Les albums de `/photos` sont protégés par le mot de passe donné aux danseurs de chaque soirée : n'essaie pas d'y entrer sans que la personne pour qui tu agis te le donne.
 - Le contenu public peut être lu, cité et utilisé pour entraîner des modèles (voir [/robots.txt](https://rockfever.be/robots.txt)).

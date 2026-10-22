@@ -79,7 +79,7 @@ class AlbumAdminAction
     public function __invoke(Request $request) : ResponseInterface
     {
         try {
-            $album = $this->albumTable->find((int) $request->getAttribute('id'));
+            $album = $this->albumTable->findForAccess((int) $request->getAttribute('id'));
         } catch (NoRecordException $e) {
             $this->flash->error('Cet album n\'existe plus');
             return $this->redirect('admin.photos.index');
@@ -89,6 +89,9 @@ class AlbumAdminAction
             if ($params === null) {
                 $this->flash->error('Donne un titre et une collection à l\'album (100 caractères au plus)');
             } else {
+                if ($params['event_id'] !== null && !$this->albumTable->eventExists($params['event_id'])) {
+                    $params['event_id'] = null;
+                }
                 $params['slug'] = $this->albumTable->makeSlug($params['title'], $album->id);
                 $this->albumTable->update($album->id, $params);
                 $this->flash->success('L\'album a été modifié');
@@ -100,11 +103,12 @@ class AlbumAdminAction
         $requested = array_map(fn ($r) => $r->photoId, iterator_to_array($this->requestTable->findAll()->fetchAll()));
         $collections = $this->albumTable->findCollections();
         $photographers = $this->albumTable->findPhotographers();
+        $events = $this->albumTable->findEvents();
         $html = $this->renderer->render(
             '@photos/admin/album',
-            compact('album', 'photos', 'sections', 'requested', 'collections', 'photographers')
+            compact('album', 'photos', 'sections', 'requested', 'collections', 'photographers', 'events')
         );
-        // With the gallery's cookie, the thumbnails don't each wait for the session (PhotoAccess)
-        return $this->access->grant(new Response(200, [], $html), $request);
+        // With the album's cookie, the thumbnails don't each wait for the session (PhotoAccess)
+        return $this->access->grant(new Response(200, [], $html), $request, $album);
     }
 }

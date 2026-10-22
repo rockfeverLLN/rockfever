@@ -60,20 +60,10 @@
             </div>
             <div class="col s12 l4">
                 <div class="card-panel">
-                    <h2><i class="mdi {{ open ? 'mdi-lock' : 'mdi-lock-open' }}"></i> Mot de passe</h2>
-                    {% if open %}
-                        <p>La galerie est ouverte à ceux qui ont le mot de passe. En le changeant, tout le monde devra entrer le nouveau.</p>
-                    {% else %}
-                        <p class="red-text text-darken-2"><b>Aucun mot de passe : la galerie est fermée aux visiteurs.</b> Choisis-en un pour l'ouvrir.</p>
-                    {% endif %}
-                    <form action="{{ path('admin.photos.password') }}" method="post">
-                        {{ tokenInput|raw }}
-                        <div class="input-field">
-                            <input type="text" id="photos-password" name="password" minlength="6" required autocomplete="off">
-                            <label for="photos-password">{{ open ? 'Nouveau mot de passe' : 'Mot de passe' }}</label>
-                        </div>
-                        <button class="btn koamaru waves-effect waves-light">{{ open ? 'Changer' : 'Ouvrir la galerie' }}</button>
-                    </form>
+                    <h2><i class="mdi mdi-lock"></i> Mots de passe</h2>
+                    <p>Chaque album s'ouvre avec le <b>mot de passe des photos de sa soirée</b>, à choisir dans
+                        <a href="{{ path('admin.events.index') }}">Événements</a> en modifiant la soirée. Donne-le à ses danseurs.</p>
+                    <p class="grey-text">Un album sans soirée, ou dont la soirée n'a pas de mot de passe, n'est visible que par l'équipe.</p>
                 </div>
             </div>
         </div>
@@ -89,6 +79,7 @@
                             </span>
                             <span class="title">{{ album.title }}</span>
                             <span class="meta">{{ album.collection }} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
+                            {% if not album.photosPassword %}<span class="meta red-text text-darken-2">Équipe seulement : pas de mot de passe</span>{% endif %}
                         </a>
                     {% endfor %}
                 </div>

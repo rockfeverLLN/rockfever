@@ -14,6 +14,13 @@ class Album
 
     public $photographer;
 
+    public $eventId;
+
+    /**
+     * Its soirée's photo password, when the query joins it (AlbumTable::makeAccessQuery)
+     */
+    public $photosPassword;
+
     public $createdAt;
 
     /**

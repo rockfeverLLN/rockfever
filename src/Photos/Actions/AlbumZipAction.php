@@ -47,13 +47,13 @@ class AlbumZipAction
 
     public function __invoke(Request $request) : ResponseInterface
     {
-        if (!$this->access->canView($request)) {
-            return new Response(403, ['X-Robots-Tag' => 'noindex'], 'Accès refusé');
-        }
         try {
-            $album = $this->albumTable->findBy('slug', $request->getAttribute('slug'));
+            $album = $this->albumTable->findBySlugForAccess($request->getAttribute('slug'));
         } catch (NoRecordException $e) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Album introuvable');
+        }
+        if (!$this->access->canView($request, $album)) {
+            return new Response(403, ['X-Robots-Tag' => 'noindex'], 'Accès refusé');
         }
         if (!class_exists(\ZipArchive::class)) {
             return new Response(501, [], 'Téléchargement indisponible');

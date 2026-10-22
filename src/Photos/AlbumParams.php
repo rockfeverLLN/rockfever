@@ -6,7 +6,7 @@ use Framework\Validator;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * An album's fields from the admin's forms (new album, and edit)
+ * An album's fields from the admin's forms (new album, and edit). The soirée (event_id) is checked by the action
  */
 class AlbumParams
 {
@@ -29,6 +29,8 @@ class AlbumParams
             return null;
         }
         $params['photographer'] = $params['photographer'] ?: null;
+        $event = $body['event_id'] ?? '';
+        $params['event_id'] = is_string($event) && ctype_digit($event) ? (int) $event : null;
         return $params;
     }
 }
