@@ -10,6 +10,8 @@ RewriteRule ^(.*)$ /index.php [NC,L,QSA]
     AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json image/svg+xml
 </IfModule>
 
+AddType font/woff2 .woff2
+
 # Let browsers cache static files. Images are replaced under a new name, CSS/JS keep their name so they get less.
 <IfModule mod_expires.c>
     ExpiresActive On
