@@ -1,3 +1,20 @@
+# Composer dependencies (installed by the deploy workflow)
 /vendor/
+
+# Twig / proxy caches written at runtime
 /tmp/
+
+# Database credentials: copy config/database.example.php to create it
 /config/database.php
+
+# Environment and logs
+.env
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

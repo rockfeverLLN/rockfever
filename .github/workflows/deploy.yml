@@ -3,18 +3,31 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+
+# Never run two uploads to the server at the same time
+concurrency:
+  group: deploy-ovh
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
+      - name: Check PHP syntax
+        run: composer lint
       - name: Install lftp
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp git-restore-mtime
+      # Give files their last-commit time so lftp only uploads what changed
+      - name: Restore file times
+        run: git restore-mtime
       # Uploads the project to the hosting root (www/ is the web root).
       # config/database.php is not in git and stays on the server untouched.
       - name: Upload via SFTP
@@ -24,7 +37,7 @@ jobs:
           lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net -e "
             set sftp:auto-confirm yes;
             set mirror:parallel-transfer-count 4;
-            mirror --reverse --verbose --exclude '^\.git' --exclude '^vendor/' --exclude '^tmp/' ./ ./;
+            mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' ./ ./;
             mirror --reverse --delete --verbose vendor/ vendor/;
             rm -r -f tmp/views tmp/routes tmp/di tmp/proxies;
             quit"
