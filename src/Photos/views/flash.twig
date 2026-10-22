@@ -1,0 +1,6 @@
+{% if flash('success') %}
+    <p class="photos-flash photos-flash-success" role="status">{{ flash('success') }}</p>
+{% endif %}
+{% if flash('error') %}
+    <p class="photos-flash photos-flash-error" role="alert">{{ flash('error') }}</p>
+{% endif %}

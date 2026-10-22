@@ -3,15 +3,15 @@
 namespace App\Photos\Actions;
 
 use App\Photos\PhotoAccess;
+use App\Photos\Table\AlbumTable;
 use App\Photos\Table\DeletionRequestTable;
-use App\Photos\Table\PhotoTable;
 use Framework\Renderer\RendererInterface;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * Upload and delete the gallery's photos, handle the deletion requests and set the password
+ * The gallery's albums, the deletion requests and the password
  */
 class PhotoAdminAction
 {
@@ -21,9 +21,9 @@ class PhotoAdminAction
     private $renderer;
 
     /**
-     * @var PhotoTable
+     * @var AlbumTable
      */
-    private $photoTable;
+    private $albumTable;
 
     /**
      * @var DeletionRequestTable
@@ -37,22 +37,27 @@ class PhotoAdminAction
 
     public function __construct(
         RendererInterface $renderer,
-        PhotoTable $photoTable,
+        AlbumTable $albumTable,
         DeletionRequestTable $requestTable,
         PhotoAccess $access
     ) {
         $this->renderer = $renderer;
-        $this->photoTable = $photoTable;
+        $this->albumTable = $albumTable;
         $this->requestTable = $requestTable;
         $this->access = $access;
     }
 
     public function __invoke(Request $request) : ResponseInterface
     {
-        $photos = $this->photoTable->findAll()->fetchAll();
+        $albums = $this->albumTable->findAllWithCovers()->fetchAll();
         $requests = $this->requestTable->findAll()->fetchAll();
         $open = $this->access->isOpen();
-        $html = $this->renderer->render('@photos/admin/index', compact('photos', 'requests', 'open'));
+        $collections = $this->albumTable->findCollections();
+        $photographers = $this->albumTable->findPhotographers();
+        $html = $this->renderer->render(
+            '@photos/admin/index',
+            compact('albums', 'requests', 'open', 'collections', 'photographers')
+        );
         // With the gallery's cookie, the thumbnails don't each wait for the session (PhotoAccess)
         return $this->access->grant(new Response(200, [], $html), $request);
     }

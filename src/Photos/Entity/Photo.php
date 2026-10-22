@@ -6,6 +6,10 @@ class Photo
 {
     public $id;
 
+    public $albumId;
+
+    public $section;
+
     public $filename;
 
     public $width;

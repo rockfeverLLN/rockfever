@@ -1,0 +1,19 @@
+{#- Title, collection and photographer of an album (new album, and edit). album is optional #}
+<div class="input-field">
+    <input type="text" id="album-title{{ suffix }}" name="title" value="{{ album.title|default('') }}" maxlength="100" required placeholder="Semaine 5 26-27">
+    <label for="album-title{{ suffix }}" class="active">Titre (la soirée)</label>
+</div>
+<div class="input-field">
+    <input type="text" id="album-collection{{ suffix }}" name="collection" value="{{ album.collection|default(collections|first|default('')) }}" maxlength="100" required list="album-collections" placeholder="Q1-26-27">
+    <label for="album-collection{{ suffix }}" class="active">Collection (le quadrimestre)</label>
+</div>
+<div class="input-field">
+    <input type="text" id="album-photographer{{ suffix }}" name="photographer" value="{{ album.photographer|default('') }}" maxlength="100" list="album-photographers" placeholder="Facultatif">
+    <label for="album-photographer{{ suffix }}" class="active">Photographe</label>
+</div>
+<datalist id="album-collections">
+    {% for collection in collections %}<option value="{{ collection }}">{% endfor %}
+</datalist>
+<datalist id="album-photographers">
+    {% for photographer in photographers %}<option value="{{ photographer }}">{% endfor %}
+</datalist>

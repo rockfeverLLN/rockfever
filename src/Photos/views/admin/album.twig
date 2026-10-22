@@ -1,0 +1,221 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}{{ album.title }} - Photos - Rock Fever{% endblock %}
+
+{% block css %}{% include '@photos/admin/style.twig' %}{% endblock %}
+
+{% block body %}
+    {% set tokenInput = csrfInput() %}
+    <div class="container photos-admin">
+        <p class="crumbs"><a href="{{ path('admin.photos.index') }}">Photos</a> › {{ album.collection }}</p>
+        <h1>
+            {{ album.title }}
+            <a href="{{ path('photos.album', {slug: album.slug}) }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir l'album</a>
+        </h1>
+
+        <div class="row">
+            <div class="col s12 l8">
+                <div class="card-panel">
+                    <h2>Ajouter des photos</h2>
+                    <form action="{{ path('admin.photos.upload', {id: album.id}) }}" method="post" enctype="multipart/form-data" id="photos-upload">
+                        {{ tokenInput|raw }}
+                        <div class="input-field">
+                            <input type="text" id="photos-section" name="section" maxlength="100" list="photos-sections" placeholder="Aucun : seulement dans « Toutes les photos »">
+                            <label for="photos-section" class="active">Onglet (facultatif, par ex. « Photobooth »)</label>
+                            <datalist id="photos-sections">
+                                {% for name in sections %}<option value="{{ name }}">{% endfor %}
+                            </datalist>
+                        </div>
+                        <label class="photos-drop" id="photos-drop">
+                            <i class="mdi mdi-cloud-upload" aria-hidden="true"></i>
+                            Glisse tes photos ici, ou clique pour les choisir
+                            <br><small>JPEG, PNG ou WebP. Elles sont réduites à 2400 pixels et la position GPS est retirée.</small>
+                            <input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple>
+                        </label>
+                        <noscript><button class="btn koamaru" style="margin-top: 12px">Envoyer</button></noscript>
+                        <div class="photos-progress" id="photos-progress" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="col s12 l4">
+                <div class="card-panel">
+                    <h2>Album</h2>
+                    <form action="{{ path('admin.photos.album', {id: album.id}) }}" method="post">
+                        {{ tokenInput|raw }}
+                        {% include '@photos/admin/album-fields.twig' with {suffix: '-edit'} %}
+                        <button class="btn koamaru waves-effect waves-light">Enregistrer</button>
+                    </form>
+                    <form action="{{ path('admin.photos.album.delete', {id: album.id}) }}" method="post" style="margin-top: 16px"
+                          onsubmit="return confirm('Supprimer l\'album et ses {{ photos|length }} photos ? C\'est définitif.')">
+                        {{ tokenInput|raw }}
+                        <button class="btn-flat red-text waves-effect"><i class="mdi mdi-delete left"></i>Supprimer l'album</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row"><div class="col s12"><div class="card-panel">
+            <h2>Photos ({{ photos|length }})</h2>
+            {% if photos|length %}
+                <form action="{{ path('admin.photos.delete') }}" method="post" id="photos-delete">
+                    {{ tokenInput|raw }}
+                    <input type="hidden" name="album" value="{{ album.id }}">
+                    <div class="photos-toolbar">
+                        <span class="count" id="photos-count">Coche des photos pour les supprimer</span>
+                        <button type="button" class="btn-flat waves-effect" id="photos-all">Tout cocher</button>
+                        <button class="btn red waves-effect waves-light" id="photos-delete-button" disabled><i class="mdi mdi-delete left"></i>Supprimer</button>
+                    </div>
+                    <div class="photos-admin-grid">
+                        {% for photo in photos %}
+                            <div class="photos-admin-tile">
+                                <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}" alt="" loading="lazy">
+                                <label>
+                                    <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}">
+                                    <span></span>
+                                </label>
+                                {% if photo.id in requested %}
+                                    <span class="badge-bottom requested">Suppression demandée</span>
+                                {% elseif photo.section %}
+                                    <span class="badge-bottom">{{ photo.section }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            {% else %}
+                <p class="grey-text">Pas encore de photo dans cet album.</p>
+            {% endif %}
+        </div></div></div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        (function () {
+            // Delete: count the checked photos
+            var deleteForm = document.getElementById('photos-delete');
+            if (deleteForm) {
+                var boxes = deleteForm.querySelectorAll('input[name="ids[]"]');
+                var count = document.getElementById('photos-count');
+                var button = document.getElementById('photos-delete-button');
+                var update = function () {
+                    var checked = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length;
+                    button.disabled = checked === 0;
+                    count.textContent = checked ? checked + ' photo' + (checked > 1 ? 's' : '') + ' cochée' + (checked > 1 ? 's' : '') : 'Coche des photos pour les supprimer';
+                };
+                deleteForm.addEventListener('change', update);
+                document.getElementById('photos-all').addEventListener('click', function () {
+                    var all = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length !== boxes.length;
+                    boxes.forEach(function (box) { box.checked = all; });
+                    this.textContent = all ? 'Tout décocher' : 'Tout cocher';
+                    update();
+                });
+                deleteForm.addEventListener('submit', function (event) {
+                    var checked = deleteForm.querySelectorAll('input[name="ids[]"]:checked').length;
+                    if (!confirm('Supprimer définitivement ' + checked + ' photo' + (checked > 1 ? 's' : '') + ' ?')) {
+                        event.preventDefault();
+                    }
+                });
+            }
+
+            // Upload: one photo per request, made smaller in the browser first (quicker, under the server's size
+            // limit, and the canvas drops the GPS position). The server makes them smaller too, for the no-script form
+            var uploadForm = document.getElementById('photos-upload');
+            var drop = document.getElementById('photos-drop');
+            var input = uploadForm.querySelector('input[type="file"]');
+            var section = document.getElementById('photos-section');
+            var progress = document.getElementById('photos-progress');
+            var MAX = 2400;
+
+            function shrink(file) {
+                if (!window.createImageBitmap) {
+                    return Promise.resolve(file);
+                }
+                return createImageBitmap(file, {imageOrientation: 'from-image'}).then(function (bitmap) {
+                    var scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
+                    var canvas = document.createElement('canvas');
+                    canvas.width = Math.round(bitmap.width * scale);
+                    canvas.height = Math.round(bitmap.height * scale);
+                    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+                    return new Promise(function (resolve) {
+                        canvas.toBlob(function (blob) {
+                            resolve(blob ? new File([blob], file.name.replace(/\.[^.]*$/, '') + '.jpg', {type: 'image/jpeg'}) : file);
+                        }, 'image/jpeg', 0.88);
+                    });
+                }).catch(function () {
+                    // A format the browser can't read: the server says if it can't either
+                    return file;
+                });
+            }
+
+            function upload(files) {
+                files = Array.prototype.slice.call(files);
+                if (!files.length) {
+                    return;
+                }
+                var done = 0, added = 0, errors = [];
+                progress.innerHTML = '<span></span><div class="progress"><div class="determinate" style="width: 0"></div></div>';
+                var label = progress.querySelector('span');
+                var bar = progress.querySelector('.determinate');
+                var step = function () {
+                    label.textContent = 'Envoi des photos : ' + done + ' / ' + files.length;
+                    bar.style.width = (100 * done / files.length) + '%';
+                };
+                step();
+                files.reduce(function (previous, file) {
+                    return previous.then(function () {
+                        return shrink(file);
+                    }).then(function (photo) {
+                        var data = new FormData();
+                        data.append('photos[]', photo, photo.name);
+                        data.append('section', section.value);
+                        return fetch(uploadForm.action, {method: 'POST', body: data, headers: {'Accept': 'application/json'}, credentials: 'same-origin'});
+                    }).then(function (response) {
+                        return response.json().catch(function () {
+                            return {added: 0, errors: [file.name + ' : erreur du serveur (' + response.status + ')']};
+                        });
+                    }).then(function (result) {
+                        added += result.added;
+                        errors = errors.concat(result.errors);
+                    }).catch(function () {
+                        errors.push(file.name + " n'a pas pu être envoyée");
+                    }).then(function () {
+                        done++;
+                        step();
+                    });
+                }, Promise.resolve()).then(function () {
+                    label.textContent = added + ' photo' + (added > 1 ? 's' : '') + ' ajoutée' + (added > 1 ? 's' : '') + (errors.length ? '. Erreurs : ' + errors.join(', ') : '');
+                    if (added && !errors.length) {
+                        location.reload();
+                    } else if (added) {
+                        var reload = document.createElement('a');
+                        reload.href = location.href;
+                        reload.className = 'btn-flat koamaru-text';
+                        reload.textContent = 'Voir les photos ajoutées';
+                        progress.appendChild(reload);
+                    }
+                });
+            }
+
+            input.addEventListener('change', function () {
+                upload(input.files);
+                input.value = '';
+            });
+            ['dragenter', 'dragover'].forEach(function (type) {
+                drop.addEventListener(type, function (event) {
+                    event.preventDefault();
+                    drop.classList.add('is-over');
+                });
+            });
+            ['dragleave', 'drop'].forEach(function (type) {
+                drop.addEventListener(type, function () {
+                    drop.classList.remove('is-over');
+                });
+            });
+            drop.addEventListener('drop', function (event) {
+                event.preventDefault();
+                upload(event.dataTransfer.files);
+            });
+        })();
+    </script>
+{% endblock %}

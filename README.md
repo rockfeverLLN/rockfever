@@ -37,10 +37,12 @@ The home page shows the sections of the admin's "À propos" in order. The sectio
 
 ## Photos
 
-`/photos` is a gallery of the soirées' photos, behind one shared password (the [`Photos`](src/Photos) module).
+`/photos` is a gallery of the soirées' photos, behind one shared password (the [`Photos`](src/Photos) module). It's dark, like a photographer's gallery: `/photos` lists the albums by collection, and each album (`/photos/semaine-5-26-27`) has a breadcrumb, its photographer, a button to download it all as a .zip, tabs, and the photos in columns, uncropped.
+
+- **Albums:** one per soirée ("Semaine 5 26-27"), in a collection (the quadrimestre: "Q1-26-27"), with an optional photographer. Albums without photos aren't shown. When uploading, an optional **tab** ("Photobooth") puts the photos in a tab of the album, next to "Toutes les photos".
 
 - **Password:** set and changed on `/admin/photos`. Visitors who give it get a cookie for 30 days; changing it locks out everyone who used the old one. Until one is set, only the team (logged in) sees the photos. Five wrong passwords in 10 minutes block the form for a while. The page is `noindex` and `Disallow`ed in `robots.txt`.
-- **Upload and delete:** on `/admin/photos`, for everyone logged in. Drop the photos on the page: the browser makes them smaller (2400px) and sends them one by one, so the server's upload limit isn't a problem. The server keeps 480, 960 and 1600px WebP copies for the grid and the viewer, and saves photos again without their EXIF data (GPS position).
+- **Upload and delete:** on `/admin/photos`, for everyone logged in: make an album, then drop the photos on its page: the browser makes them smaller (2400px) and sends them one by one, so the server's upload limit isn't a problem. The server keeps 480, 960 and 1600px WebP copies for the grid and the viewer, and saves photos again without their EXIF data (GPS position).
 - **Storage:** `storage/photos/`, outside the web root and not in git, so the files are only sent by [`PhotoFileAction`](src/Photos/Actions/PhotoFileAction.php) to visitors with the password. `bin/deploy.sh` never touches that folder: back it up with the database.
 - **Deletion requests:** in the viewer, "Demander la suppression" sends a name, an optional email and a message. The team gets an email at `CONTACT_EMAIL`, a card on the dashboard, and the request on `/admin/photos`, where it can delete the photo or ignore the request.
 - **Database:** the tables come from a Phinx migration. With no SSH on OVH, run [`src/Photos/db/create-photos-tables.sql`](src/Photos/db/create-photos-tables.sql) once in phpMyAdmin before deploying.
