@@ -4,15 +4,16 @@
         <a href="#" data-target="mobile-demo" class="sidenav-trigger" aria-label="Ouvrir le menu" aria-controls="mobile-demo">
             <i class="material-icons" aria-hidden="true">menu</i>
         </a>
+        {#- No "Accueil" here: the logo already leads home #}
         <ul class="right hide-on-med-and-down">
-            <li class="{{ isSubPath('home') ? 'active' }}">
-                <a href="{{ path('home') }}"><i class="mdi mdi-home-outline left" aria-hidden="true"></i> Accueil</a>
-            </li>
             {% if nextEventExist() %}
             <li class="{{ isSubPath('event') ? 'active' }}">
                 <a href="{{ path('event') }}"><i class="mdi mdi-calendar left" aria-hidden="true"></i> Prochain événement</a>
             </li>
             {% endif %}
+            <li class="{{ isSubPath('calendar') ? 'active' }}">
+                <a href="{{ path('calendar') }}"><i class="mdi mdi-calendar-multiple left" aria-hidden="true"></i> Calendrier</a>
+            </li>
             <li class="{{ isSubPath('music') ? 'active' }}">
                 <a href="{{ path('music') }}"><i class="mdi mdi-music left" aria-hidden="true"></i> Proposer un rock</a>
             </li>
@@ -32,6 +33,9 @@
         <a href="{{ path('event') }}">Prochain événement</a>
     </li>
     {% endif %}
+    <li class="{{ isSubPath('calendar') ? 'active' }}">
+        <a href="{{ path('calendar') }}">Calendrier</a>
+    </li>
     <li class="{{ isSubPath('music') ? 'active' }}">
         <a href="{{ path('music') }}">Proposer un rock</a>
     </li>

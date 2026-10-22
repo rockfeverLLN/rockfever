@@ -6,6 +6,7 @@ use App\Main\Actions\AboutUploadAction;
 use App\Main\Actions\HomeAction;
 use App\Main\Actions\AboutCrudAction;
 use App\Main\Actions\AboutSectionMoveAction;
+use App\Main\Actions\CalendarAction;
 use App\Main\Actions\ContactAction;
 use App\Main\Actions\EventAction;
 use App\Main\Actions\LegalAction;
@@ -50,6 +51,11 @@ class MainModule extends Module
 
         // CG + ROI
         $router->get('/legal', LegalAction::class, 'legal');
+
+        // Dates of the soirées, and the same as .ics files for calendar apps
+        $router->get('/calendrier', CalendarAction::class, 'calendar');
+        $router->get('/calendrier.ics', CalendarAction::class, 'calendar.ics');
+        $router->get('/calendrier/{date:\d{4}-\d{2}-\d{2}}.ics', CalendarAction::class, 'calendar.event');
 
 
         if ($container->has('admin.prefix')) {
