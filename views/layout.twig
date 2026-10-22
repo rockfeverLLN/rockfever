@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>{% block title %}Rock Fever{% endblock %}</title>
+    <meta name="description" content="{% block description %}Rock Fever, le rock à Louvain-la-Neuve : prochain événement, inscriptions et propositions de musique.{% endblock %}"/>
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <link rel="stylesheet" href="//cdn.materialdesignicons.com/2.1.19/css/materialdesignicons.min.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
+    {% block head %}{% endblock %}
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block" rel="stylesheet"/>
+    {# Icon font loaded without blocking the first paint #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css"></noscript>
     <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/style.css"  media="screen,projection"/>
-    <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
 <body class="{% block bodyColor %}{% endblock %}">
     {% include "topbar.twig" %}
 
+    <main>
     {% block body %}
     {% endblock %}
+    </main>
 
     {% include "footer.twig" %}
 

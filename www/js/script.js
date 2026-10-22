@@ -40,7 +40,7 @@ $(document).ready(function () {
     });
     $('select').formSelect();
 
-    tinymce.init({
+    if (typeof tinymce !== 'undefined') tinymce.init({
         selector: '.tinymce',
         content_css: '/css/materialize.min.css',
         language_url : '/js/langs/fr_FR.js',

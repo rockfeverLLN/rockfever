@@ -282,7 +282,7 @@ input:not([type]).mce-textbox {
 }
 
 .dancers-list-background {
-    background-image: url("/images/body/bg.png");
+    background-image: url("/images/body/bg.webp");
     height: 100%;
 }
 

@@ -2,6 +2,10 @@
 
 {% block title %}Accueil - Rock Fever{% endblock %}
 
+{% block head %}
+    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
+{% endblock %}
+
 {% block body %}
     <div class="parallax-container home-parallax-container">
         <div class="container">
@@ -10,7 +14,7 @@
             </div>
         </div>
         <div class="parallax">
-            <img src="{{ __DIR__ }}/images/body/bg.png" alt="People dancing rock">
+            <img src="{{ __DIR__ }}/images/body/bg.webp" alt="People dancing rock" width="1412" height="796" fetchpriority="high">
         </div>
     </div>
     {% if nextEventExist() %}
@@ -28,7 +32,7 @@
                     <div class="row">
                         <div class="col s12">
                             <h2>{{ item.title }}</h2>
-                            <p>{{ item.content | raw }}</p>
+                            <p>{{ item.content | lazyImages(loop.first ? 1 : 0) | raw }}</p>
                         </div>
                     </div>
                 </div>

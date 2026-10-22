@@ -22,7 +22,8 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             new \Twig\TwigFilter('statusToText', [$this, 'statusToText'], [
                 'is_safe' => ['html']
             ]),
-            new \Twig\TwigFilter('round', [$this, 'round'])
+            new \Twig\TwigFilter('round', [$this, 'round']),
+            new \Twig\TwigFilter('lazyImages', [$this, 'lazyImages'])
         ];
     }
 
@@ -62,6 +63,23 @@ class TextExtension extends \Twig\Extension\AbstractExtension
     {
 
         return round($value, $precision);
+    }
+
+    /**
+     * Adds loading="lazy" to the <img> tags of an HTML string, except the first $eager ones
+     * @param string|null $content
+     * @param int $eager
+     * @return string
+     */
+    public function lazyImages(?string $content, int $eager = 0) : string
+    {
+        if (is_null($content)) {
+            return '';
+        }
+        $count = 0;
+        return preg_replace_callback('/<img\b(?![^>]*\bloading=)/i', function ($match) use (&$count, $eager) {
+            return $count++ < $eager ? $match[0] : $match[0] . ' loading="lazy" decoding="async"';
+        }, $content);
     }
 
     public function statusToText(int $status)
