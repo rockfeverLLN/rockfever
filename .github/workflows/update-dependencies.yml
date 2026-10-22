@@ -101,7 +101,8 @@ jobs:
           {
             echo "Update PHP packages"
             echo
-            grep -E '^\s*- (Upgrading|Downgrading|Installing|Removing)' composer-update.log | sed 's/^\s*//'
+            # Only the version changes written to composer.lock, not the install of every package that follows
+            sed -n '/^Lock file operations/,/^Writing lock file/p' composer-update.log | grep -E '^\s*- ' | sed 's/^\s*//'
           } > commit-message.txt
           git commit --quiet -F commit-message.txt composer.json composer.lock
           git push --quiet origin HEAD:main
