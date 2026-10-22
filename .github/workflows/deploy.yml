@@ -19,6 +19,11 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
       - name: Install dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction
       - name: Check PHP syntax
@@ -30,14 +35,24 @@ jobs:
         run: git restore-mtime
       # Uploads the project to the hosting root (www/ is the web root).
       # config/database.php is not in git and stays on the server untouched.
+      # vendor/ is only re-synced when composer.lock changed since the last deploy.
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net -e "
-            set sftp:auto-confirm yes;
-            set mirror:parallel-transfer-count 4;
+          SERVER="lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net"
+          SETTINGS="set sftp:auto-confirm yes; set mirror:parallel-transfer-count 8; set mirror:parallel-directories true;"
+          LOCK_HASH=$(sha256sum composer.lock | cut -c1-64)
+          DEPLOYED_HASH=$($SERVER -e "$SETTINGS cat vendor/.lock-hash; quit" 2>/dev/null || true)
+          VENDOR=""
+          if [ "$LOCK_HASH" != "$DEPLOYED_HASH" ]; then
+            echo "$LOCK_HASH" > vendor/.lock-hash
+            VENDOR="mirror --reverse --delete vendor/ vendor/;"
+          else
+            echo "composer.lock unchanged, skipping vendor/"
+          fi
+          $SERVER -e "$SETTINGS
             mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' ./ ./;
-            mirror --reverse --delete --verbose vendor/ vendor/;
+            $VENDOR
             rm -r -f tmp/views tmp/routes tmp/di tmp/proxies;
             quit"
