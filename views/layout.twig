@@ -3,9 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W"></script>
+    <!-- Google tag (gtag.js), loaded once the page has finished loading so it doesn't compete with it -->
     <script>
+        window.addEventListener('load', function () {
+            var tag = document.createElement('script');
+            tag.async = true;
+            tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W';
+            document.head.appendChild(tag);
+        });
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
@@ -26,14 +31,10 @@
     <link rel="canonical" href="https://rockfever.be{{ block('canonical_path') }}"/>
     {%- endif %}
 
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
-    <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2" as="font" type="font/woff2" crossorigin/>
+    <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2?v=2b1bf0b8" as="font" type="font/woff2" crossorigin/>
     {% block head %}{% endblock %}
     {# Rules the public pages need for the first paint (built by bin/critical-css.php), the full stylesheets load in the background #}
     <style>{{ source('critical.css') }}</style>
-    {# Icon font loaded without blocking the first paint #}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@2.1.19/css/materialdesignicons.min.css"></noscript>
     <link rel="preload" href="{{ __DIR__ }}/css/materialize.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
     <link rel="preload" href="{{ __DIR__ }}/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
     <noscript>
@@ -44,17 +45,18 @@
 </head>
 
 <body class="{% block bodyColor %}{% endblock %}">
+    <a href="#contenu" class="skip-link">Aller au contenu</a>
     {% include "topbar.twig" %}
 
-    <main>
+    <main id="contenu" tabindex="-1">
     {% block body %}
     {% endblock %}
     </main>
 
     {% include "footer.twig" %}
 
-    <script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js"></script>
-    <script type="text/javascript" src="{{ __DIR__ }}/js/script.js"></script>
+    <script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js" defer></script>
+    <script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js" defer></script>
+    <script type="text/javascript" src="{{ __DIR__ }}/js/script.js" defer></script>
 </body>
 </html>

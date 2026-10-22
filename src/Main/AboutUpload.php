@@ -14,4 +14,6 @@ class AboutUpload extends Upload
     protected $path = 'www/images/about';
 
     protected $maxSize = 1600;
+
+    protected $widths = [320, 640, 960, 1280];
 }

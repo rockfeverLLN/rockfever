@@ -66,7 +66,8 @@ class TextExtension extends \Twig\Extension\AbstractExtension
     }
 
     /**
-     * Adds loading="lazy" to the <img> tags of an HTML string, except the first $eager ones
+     * Adds loading="lazy" to the <img> tags of an HTML string, except the first $eager ones,
+     * and a srcset of the smaller copies made by Upload::generateWidths when they exist
      * @param string|null $content
      * @param int $eager
      * @return string
@@ -77,9 +78,63 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             return '';
         }
         $count = 0;
-        return preg_replace_callback('/<img\b(?![^>]*\bloading=)/i', function ($match) use (&$count, $eager) {
-            return $count++ < $eager ? $match[0] : $match[0] . ' loading="lazy" decoding="async"';
+        return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use (&$count, $eager) {
+            $tag = $this->addSrcset($match[0]);
+            if (preg_match('/\bloading=/i', $tag) || $count++ < $eager) {
+                return $tag;
+            }
+            return substr_replace($tag, '<img loading="lazy" decoding="async"', 0, 4);
         }, $content);
+    }
+
+    /**
+     * Lets the browser download a copy of the image that fits its displayed width instead of the full photo.
+     * Only for images with a width attribute: without one, the srcset would change their displayed size
+     */
+    private function addSrcset(string $tag) : string
+    {
+        if (preg_match('/\bsrcset=/i', $tag)
+            || !preg_match('/\swidth=["\']?(\d+)/i', $tag, $width)
+            // Images of this site only: /images/..., ../../images/... (what the editor inserts) or https://rockfever.be/images/...
+            || !preg_match('/\ssrc=(["\'])(?:https?:\/\/(?:www\.)?rockfever\.be)?[.\/]*images\/([^"\'?#]+)\1/i', $tag, $src)
+        ) {
+            return $tag;
+        }
+        $path = rawurldecode($src[2]);
+        $file = dirname(__DIR__, 3) . '/www/images/' . $path;
+        if (str_contains($path, '..') || !is_file($file)) {
+            return $tag;
+        }
+        // Spaces or commas in a file name would split a srcset entry
+        $url = fn (string $path) => '/images/' . implode('/', array_map('rawurlencode', explode('/', $path)));
+        $candidates = [];
+        $info = pathinfo($file);
+        $pattern = preg_replace('/[*?\[\]\\\\]/', '\\\\$0', $info['dirname'] . '/sizes/' . $info['filename']) . '-*.webp';
+        foreach (glob($pattern) ?: [] as $copy) {
+            $size = substr(pathinfo($copy, PATHINFO_FILENAME), strlen($info['filename']) + 1);
+            if (ctype_digit($size)) {
+                $candidates[(int) $size] = $url(dirname($path) . '/sizes/' . basename($copy)) . ' ' . $size . 'w';
+            }
+        }
+        if (!$candidates) {
+            return $tag;
+        }
+        ksort($candidates);
+        [$originalWidth] = getimagesize($file) ?: [0];
+        if ($originalWidth > max(array_keys($candidates))) {
+            $candidates[$originalWidth] = $url($path) . ' ' . $originalWidth . 'w';
+        }
+        return substr_replace(
+            $tag,
+            sprintf(
+                '<img srcset="%s" sizes="(max-width: %dpx) 100vw, %dpx"',
+                implode(', ', $candidates),
+                $width[1],
+                $width[1]
+            ),
+            0,
+            4
+        );
     }
 
     public function statusToText(int $status)

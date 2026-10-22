@@ -39,6 +39,13 @@ $(document).ready(function () {
         }
     });
     $('select').formSelect();
+    // Materialize shows each select as a text input: give it the select's label for screen readers
+    $('select').each(function () {
+        var label = $('label[for="' + this.id + '"]').text().trim();
+        if (this.id && label) {
+            $(this).siblings('input.select-dropdown').attr('aria-label', label);
+        }
+    });
 
     if (typeof tinymce !== 'undefined') tinymce.init({
         selector: '.tinymce',
