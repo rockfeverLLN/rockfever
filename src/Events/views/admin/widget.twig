@@ -1,0 +1,115 @@
+<div class="col s12 m6">
+    <div class="card-panel white-text" style="background: linear-gradient(45deg, #292929, #424242); border-radius: 15px; padding-top: 10px">
+        <h3 class="center" style="margin-top: 0;">Participants</h3>
+        <canvas id="dancersChart" width="100" height="50"></canvas>
+    </div>
+</div>
+
+<div class="col s12 m6">
+    <div class="card white-text" style="background: linear-gradient(45deg, #ff6f00 , #ffca28); border-radius: 15px">
+        <div class="card-content" style="padding-top: 10px">
+            <h3 class="center" style="margin-top: 0;">
+                {% if nextEvent %}
+                <a href="{{ path('admin.events.edit', {id:nextEvent.id }) }}" class="underlined-link">
+                    Prochain rock
+                </a>
+                {% else %}
+                    Prochain rock
+                {% endif %}
+            </h3>
+            <ul class="next-event-infos">
+                <li>
+                    <b>Titre :</b> {{ nextEvent.title | default('Pas d\'évènement prévu') }}
+                </li>
+                <li>
+                    <b>Date :</b> {{ nextEvent.date | default('--/--/--') }}
+                </li>
+                <li>
+                    <b>Heure :</b> {{ nextEvent.waltzTime | default('--:--') }} (valse) et {{ nextEvent.rockTime | default('--:--') }} (rock)
+                </li>
+                <li>
+                    <b>Lieu :</b> {{ nextEvent.place | default('---') }}
+                </li>
+                <li>
+                    <b>Prix :</b> {{ nextEvent.price | default('--€') }}
+                </li>
+                {% if nextEvent.facebookLink %}
+                <li>
+                    <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook</a></b>
+                </li>
+                {% endif %}
+                {% if nextEvent.coveventLink %}
+                <li>
+                    <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent</a></b>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="card-action ">
+            {% if nextEvent.closed == 1 %}
+                <a
+                        class="left white-text waves-effect tooltipped"
+                        {% if nextEvent.id is defined %}
+                            href="{{ path('admin.events.open', {id:nextEvent.id | default(0) }) }}"
+                            data-tooltip="Réouvrir les inscriptions"
+                            data-position="top"
+                        {% else %}
+                            class="disabled"
+                        {% endif %}
+                        style="font-size: 30px; margin-top: -10px;">
+                    <i class="mdi mdi-lock"></i>
+                </a>
+            {% else %}
+                <a
+                        class="left white-text waves-effect {% if nextEvent.id is defined %}tooltipped{% endif %}"
+                        {% if nextEvent.id is defined %}
+                            href="{{ path('admin.events.close', {id:nextEvent.id | default(0) }) }}"
+                            data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)"
+                            data-position="top"
+                        {% endif %}
+                        style="font-size: 30px; margin-top: -10px">
+                    <i class="mdi mdi-lock-open"></i>
+                </a>
+            {% endif %}
+            <b>{{ nextEvent.participantsCount | default(0) }}</b> participants
+            <a class="right white-text waves-effect"
+               {% if nextEvent.id is defined %}
+               href="{{ path('admin.events.participants', {id:nextEvent.id | default(0) }) }}"
+               {% endif %}
+            >
+                <i class="mdi mdi-laptop"></i> Liste
+            </a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<script>
+    Chart.defaults.global.defaultFontColor = "#fff";
+    var dancersChart = document.getElementById("dancersChart").getContext('2d');
+    new Chart(dancersChart, {
+        type: 'bar',
+        data: {
+            datasets: [
+                {% for event in countForChart %}
+                {
+                    label: "{{ event.title | removeSpecialChars }}",
+                    data: [{{ event.count }}],
+                    backgroundColor: [
+                        '{{ event.color }}'
+                    ]
+                },
+                {% endfor %}
+            ]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+</script>

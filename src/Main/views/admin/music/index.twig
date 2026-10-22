@@ -1,0 +1,59 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}A propos - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container">
+        <h1>Musiques proposées</h1>
+        <table class="striped">
+            <thead>
+            <tr>
+                <col width="60px">
+                <col>
+                <col>
+                <col width="300px">
+            </tr>
+            </thead>
+            <tbody>
+            {% set tokenInput = csrfInput() %}
+            {% for music in items %}
+                <tr>
+                    <td>
+                        <center>
+                        {% if music.added == 0 %}
+                            <i class="mdi mdi-eye-off"></i>
+                        {% elseif music.added == 1 %}
+                            <i class="mdi mdi-eye"></i>
+                        {% endif %}
+                        </center>
+                    </td>
+                    <td>{{ music.title | excerpt(50) }}</td>
+                    <td>{{ music.artist | excerpt(50) }}</td>
+                    <td>
+                        {% if music.added == 0 %}
+                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="green-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme vue">
+                                <i class="mdi mdi-eye"></i>
+                            </a>
+                        {% elseif music.added == 1 %}
+                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="orange-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme non vue">
+                                <i class="mdi mdi-eye-off"></i>
+                            </a>
+                        {% endif %}
+
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: music.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette musique de la liste ?");'>
+                            {{ tokenInput | raw }}
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="koamaru-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Supprimer la musique">
+                                <i class="mdi mdi-delete"></i>
+                            </button>
+                        </form>
+                        <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}"
+                           class="red-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Voir sur youtube" target="_blank">
+                            <i class="mdi mdi-play"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ paginate(items, routePrefix ~ '.index') }}
+    </div>
+{% endblock %}

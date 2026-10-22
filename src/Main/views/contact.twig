@@ -1,0 +1,21 @@
+{% extends "layout.twig" %}
+
+{% block title %}Contact - Rock Fever{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        {% if flash('success') %}
+            <div class="card-panel green white-text">
+                {{ flash('success') }}
+            </div>
+        {% endif %}
+        {% if flash('error') %}
+            <div class="card-panel red white-text">
+                {{ flash('error') }}
+            </div>
+        {% endif %}
+        <h1>Contact</h1>
+        {% include '@main/contactForm.twig' %}
+    </div>
+{% endblock %}

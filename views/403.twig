@@ -1,0 +1,25 @@
+{% extends "layout.twig" %}
+
+{% block title %}Erreur 403 - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="parallax-container error-parallax-container">
+        <div class="white-text container">
+            <div class="center">
+                <h1 class="home-title">
+                    Erreur 403
+                    <br>
+                    <small><small>La soumission du formulaire été bloquée pour des raisons de sécurité...</small></small>
+                </h1>
+                <br><br>
+                <a href="{{ path('event') }}" class="send-button">
+                    <i class="mdi mdi-home left"></i>
+                    Réessayer
+                </a>
+            </div>
+        </div>
+        <div class="parallax">
+            <img src="{{ __DIR__ }}/images/body/bg.png" alt="People dancing rock">
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Créer un événement - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Créer un événement</h1>
+        <form action="{{ path('admin.events.create') }}" method="post">
+            {{ csrfInput() }}
+            <div class="row">
+                {% include '@events/admin/form.twig' %}
+                <div class="col s12">
+                    <button class="btn koamaru right">Créer l'événement</button>
+                    <a href="{{ path('admin.events.index') }}" class="btn-flat red-text right">Annuler</a>
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+
+{% endblock %}

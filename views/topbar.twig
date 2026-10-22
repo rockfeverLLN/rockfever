@@ -1,0 +1,41 @@
+<nav class="koamaru">
+    <div class="nav-wrapper container">
+        <a href="{{ path('home') }}" class="brand-logo">Rock Fever</a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger">
+            <i class="material-icons">menu</i>
+        </a>
+        <ul class="right hide-on-med-and-down">
+            <li class="{{ isSubPath('home') ? 'active' }}">
+                <a href="{{ path('home') }}"><i class="mdi mdi-home-outline left"></i> Accueil</a>
+            </li>
+            {% if nextEventExist() %}
+            <li class="{{ isSubPath('event') ? 'active' }}">
+                <a href="{{ path('event') }}"><i class="mdi mdi-calendar left"></i> Prochain événement</a>
+            </li>
+            {% endif %}
+            <li class="{{ isSubPath('music') ? 'active' }}">
+                <a href="{{ path('music') }}"><i class="mdi mdi-music left"></i> Proposer un rock</a>
+            </li>
+            <li class="{{ isSubPath('contact') ? 'active' }}">
+                <a href="{{ path('contact') }}"><i class="mdi mdi-email-outline left"></i> Contact</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<ul class="sidenav" id="mobile-demo">
+    <li class="{{ isSubPath('home') ? 'active' }}">
+        <a href="{{ path('home') }}">Accueil</a>
+    </li>
+    {% if nextEventExist() %}
+    <li class="{{ isSubPath('event') ? 'active' }}">
+        <a href="{{ path('event') }}">Prochain événement</a>
+    </li>
+    {% endif %}
+    <li class="{{ isSubPath('music') ? 'active' }}">
+        <a href="{{ path('music') }}">Proposer un rock</a>
+    </li>
+    <li class="{{ isSubPath('contact') ? 'active' }}">
+        <a href="{{ path('contact') }}">Contact</a>
+    </li>
+</ul>

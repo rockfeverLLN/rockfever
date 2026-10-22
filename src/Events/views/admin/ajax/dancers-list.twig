@@ -1,0 +1,48 @@
+{% for dancer in dancers %}
+    <li class="collection-item" style="position:relative;">
+
+        <span>
+            {% if dancer.status == 2 %}
+                <i class="material-icons amber-text left">star</i>
+            {% endif %}
+            {% if dancer.status == 3 %}
+                <i class="material-icons koamaru-text left">exposure_plus_1</i>
+            {% endif %}
+            {{ dancer.firstname }} <b>{{ dancer.lastname }}</b>
+        </span>
+
+        <span style="display: none">{{ dancer.lastname }} {{ dancer.firstname }}</span>
+
+        <div class="progress loader" style="display:none; margin:0;position: absolute; bottom: 0;">
+            <div class="indeterminate"></div>
+        </div>
+
+        {% if dancer.status == 0 %}
+            <button
+                    class="transparent green-text waves-green waves-effect secondary-content tab-highlighted"
+                    onclick="updateStatus(this, {{ dancer.id }}, 1)"
+            >
+                <i class="material-icons left">check</i> Ajouter
+            </button>
+        {% endif %}
+
+        {% if dancer.status == 0 %}
+            <button
+                    class="transparent amber-text waves-effect waves-yellow secondary-content tab-highlighted"
+                    style="border-radius: 50%"
+                    onclick="updateStatus(this, {{ dancer.id }}, 2)"
+            >
+                <i class="material-icons">star</i>
+            </button>
+        {% endif %}
+
+        {% if dancer.status > 0 %}
+            <button
+                    class="transparent red-text waves-red waves-effect secondary-content tab-highlighted"
+                    onclick="updateStatus(this, {{ dancer.id }}, 0)"
+            >
+                <i class="material-icons left">close</i> Retirer
+            </button>
+        {% endif %}
+    </li>
+{% endfor %}

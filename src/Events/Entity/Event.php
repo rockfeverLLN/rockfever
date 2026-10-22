@@ -1,0 +1,77 @@
+<?php
+/**.
+ * Author: Nicolas van de Walle
+ * Website: http://www.nicwalle.com
+ * Date: 03-Mar-18
+ */
+
+namespace App\Events\Entity;
+
+#[\AllowDynamicProperties]
+class Event
+{
+
+    public $id;
+
+    public $title;
+
+    public $description;
+
+    public $date;
+
+    public $waltzTime;
+
+    public $rockTime;
+
+    public $place;
+
+    public $price;
+
+    public $facebookLink;
+
+    public $participantsCount;
+
+    public function setDate(string $date)
+    {
+        $this->date = preg_replace("/([\d]{4})\-([\d]{2})\-([\d]{2})/", "$3/$2/$1", $date) ?? null;
+    }
+
+    /**
+     * @param string $waltzTime
+     */
+    public function setWaltzTime(string $waltzTime)
+    {
+        $this->waltzTime = $this->getHoursMinutesTime($waltzTime);
+    }
+
+    /**
+     * @param string $rockTime
+     */
+    public function setRockTime(string $rockTime)
+    {
+        $this->rockTime = $this->getHoursMinutesTime($rockTime);
+    }
+
+    public function setFacebookLink(string $facebookLink)
+    {
+        $this->facebookLink = preg_replace(
+            '/(https?:\/\/)?(www\.)?facebook.com\/events\/([a-zA-Z0-9]+)/',
+            'https://www.facebook.com/events/$3',
+            $facebookLink
+        );
+    }
+
+    /**
+     * @param null|string $time
+     * @return null|string
+     */
+    private function getHoursMinutesTime(?string $time) : ?string
+    {
+        $explodedTime = explode(':', $time);
+        if (count($explodedTime)>=2) {
+            return $explodedTime[0] . ':' . $explodedTime[1];
+        } else {
+            return null;
+        }
+    }
+}

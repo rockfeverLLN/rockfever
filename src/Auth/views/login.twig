@@ -1,0 +1,33 @@
+{%  extends 'layout.twig' %}
+
+{% block title %}Connexion - Rock Fever{% endblock %}
+
+{% block bodyColor %}grey lighten-2{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {% if flash('error') %}
+            <div class="card-panel red white-text">
+                {{ flash('error') }}
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col s12 m6 l4 offset-m3 offset-l4">
+                <div class="card" style="margin-top: 50px">
+                    <div class="card-content">
+                        <h1 class="center" style="font-size: 2rem; margin-top: 0">Connexion</h1>
+                        <div class="center">
+                            <img src="images/body/moderator.svg" alt="Administrateur">
+                        </div>
+                        <form action="{{ path('auth.login') }}" method="post">
+                            {{ csrfInput() }}
+                            {{ field('role', null, 'Rôle', {type: 'select', options:roles }) }}
+                            {{ field('password', null, 'Mot de passe', {type:'password'}) }}
+                            <button class="btn">Login</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

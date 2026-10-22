@@ -1,0 +1,22 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Créer une section - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Créer une section</h1>
+        <form action="{{ path('admin.about.create') }}" method="post">
+            {{ csrfInput() }}
+            <div class="row">
+                {% include '@main/admin/about/form.twig' %}
+                <div class="col s12">
+                    <button class="btn koamaru right">Créer la section</button>
+                    <a href="{{ path('admin.about.index') }}" class="btn-flat red-text right">Annuler</a>
+                </div>
+            </div>
+        </form>
+
+
+    </div>
+
+{% endblock %}

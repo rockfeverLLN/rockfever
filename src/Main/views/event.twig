@@ -1,0 +1,90 @@
+{% extends "layout.twig" %}
+
+{% block title %}Prochain événement - Rock Fever{% endblock %}
+
+{% block bodyColor %}deep-blue{% endblock %}
+
+{% block body %}
+
+    <div class="parallax-container" {% if event.closed == 1 %} style="height:340px" {% endif %}>
+        <div class="container">
+            {% include 'flash.twig' %}
+            <div class="center">
+                <h1 class="white-text home-title">Rock Fever</h1>
+                <div class="call-to-action">
+                    {% if event.closed == 0 %}
+                        Inscris-toi pour notre prochain événement et bénéficie d'une réduction de 30% à l'entrée :
+                    {% else %}
+                        Les inscriptions au prochain événement sont maintenant fermées. <br>Tu es néanmoins toujours le bienvenu !
+                    {% endif %}
+                </div>
+                {% if event.closed == 0 %}
+                    {% include "@main/registerForm.twig" %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="parallax">
+            <img src="images/body/bg.png" alt="People dancing rock">
+        </div>
+    </div>
+
+
+
+
+    <div class="container center white-text">
+        <h2>&laquo; {{ event.title }} &raquo;</h2>
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-calendar"></i> {{ event.date | dateToText }}
+            </nobr>
+        </span>
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-clock"></i> {{ event.waltzTime }} (valse)
+            </nobr>
+        </span>
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-clock"></i> {{ event.rockTime }} (rock)
+            </nobr>
+        </span>
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-map-marker"></i> {{ event.place }}
+            </nobr>
+        </span>
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-credit-card"></i> {{ event.price }}
+            </nobr>
+        </span>
+        <br>
+        <span class="spaced-item" style="margin: 10px auto">
+            N'oublie pas ta carte d'étudiant ou d'identité
+        </span>
+        <br>
+        <strong>Description :</strong>
+        <p>{{ event.description | nl2br }}</p>
+        <br>
+    </div>
+
+    {% if event.coveventLink %}
+        <a href="{{ event.facebookLink }}" class="mid-width-link blue darken-4" target="_blank">Evénement facebook</a>
+        <a href="{{ event.coveventLink }}" class="mid-width-link red darken-3" target="_blank">Covevent</a>
+    {% else %}
+        {% if event.facebookLink %}
+            <a href="{{ event.facebookLink }}" class="full-width-link blue darken-4" target="_blank">Evénement facebook</a>
+        {% else %}
+            <a href="https://www.facebook.com/rockfeverlln/" class="full-width-link blue darken-4" target="_blank">Notre page facebook</a>
+        {% endif %}
+    {% endif %}
+
+    <div id="nextEventInfos" class="modal">
+        <div class="modal-footer">
+            {% if event.coveventLink %}
+                <a href="{{ event.coveventLink }}" class="modal-action waves-effect btn red darken-4" target="_blank">Covevent</a>
+            {% endif %}
+            <a href="{{ event.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Evénement Facebook</a>
+        </div>
+    </div>
+{% endblock %}

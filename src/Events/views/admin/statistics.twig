@@ -1,0 +1,159 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}Statistiques de l'événement {{ event.title }} - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="row">
+                    <div class="col s12 m8">
+                        <h1>{{ event.title|excerpt(25) }}</h1>
+                    </div>
+                    <div class="col s12 m4">
+                        <a href="{{ path('admin.events.participants',{id:event.id}) }}" class="go-to-list">
+                            <i class="material-icons left">computer</i>
+                            <strong>Liste électronique</strong><br>
+                            <span>Gérer le inscriptions</span>
+                            <i class="material-icons right">chevron_right</i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6">
+                <div class="row">
+                    <div class="col s6">
+                        <div class="card card-statistics green white-text">
+                            <i class="material-icons stat-back activator">done</i>
+                            <span class="activator stat">{{ here + vip + improvised }}</span>
+                            <p class="activator">Personnes présentes</p>
+                            <div class="card-reveal green" style="overflow: hidden">
+                                <span class="card-title">Pourcentages <i class="material-icons right">close</i></span>
+                                <p style="margin-top: 3px">
+                                    {% if (vip+here+improvised) == 0 %}
+                                        0 % pré-inscrits <br>
+                                        0 % VIP <br>
+                                        0 % improvistes
+                                    {% else %}
+                                        {{ (100 * here/(vip+here+improvised))|round }} % pré-inscrits <br>
+                                        {{ (100 * vip/(vip+here+improvised))|round }} % VIP <br>
+                                        {{ (100 * improvised/(vip+here+improvised))|round }} % improvistes
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s6">
+                        <div class="card card-statistics koamaru white-text">
+                            <i class="material-icons stat-back activator">attach_money</i>
+                            <span class="stat activator">{{ improvised * 3 + here * 2 }}</span>
+                            <p class="activator">Revenus estimés</p>
+                            <div class="card-reveal koamaru" style="overflow: hidden">
+                                <span class="card-title">Détails <i class="material-icons right">close</i></span>
+                                <p style="margin-top: 3px">
+                                    {{ here * 2 }} € pré-inscrits <br>
+                                    {{ improvised * 3 }} € improvistes
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col s6">
+                        <div class="card card-statistics purple white-text">
+                            <i class="material-icons stat-back">add</i>
+                            <span class="stat">{{ improvised }}</span>
+                            <p>Venues improvisées</p>
+                        </div>
+                    </div>
+
+                    <div class="col s6">
+                        <div class="card card-statistics orange white-text">
+                            <i class="material-icons stat-back">star</i>
+                            <span class="stat">{{ vip }}</span>
+                            <p>Participants VIP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6">
+                <div class="collection print-type-collection">
+                    <a class="collection-item collection-header grey-text text-darken-4">
+                        <h4 style="margin-top: 0; margin-bottom: 0">Imprimer la liste</h4>
+                        <p style="margin-bottom: 0">Choisissez le type de liste que vous voulez imprimer</p>
+                    </a>
+                    <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=registered" class="collection-item avatar grey-text text-darken-4">
+                        <i class="material-icons circle">list</i>
+                        <strong class="title">Liste des personnes pré-inscrites</strong>
+                        <p>Pour version papier pour l'événement</p>
+                    </a>
+                    <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=attendees" class="collection-item avatar">
+                        <i class="material-icons circle green">check</i>
+                        <strong class="title">Liste des personnes présentes</strong>
+                        <p>Pour version papier après événement</p>
+                    </a>
+                    <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=all" class="collection-item avatar">
+                        <i class="material-icons circle red">cloud_download</i>
+                        <strong class="title">Liste avec toutes les infos</strong>
+                        <p>(Status, nom, prénom et heure d'arrivée si présent)</p>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col s12">
+                <canvas id="myChart" width="100%" height="55vh"></canvas>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+    <script>
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [
+                    {% for time in arrivalTimes|keys %}
+                    '{{ time|militaryToTime }}',
+                    {% endfor %}
+                ],
+                datasets: [
+                    {
+                        label: 'Arrivées individuelles',
+                        data: [
+                            {% for amount in arrivalTimes %}
+                            '{{ amount }}',
+                            {% endfor %}
+                        ],
+                        borderColor: '#e91e63',
+                        backgroundColor: '#f8bbd0',
+                        //fill: false
+                    },
+                    {
+                        label: 'Arrivées cumulées',
+                        data: [
+                            {% set cumulative=0  %}
+                            {% for amount in arrivalTimes %}
+                                '{{ cumulative + amount }}',
+                                {% set cumulative = cumulative + amount %}
+                            {% endfor %}
+                        ],
+                        borderColor: '#072d55',
+                        backgroundColor: '#bbd8f7'
+                    }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Nombre de participants en fonction de l\'heure'
+                },
+                fill: true,
+                height: 500,
+                responsive: true
+            }
+        });
+    </script>
+{% endblock %}
