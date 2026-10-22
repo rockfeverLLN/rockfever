@@ -66,6 +66,8 @@ class PhotoDeleteAction
         } else {
             $this->flash->error('Aucune photo sélectionnée');
         }
-        return $this->redirect('admin.photos.index');
+        // Back to the album the photos were deleted from, or to the deletion requests
+        $album = (int) ($request->getParsedBody()['album'] ?? 0);
+        return $album ? $this->redirect('admin.photos.album', ['id' => $album]) : $this->redirect('admin.photos.index');
     }
 }

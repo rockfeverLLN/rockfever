@@ -3,6 +3,7 @@
 namespace App\Photos\Actions;
 
 use App\Photos\PhotoUpload;
+use App\Photos\Table\AlbumTable;
 use App\Photos\Table\PhotoTable;
 use Framework\Actions\RouterAwareAction;
 use Framework\Router;
@@ -13,7 +14,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
- * Adds photos to the gallery. The admin page's script sends them one by one (so no request is over the server's
+ * Adds photos to an album, in one of its tabs if one is given. The admin page's script sends them one by one (so no request is over the server's
  * size limit) and reads the JSON answer; without it, the form sends them all at once
  */
 class PhotoUploadAction
@@ -31,6 +32,11 @@ class PhotoUploadAction
     private $photoTable;
 
     /**
+     * @var AlbumTable
+     */
+    private $albumTable;
+
+    /**
      * @var PhotoUpload
      */
     private $upload;
@@ -40,16 +46,29 @@ class PhotoUploadAction
      */
     private $flash;
 
-    public function __construct(Router $router, PhotoTable $photoTable, PhotoUpload $upload, FlashService $flash)
-    {
+    public function __construct(
+        Router $router,
+        PhotoTable $photoTable,
+        AlbumTable $albumTable,
+        PhotoUpload $upload,
+        FlashService $flash
+    ) {
         $this->router = $router;
         $this->photoTable = $photoTable;
+        $this->albumTable = $albumTable;
         $this->upload = $upload;
         $this->flash = $flash;
     }
 
     public function __invoke(Request $request) : ResponseInterface
     {
+        $albumId = (int) $request->getAttribute('id');
+        if (!$this->albumTable->exists($albumId)) {
+            $this->flash->error('Cet album n\'existe plus');
+            return $this->redirect('admin.photos.index');
+        }
+        $section = $request->getParsedBody()['section'] ?? '';
+        $section = is_string($section) && trim($section) !== '' ? mb_substr(trim($section), 0, 100) : null;
         $files = $request->getUploadedFiles()['photos'] ?? [];
         $files = is_array($files) ? $files : [$files];
         $added = 0;
@@ -70,7 +89,13 @@ class PhotoUploadAction
                 continue;
             }
             [$filename, $width, $height] = $photo;
-            $this->photoTable->insert(compact('filename', 'width', 'height'));
+            $this->photoTable->insert([
+                'album_id' => $albumId,
+                'section' => $section,
+                'filename' => $filename,
+                'width' => $width,
+                'height' => $height
+            ]);
             $added++;
         }
         if (!$added && !$errors) {
@@ -91,6 +116,6 @@ class PhotoUploadAction
         if ($errors) {
             $this->flash->error(htmlspecialchars(join(', ', $errors)));
         }
-        return $this->redirect('admin.photos.index');
+        return $this->redirect('admin.photos.album', ['id' => $albumId]);
     }
 }

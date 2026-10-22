@@ -1,0 +1,77 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ album.title }} - Photos - Rock Fever{% endblock %}
+
+{% block head %}
+    {% include '@photos/head.twig' %}
+    <script src="{{ asset('/js/photos.js') }}" defer></script>
+{% endblock %}
+
+{% block bodyColor %}photos-dark{% endblock %}
+
+{% block body %}
+    <div class="photos-page">
+        {#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
+        <div class="photos-crumbs" role="navigation" aria-label="Fil d'Ariane">
+            <a href="{{ path('photos') }}#{{ album.collectionSlug }}">{{ album.collection }}</a>
+            <span aria-hidden="true">&gt;</span>
+            <span aria-current="page">{{ album.title }}</span>
+        </div>
+
+        <header class="photos-album-header">
+            <div>
+                <h1>{{ album.title }}</h1>
+                {% if album.photographer %}<p>par {{ album.photographer }}</p>{% endif %}
+            </div>
+            {% if zip and photos|length %}
+                <a class="photos-download-all" href="{{ path('photos.album.zip', {slug: album.slug}) }}"
+                   title="Télécharger tout l'album" aria-label="Télécharger tout l'album (.zip)" download>
+                    <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M4 15v4.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V15"/>
+                    </svg>
+                </a>
+            {% endif %}
+        </header>
+    </div>
+
+    <div class="photos-tabs">
+        <div class="photos-page">
+            <a href="{{ path('photos.album', {slug: album.slug}) }}" {% if section is null %}aria-current="page"{% endif %}>Toutes les photos</a>
+            {% for name in sections %}
+                <a href="{{ path('photos.album', {slug: album.slug}) }}?onglet={{ name|url_encode }}" {% if section == name %}aria-current="page"{% endif %}>{{ name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="photos-page">
+        {% include '@photos/flash.twig' %}
+
+        {% if photos|length %}
+            <ul class="photos-grid">
+                {% for photo in photos %}
+                    <li class="photos-tile">
+                        {#- Without the script, the link opens the photo itself #}
+                        <a href="{{ path('photos.file', {id: photo.id, size: 'full'}) }}"
+                           data-large="{{ path('photos.file', {id: photo.id, size: '1600'}) }}"
+                           data-download="{{ path('photos.file', {id: photo.id, size: 'full'}) }}?download"
+                           data-request="{{ path('photos.request', {id: photo.id}) }}"
+                           aria-label="Agrandir la photo {{ loop.index }}">
+                            <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}"
+                                 srcset="{{ path('photos.file', {id: photo.id, size: '480'}) }} 480w, {{ path('photos.file', {id: photo.id, size: '960'}) }} 960w"
+                                 sizes="(max-width: 600px) 50vw, (max-width: 1100px) 33vw, 25vw"
+                                 width="{{ photo.width }}" height="{{ photo.height }}"
+                                 alt="" {% if loop.index > 12 %}loading="lazy" {% endif %}decoding="async">
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <p class="photos-album-note">
+                Tu es sur une photo et tu préfères qu'elle soit retirée ? Ouvre-la et choisis <strong>Demander la suppression</strong>.
+            </p>
+        {% else %}
+            <div class="photos-empty"><p>Pas encore de photos dans cet album.</p></div>
+        {% endif %}
+    </div>
+
+    {% include '@photos/viewer.twig' %}
+{% endblock %}

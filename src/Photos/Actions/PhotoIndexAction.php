@@ -3,7 +3,7 @@
 namespace App\Photos\Actions;
 
 use App\Photos\PhotoAccess;
-use App\Photos\Table\PhotoTable;
+use App\Photos\Table\AlbumTable;
 use Framework\Renderer\RendererInterface;
 use Framework\Responses\RedirectResponse;
 use Framework\Router;
@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * The gallery, or the form asking for its password
+ * The gallery's albums, by collection, or the form asking for its password
  */
 class PhotoIndexAction
 {
@@ -41,9 +41,9 @@ class PhotoIndexAction
     private $router;
 
     /**
-     * @var PhotoTable
+     * @var AlbumTable
      */
-    private $photoTable;
+    private $albumTable;
 
     /**
      * @var PhotoAccess
@@ -58,13 +58,13 @@ class PhotoIndexAction
     public function __construct(
         RendererInterface $renderer,
         Router $router,
-        PhotoTable $photoTable,
+        AlbumTable $albumTable,
         PhotoAccess $access,
         SessionInterface $session
     ) {
         $this->renderer = $renderer;
         $this->router = $router;
-        $this->photoTable = $photoTable;
+        $this->albumTable = $albumTable;
         $this->access = $access;
         $this->session = $session;
     }
@@ -77,8 +77,13 @@ class PhotoIndexAction
         if (!$this->access->canView($request)) {
             return $this->passwordForm();
         }
-        $photos = $this->photoTable->findAll()->fetchAll();
-        return new Response(200, self::HEADERS, $this->renderer->render('@photos/index', compact('photos')));
+        $collections = [];
+        foreach ($this->albumTable->findAllWithCovers()->fetchAll() as $album) {
+            if ($album->photoCount > 0) {
+                $collections[$album->collection][] = $album;
+            }
+        }
+        return new Response(200, self::HEADERS, $this->renderer->render('@photos/index', compact('collections')));
     }
 
     private function unlock(Request $request) : ResponseInterface
