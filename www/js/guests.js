@@ -46,6 +46,12 @@
         }, 4000);
     }
 
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function normalize(text) {
         return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
     }
@@ -121,9 +127,8 @@
             event_id: list.dataset.event
         }).then(function (data) {
             if (data === 'OK') {
-                toast('<i class="material-icons left">check</i> Ajouté !');
+                toast('<i class="material-icons left">check</i> ' + escapeHtml(firstname + ' ' + lastname) + ' ajouté !');
                 loadList();
-                alert(firstname + ' ' + lastname + ' a bien été ajouté');
             } else if (data === 'ALREADY') {
                 alert(firstname + ' ' + lastname + ' figurait déjà dans la liste');
             } else {
