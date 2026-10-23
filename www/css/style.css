@@ -454,6 +454,26 @@ a {
     border-top: 1px solid #e3e8ef;
 }
 
+/* "Dans la presse", after the members: one line per mention, the outlet then its date */
+.home-press {
+    margin-top: 56px;
+    border-top: 1px solid #e3e8ef;
+}
+
+.press-list li + li {
+    margin-top: 6px;
+}
+
+.press-list cite {
+    font-style: italic;
+}
+
+.press-list time {
+    color: #616161;
+    font-size: 15px;
+    margin-left: 8px;
+}
+
 /* The members after "Le Staff" (HomeAction), side by side: photo, then name, then text */
 .staff-grid {
     display: grid;
