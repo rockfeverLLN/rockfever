@@ -300,6 +300,36 @@ h6 {
     border-color: #ffffff;
 }
 
+/* Sign-ups open: a big button instead of the arrow */
+.next-event-open::after {
+    content: none;
+}
+
+.next-event-signup {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 14px 40px;
+    border-radius: 999px;
+    background-color: #00796b;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0;
+    transition: background-color .15s;
+}
+
+.next-event-signup::after {
+    content: "\2192";
+}
+
+.next-event-open:hover .next-event-signup {
+    background-color: #00897b;
+}
+
 .soiree-registration {
     margin: -6px 0 12px 0;
     color: #00796b;
@@ -1116,6 +1146,16 @@ table tbody tr td .input-field {
         padding: 18px 20px;
         border-radius: 14px;
         font-size: 18px;
+    }
+
+    .next-event-open {
+        justify-content: center;
+    }
+
+    .next-event-signup {
+        align-self: stretch;
+        padding: 12px 24px;
+        font-size: 20px;
     }
 
     .home-content {
