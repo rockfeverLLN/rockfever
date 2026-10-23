@@ -25,12 +25,21 @@ class EventsExtension extends \Twig\Extension\AbstractExtension
     public function getFunctions() : array
     {
         return [
-            new TwigFunction('nextEventExist', [$this,'nextEventExist'])
+            new TwigFunction('nextEventExist', [$this,'nextEventExist']),
+            new TwigFunction('nextEvent', [$this,'nextEvent'])
         ];
     }
 
     public function nextEventExist()
     {
         return $this->table->findNext() !== false;
+    }
+
+    /**
+     * The next event of the admin (today or later), or null when none is announced
+     */
+    public function nextEvent()
+    {
+        return $this->table->findNext() ?: null;
     }
 }

@@ -1,0 +1,19 @@
+{#- The coming soirées, in place of "[dates]" in a section of the home page (HomeAction). Takes semesters, nextSemester #}
+{%- set coming = semesters|map(soirees => soirees|filter(s => not s.past))|filter(soirees => soirees|length > 0) %}
+<div class="home-soirees">
+{%- for semester, soirees in coming %}
+    <h3>{{ semester }}</h3>
+    <ul>
+        {%- for soiree in soirees %}
+        <li{% if soiree.next %} class="home-soiree-next"{% endif %}>
+            <time datetime="{{ soiree.date }}">{{ soiree.label }}</time>
+            {%- if soiree.week %} <span class="home-soiree-week">semaine&nbsp;{{ soiree.week|replace({'S': ''}) }}</span>{% endif %}
+            {%- if soiree.next %} <span class="soiree-badge">Prochaine soirée</span>{% endif %}
+        </li>
+        {%- endfor %}
+    </ul>
+{%- else %}
+    <p><strong>Les prochaines dates arrivent bientôt&#8239;!</strong>{% if nextSemester %} Les soirées de {{ nextSemester|lower }} seront annoncées ici.{% endif %}</p>
+{%- endfor %}
+    <p><a href="{{ path('calendar') }}">Toutes les dates à ajouter à ton agenda</a></p>
+</div>

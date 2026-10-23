@@ -1,0 +1,17 @@
+{#- Card under the header that features the next soirée: its sign-up page once the admin has announced it,
+    otherwise its date from src/Main/config.php. Past soirées never show here.
+    Takes soirees (Calendar::getSoirees), and signUpOnly to show nothing until the event is announced #}
+{%- set event = nextEvent() %}
+{%- set next = soirees|filter(s => not s.past)|first %}
+{%- if event %}
+    {%- set day = event.date|split('/') %}
+    {%- set soiree = soirees|filter(s => s.date == day[2] ~ '-' ~ day[1] ~ '-' ~ day[0])|first %}
+    {%- set when = soiree ? soiree.label|lower : event.date|dateToText %}
+    <a href="{{ path('event') }}" class="next-event-link koamaru">
+        {%- if event.closed == 0 %}Inscris-toi à la soirée du {{ when }}&#8239;!{% else %}Prochaine soirée&nbsp;: {{ when }}{% endif -%}
+    </a>
+{%- elseif next and not signUpOnly|default(false) %}
+    <a href="{{ path('calendar') }}" class="next-event-link koamaru">
+        Prochaine soirée&nbsp;: {{ next.label|lower }} à {{ next.start|date('H:i', false)|replace({':': 'h'}) -}}
+    </a>
+{%- endif %}
