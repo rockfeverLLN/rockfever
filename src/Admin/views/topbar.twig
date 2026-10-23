@@ -15,18 +15,15 @@
                 {{ renderMenu() }}
             {% endif %}
             <li>
-                <a onclick="$('#logout-form').submit()">
-                    <i class="mdi mdi-logout"></i>
-                </a>
-
-                <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
+                <form action="{{ path('auth.logout') }}" method="post" class="logout-form">
+                    <button type="submit" aria-label="Se déconnecter"><i class="mdi mdi-logout"></i></button>
                 </form>
             </li>
         </ul>
     </div>
 </nav>
 
-{#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
+{#- A div with the role, not a <nav>: base.css styles every nav as the top bar #}
 <div role="navigation" aria-label="Menu mobile">
     <ul class="sidenav" id="sidenav">
         {% if not isPhotographer() %}
@@ -53,11 +50,8 @@
             <a href="{{ path('admin.photos.index') }}">Photos</a>
         </li>
         <li>
-            <a onclick="$('#logout-form').submit()">
-                Se déconnecter
-            </a>
-
-            <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
+            <form action="{{ path('auth.logout') }}" method="post" class="logout-form">
+                <button type="submit">Se déconnecter</button>
             </form>
         </li>
     </ul>

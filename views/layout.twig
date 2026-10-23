@@ -29,17 +29,9 @@
                     return;
                 }
                 loaded = true;
-                [
-                    '{{ asset('/js/jquery.min.js') }}',
-                    '{{ asset('/js/materialize.min.js') }}',
-                    '{{ asset('/js/script.js') }}'
-                ].forEach(function (src) {
-                    var tag = document.createElement('script');
-                    // Run them in this order, like defer did: jQuery, then Materialize, then the site's script
-                    tag.async = false;
-                    tag.src = src;
-                    document.head.appendChild(tag);
-                });
+                var tag = document.createElement('script');
+                tag.src = '{{ asset('/js/script.js') }}';
+                document.head.appendChild(tag);
             }
             // The load event often comes before the first paint: wait for the browser to report that paint
             window.addEventListener('load', function () {
@@ -93,7 +85,7 @@
     {% block head %}{% endblock %}
     {# critical.css and site.css are built by bin/critical-css.php at every deploy (not in git) #}
     {%- if assetExists('/css/site.css') %}
-    {# Rules the public pages need for the first paint, then the one stylesheet (Materialize's part and style.css),
+    {# Rules the public pages need for the first paint, then the one stylesheet (base.css's part and style.css),
        loaded in the background #}
     <style>{{ source('critical.css', ignore_missing = true) }}</style>
     <link rel="preload" href="{{ asset('/css/site.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
@@ -101,8 +93,8 @@
         <link rel="stylesheet" href="{{ asset('/css/site.css') }}"/>
     </noscript>
     {%- else %}
-    {#- A fresh checkout has neither: the page waits for all of Materialize and style.css #}
-    <link rel="stylesheet" href="{{ asset('/css/materialize.min.css') }}"/>
+    {#- A fresh checkout has neither: the page waits for all of base.css and style.css #}
+    <link rel="stylesheet" href="{{ asset('/css/base.css') }}"/>
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}"/>
     {%- endif %}
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>

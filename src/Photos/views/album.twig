@@ -11,7 +11,7 @@
 
 {% block body %}
     <div class="photos-page">
-        {#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
+        {#- A div with the role, not a <nav>: base.css styles every nav as the top bar #}
         <div class="photos-crumbs" role="navigation" aria-label="Fil d'Ariane">
             <a href="{{ path('photos') }}#{{ album.collectionSlug }}">{{ album.collection }}</a>
             <span aria-hidden="true">&gt;</span>

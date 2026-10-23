@@ -4,8 +4,8 @@
     <title>{% block title %}Rock Fever{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
-    <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
+    <link type="text/css" rel="stylesheet" href="{{ asset('/css/base.css') }}"/>
+    <link  href="{{ asset('/css/style.css') }}" rel="stylesheet"/>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
@@ -20,18 +20,9 @@
 {% block body %}
 {% endblock %}
 
-<script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('/js/materialize.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
-<script type="text/javascript" src="{{ __DIR__ }}/js/script.js"></script>
-<script>
-    new ClipboardJS('.to-clipboard');
-    $(document).ready(function(){
-        $('.grid').masonry({
-            itemSelector: '.col'
-        });
-    });
-</script>
+{#- script.js copies the URLs with clipboard.js and lays the images out with Masonry #}
+<script type="text/javascript" src="{{ asset('/js/script.js') }}"></script>
 </body>
 </html>

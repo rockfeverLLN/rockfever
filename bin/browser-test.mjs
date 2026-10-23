@@ -1,6 +1,6 @@
-// Opens the pages that use JavaScript libraries in headless Chrome and fails if a script throws, logs an
-// error, doesn't load, or if a library didn't start its widgets. bin/smoke-test.sh only checks the HTML answers,
-// this checks that jQuery, Materialize, TinyMCE, clipboard.js and Masonry still work after an update.
+// Opens the pages that use JavaScript in headless Chrome and fails if a script throws, logs an error, doesn't
+// load, or if a widget doesn't work. bin/smoke-test.sh only checks the HTML answers, this checks that the site's
+// own widgets (www/js/script.js, guests.js) and TinyMCE, clipboard.js and Masonry still work after an update.
 // Used by .github/workflows/update-dependencies.yml, with no npm packages: Node talks to Chrome over its
 // DevTools protocol.
 //
@@ -14,17 +14,49 @@ import {join} from 'node:path';
 
 const BASE = process.argv[2] || 'http://127.0.0.1:8000';
 
-// path: what must be true once the page's scripts ran
+// path: what must be true once the page's scripts ran. The checks run again until they pass, so the ones that click
+// only do it while the widget isn't open yet
 const PAGES = [
-    ['/', "M.Sidenav.getInstance(document.querySelector('.sidenav'))"],
-    ['/contact', "typeof jQuery === 'function'"],
-    ['/admin/events/1', "M.Datepicker.getInstance(document.querySelector('.datepicker'))"
-        + " && M.Timepicker.getInstance(document.querySelector('.timepicker'))"],
-    ['/admin/events/list/1', "typeof jQuery === 'function' && document.querySelector('#guests-list')"],
+    // Side menu: the menu button opens it
+    ['/', "(document.querySelector('.sidenav.open') || document.querySelector('.sidenav-trigger').click(),"
+        + " !!document.querySelector('.sidenav.open') && !!document.querySelector('.sidenav-overlay.open'))"],
+    // A text field's label moves up once it's filled
+    ['/contact', "(() => { const input = document.querySelector('.input-field input');"
+        + " input.value = 'Test'; input.dispatchEvent(new Event('change', {bubbles: true}));"
+        + " return input.parentElement.querySelector('label').classList.contains('active'); })()"],
+    // The role is a native select, shown
+    ['/login', "!!document.querySelector('.sidenav-overlay') && document.querySelector('select[name=role]').offsetHeight > 0"],
+    // Collapsible (another soirée opens and the first closes), tooltip, the "Paramètres" dropdown
+    ['/admin/events', "(() => {"
+        + " const items = document.querySelectorAll('.collapsible > li');"
+        + " if (!items[1].classList.contains('active')) items[1].querySelector('.collapsible-header').click();"
+        + " document.querySelector('.tooltipped').dispatchEvent(new MouseEvent('mouseenter'));"
+        + " const menu = document.getElementById('params-dropdown');"
+        + " if (!menu.classList.contains('open')) document.querySelector('.dropdown-trigger').click();"
+        + " return items[1].classList.contains('active') && !items[0].classList.contains('active')"
+        + "  && document.querySelector('.material-tooltip.open').textContent.length > 0"
+        + "  && menu.classList.contains('open') && menu.parentElement.tagName === 'LI'; })()"],
+    // The browser's date and time pickers, with the event's values
+    ['/admin/events/1', "/^\\d{4}-\\d{2}-\\d{2}$/.test(document.querySelector('input[type=date][name=date]').value)"
+        + " && /^\\d{2}:\\d{2}$/.test(document.querySelector('input[type=time][name=waltz_time]').value)"],
+    // The list and the numbers load, and the search filters the list
+    ['/admin/events/list/1', "(() => {"
+        + " const items = document.querySelectorAll('#guests-list .collection-item');"
+        + " const search = document.getElementById('guest-search');"
+        + " search.value = 'zzzz'; search.dispatchEvent(new KeyboardEvent('keyup'));"
+        + " const hidden = [...items].every(item => item.style.display === 'none');"
+        + " search.value = ''; search.dispatchEvent(new KeyboardEvent('keyup'));"
+        + " return items.length > 0 && hidden && document.getElementById('attendees').textContent !== '-'; })()"],
+    // Card reveal
+    ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
+        + " !!document.querySelector('.card-reveal.open'))"],
     ['/admin/about/1', "tinymce.get().length > 0 && tinymce.get()[0].initialized"
         + " && !!tinymce.get()[0].ui.registry.getAll().buttons.imageuploader"],
-    ['/admin/values', "tinymce.get().length > 0 && tinymce.get().every(e => e.initialized)"],
-    ['/admin/about/gallery', "new ClipboardJS('.to-clipboard') && !!jQuery('.grid').data('masonry')"],
+    // TinyMCE in the modals, and a modal opens
+    ['/admin/values', "tinymce.get().length > 0 && tinymce.get().every(e => e.initialized)"
+        + " && (document.querySelector('dialog.modal[open]') || document.querySelector('.modal-trigger').click(),"
+        + " !!document.querySelector('dialog.modal[open]') && !!document.querySelector('.modal-overlay.open'))"],
+    ['/admin/about/gallery', "new ClipboardJS('.to-clipboard') && !!Masonry.data(document.querySelector('.grid'))"],
 ];
 // Analytics can fail in a test run without the site being broken
 const IGNORED = /googletagmanager|google-analytics/;

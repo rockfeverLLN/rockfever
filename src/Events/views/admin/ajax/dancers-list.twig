@@ -20,7 +20,7 @@
         {% if dancer.status == 0 %}
             <button
                     class="transparent green-text waves-green waves-effect secondary-content tab-highlighted"
-                    onclick="updateStatus(this, {{ dancer.id }}, 1)"
+                    data-dancer="{{ dancer.id }}" data-status="1"
             >
                 <i class="material-icons left">check</i> Ajouter
             </button>
@@ -30,7 +30,7 @@
             <button
                     class="transparent amber-text waves-effect waves-yellow secondary-content tab-highlighted"
                     style="border-radius: 50%"
-                    onclick="updateStatus(this, {{ dancer.id }}, 2)"
+                    data-dancer="{{ dancer.id }}" data-status="2"
             >
                 <i class="material-icons">star</i>
             </button>
@@ -39,7 +39,7 @@
         {% if dancer.status > 0 %}
             <button
                     class="transparent red-text waves-red waves-effect secondary-content tab-highlighted"
-                    onclick="updateStatus(this, {{ dancer.id }}, 0)"
+                    data-dancer="{{ dancer.id }}" data-status="0"
             >
                 <i class="material-icons left">close</i> Retirer
             </button>
