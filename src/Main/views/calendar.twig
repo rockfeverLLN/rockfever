@@ -32,7 +32,7 @@
             Sauf exception, les soirées ont lieu le mercredi soir au <strong>{{ place }}</strong> à Louvain-la-Neuve,
             de {{ first.start|date('H:i', false)|replace({':': 'h'}) }} à {{ first.end|date('H:i', false)|replace({':': 'h'}) }}.
             Elles sont ouvertes aux 18-35 ans, avec ta carte d'identité.
-            Inscris-toi à l'avance sur le site pour payer 3 € au lieu de 4 € sur place.
+            Inscris-toi à l'avance sur le site pour payer {{ prices.online }}&nbsp;€ au lieu de {{ prices.door }}&nbsp;€ à l'entrée.
         </p>
 
         <div class="calendar-subscribe">

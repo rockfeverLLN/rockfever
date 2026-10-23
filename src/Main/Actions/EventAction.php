@@ -4,6 +4,7 @@ namespace App\Main\Actions;
 use App\Events\Entity\Dancer;
 use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
+use App\Main\Calendar;
 use Framework\Actions\FormAction;
 use Framework\Database\Hydrator;
 use Framework\Database\NoRecordException;
@@ -33,13 +34,15 @@ class EventAction extends FormAction
      * @param EventTable $eventTable
      * @param FlashService $flash
      * @param DancerTable $dancerTable
+     * @param Calendar $calendar
      */
     public function __construct(
         RendererInterface $renderer,
         Router $router,
         EventTable $eventTable,
         FlashService $flash,
-        DancerTable $dancerTable
+        DancerTable $dancerTable,
+        private Calendar $calendar
     ) {
         parent::__construct($renderer, $router, $eventTable, $flash);
         $this->dancerTable = $dancerTable;
@@ -51,15 +54,15 @@ class EventAction extends FormAction
      */
     public function index(ServerRequestInterface $request) : string
     {
-        $event = $this->table->findNext();
-        return $this->renderer->render($this->viewPath . '/event', compact('event'));
+        return $this->render();
     }
 
     public function edit(ServerRequestInterface $request)
     {
         $item = $this->getNewEntity();
-        if (!$this->table->findNext()->isRegistrationOpen()) {
-            $this->flash->error("Les inscriptions ne sont pas ouvertes");
+        // The next soirée's sign-up, as every page shows it (Calendar): NextEventMiddleware made sure there is one
+        if ($this->calendar->getNext()['registration']['status'] !== Calendar::REGISTRATION_OPEN) {
+            $this->flash->error("Les inscriptions à cette soirée ne sont pas ouvertes");
             return $this->redirect('event');
         }
         $validator = $this->getValidator($request);
@@ -76,8 +79,13 @@ class EventAction extends FormAction
             $this->flash->error("Tu n'as pas complété ton prénom et ton nom correctement");
         }
 
-        $event = $this->table->findNext();
-        return $this->renderer->render($this->viewPath . '/event', compact('event'));
+        return $this->render();
+    }
+
+    private function render() : string
+    {
+        $soiree = $this->calendar->getNext();
+        return $this->renderer->render($this->viewPath . '/event', compact('soiree'));
     }
 
     protected function getParams(ServerRequestInterface $request, $item = null): array
@@ -85,7 +93,7 @@ class EventAction extends FormAction
         $params = array_filter($request->getParsedBody(), function ($key) {
             return in_array($key, ['firstname','lastname']);
         }, ARRAY_FILTER_USE_KEY);
-        $params['event_id'] = $this->table->findNext()->id;
+        $params['event_id'] = $this->calendar->getNext()['event']->id;
         return $params;
     }
 

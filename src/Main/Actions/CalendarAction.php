@@ -7,8 +7,8 @@ use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * /calendrier: the dates of the soirées, /calendrier.ics: all of them for a calendar app,
- * /calendrier/2026-11-11.ics: one of them
+ * /calendrier: the dates of the soirées, /calendrier/2026-11-11: the page of one of them (its canonical URL),
+ * /calendrier.ics: all of them for a calendar app, /calendrier/2026-11-11.ics: one of them
  */
 class CalendarAction
 {
@@ -32,11 +32,20 @@ class CalendarAction
                 'Cache-Control' => 'public, max-age=3600',
             ], $this->calendar->toIcs($date));
         }
+        $date = $request->getAttribute('date');
+        if ($date !== null) {
+            $soiree = $this->calendar->find($date);
+            if ($soiree === null) {
+                return new Response(404, [], $this->renderer->render('404'));
+            }
+            return $this->renderer->render('@main/soireePage', compact('soiree'));
+        }
         return $this->renderer->render('@main/calendar', [
             'semesters' => $this->calendar->getSemesters(),
             'nextSemester' => $this->calendar->getNextSemester(),
             'place' => $this->calendar->getPlace(),
             'address' => $this->calendar->getAddress(),
+            'prices' => $this->calendar->getPrices(),
         ]);
     }
 }

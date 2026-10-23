@@ -1,31 +1,25 @@
-{#- Card under the header that features the next soirée, and changes on its own when sign-ups open
-    (Event::REGISTRATION_DAYS before it, once the event exists in the admin). Past soirées never show here.
-    Takes soirees (Calendar::getSoirees), and signUpOnly to show it only while sign-ups are open #}
-{%- set event = nextEvent() %}
-{%- set next = soirees|filter(s => not s.past)|first %}
-{%- if event %}
-    {%- set day = event.date|split('/') %}
-    {%- set soiree = soirees|filter(s => s.date == day[2] ~ '-' ~ day[1] ~ '-' ~ day[0])|first %}
-    {%- set when = soiree ? soiree.label|lower : event.date|dateToText %}
-    {%- set time = soiree ? soiree.start|date('H:i', false) : event.waltzTime %}
-    {%- set opening = event.registrationOpening %}
-{%- elseif next %}
-    {%- set when = next.label|lower %}
-    {%- set time = next.start|date('H:i', false) %}
-    {%- set opening = next.registrationOpening %}
+{#- Card under the header that features the next soirée (Calendar::getNext), and changes on its own when its sign-up
+    opens (Event::REGISTRATION_DAYS before it, once the event exists in the admin) or closes. Past soirées never show here.
+    Takes signUpOnly to show it only while sign-ups are open #}
+{%- set soiree = nextSoiree() %}
+{%- if soiree %}
+    {%- set status = soiree.registration.status %}
+    {%- set when = soiree.label|lower %}
+    {%- set time = soiree.start|date('H:i', false) %}
+    {%- set opens = soiree.registration.opens %}
 {%- endif %}
-{%- if event and event.registrationOpen %}
+{%- if soiree and status == 'open' %}
     <a href="{{ path('event') }}" class="next-event-link koamaru">Inscris-toi à la soirée du {{ when }}&#8239;!</a>
-{%- elseif signUpOnly|default(false) %}
-{%- elseif event and not event.registrationUpcoming %}
+{%- elseif not soiree or signUpOnly|default(false) %}
+{%- elseif status == 'closed' %}
     <a href="{{ path('event') }}" class="next-event-link koamaru">Prochaine soirée&nbsp;: {{ when }}</a>
-{%- elseif event or next %}
-    <a href="{{ event ? path('event') : path('calendar') }}" class="next-event-link next-event-soon koamaru">
+{%- else %}
+    <a href="{{ path('event') }}" class="next-event-link next-event-soon koamaru">
         <span class="next-event-text">
             <span class="next-event-note">Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&nbsp;:</span>
-            <span>{{ when|capitalize }}{% if time %} à&nbsp;{{ time|replace({':': 'h'}) }}{% endif %}</span>
+            <span>{{ when|capitalize }} à&nbsp;{{ time|replace({':': 'h'}) }}</span>
             <span class="next-event-note">
-                {%- if date(opening) > date() %}Ouverture des inscriptions le {{ opening|dayLabel }}{% else %}Ouverture des inscriptions très bientôt{% endif -%}
+                {%- if status == 'upcoming' %}Ouverture des inscriptions le {{ opens|dayLabel }}{% else %}Ouverture des inscriptions très bientôt{% endif -%}
             </span>
         </span>
     </a>

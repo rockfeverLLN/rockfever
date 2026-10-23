@@ -5,6 +5,7 @@ namespace App\Events;
 use App\Admin\AdminWidgetInterface;
 use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
+use App\Main\Calendar;
 use Framework\Renderer\RendererInterface;
 
 class EventsWidget implements AdminWidgetInterface
@@ -29,7 +30,7 @@ class EventsWidget implements AdminWidgetInterface
      */
     private $eventTable;
 
-    public function __construct(RendererInterface $renderer, EventTable $eventTable)
+    public function __construct(RendererInterface $renderer, EventTable $eventTable, private Calendar $calendar)
     {
         $this->renderer = $renderer;
         $this->eventTable = $eventTable;
@@ -52,8 +53,9 @@ class EventsWidget implements AdminWidgetInterface
         }
 
         $nextEvent = $this->eventTable->findNext();
-        //print_r($nextEvent);die();
-        return $this->renderer->render('@events/admin/widget', compact('countForChart', 'nextEvent'));
+        // Its sign-up as the site shows it
+        $registration = $nextEvent ? $this->calendar->find($nextEvent->getDay())['registration'] : null;
+        return $this->renderer->render('@events/admin/widget', compact('countForChart', 'nextEvent', 'registration'));
     }
 
     /**

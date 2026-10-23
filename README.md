@@ -68,11 +68,13 @@ composer serve                                       # http://127.0.0.1:8000
 
 ## Calendar
 
-`/calendrier` lists the dates of the soirées, with buttons to add one or all of them to a calendar app. The dates, times and place are in `calendar.soirees` and the lines under it in [`src/Main/config.php`](src/Main/config.php): add the next semester's dates there. `/calendrier.ics` serves them all, so calendars that subscribed to it get the new dates on their own.
+`/calendrier` lists the dates of the soirées, with buttons to add one or all of them to a calendar app. The dates, times, place and prices are in `calendar.soirees` and the lines under it in [`src/Main/config.php`](src/Main/config.php): add the next semester's dates there, and give a soirée that won't happen `'cancelled' => true` rather than removing it. `/calendrier.ics` serves them all, so calendars that subscribed to it get the new dates on their own.
+
+**One source for every soirée:** [`Calendar`](src/Main/Calendar.php) builds each soirée from its date in the config and its event in the admin (same day): the admin's title, description, waltz time (the start) and place win when they're set, the config gives the rest. The home page, `/calendrier`, `/event` and its form, the `.ics` files, the schema.org markup, the sitemap and `/api/events` all read these records, so they can't disagree. Each soirée has its own page, `/calendrier/2026-11-11`, its canonical URL. The admin's "Prix" field only shows for old events: listed and coming soirées show the config's prices.
 
 The same dates feed the home page, so nothing there needs editing when a soirée is over:
 
-- **Sign-ups open on their own** at midnight, 7 days before the soirée (`Event::REGISTRATION_DAYS`), once its event exists in admin > Événements: the team can create it as early as it likes. The lock in the admin still closes them by hand (and reopens them), and the dashboard says whether they're open, closed or when they open. Before the opening, `/event` shows the soirée without the form and refuses sign-ups.
+- **Sign-ups open on their own** at midnight, 7 days before the soirée (`Event::REGISTRATION_DAYS`) but not before the previous soirée is over, once its event exists in admin > Événements: the team can create it as early as it likes. They **close when the soirée starts**, and `/event` then refuses sign-ups. Only the next soirée can have them open. Each soirée's state is `open`, `upcoming`, `pending` (opening day reached, no event in the admin yet), `closed` or `cancelled`. The lock in the admin still closes them by hand (and reopens them), and the dashboard says whether they're open, closed or when they open. Before the opening, `/event` shows the soirée without the form and refuses sign-ups.
 - **Next soirée card** under the header of the home page, which follows the sign-ups: "Inscris-toi à la soirée du …" while they're open; before that, "Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée : Mercredi 11 novembre à 20h30", with the opening day (to `/event` if the event exists, else `/calendrier`); "Prochaine soirée : …" once they're closed. Past soirées never show. On `/calendrier`, the card only appears while sign-ups are open, and the next soirée says when they open.
 - **Date list:** a paragraph containing only `[dates]` in an "À propos" section (the "Dates de nos soirées" one) is replaced by the coming soirées, grouped by quadrimestre, with the next one marked. When they're all past, it says the next dates are coming. Don't type dates by hand in that section.
 
@@ -112,7 +114,9 @@ Text written in the admin (these sections, the events' title and description) go
 - `www/robots.txt` lets every crawler in, AI training included (`Content-Signal: ai-train=yes`), except `/admin` and `/login`.
 - `www/llms.txt` sums up the site and its pages for language models, and `www/AGENTS.md` tells agents what they may do (no form sent without the person's request). Update them when pages change.
 - Every page answers in Markdown (its `<main>` only) when asked with `Accept: text/markdown`: [`MarkdownMiddleware`](src/Framework/Middleware/MarkdownMiddleware.php).
-- `layout.twig` marks up Rock Fever as a schema.org `Organization`. The home and calendar pages list the coming soirées as `DanceEvent`s (`@main/soireesJsonLd.twig`), and `/event` marks up the next event.
+- `layout.twig` marks up Rock Fever as a schema.org `Organization`. The home and calendar pages list the coming soirées as `DanceEvent`s, and `/event` and each soirée's page mark up theirs, all from `Calendar::toSchema` (dates with their offset, address, both prices with the sign-up's availability, `EventCancelled` for a cancelled one).
+- `/api/events` gives every soirée as JSON, past and to come (`Calendar::toApi`), with `next`, each one's sign-up state, opening and closing times, and the fields the form needs.
+- `/sitemap.xml` is built by [`SitemapAction`](src/Main/Actions/SitemapAction.php): the public pages and each soirée's page.
 - `www/.htaccess` sends the security headers (HSTS, CSP, nosniff…) on every response.
 
 ## Deploy

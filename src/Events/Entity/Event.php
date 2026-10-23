@@ -53,9 +53,17 @@ class Event
             ->modify('-' . self::REGISTRATION_DAYS . ' days');
     }
 
+    /**
+     * The day of the event as Y-m-d ($date is d/m/Y)
+     */
+    public function getDay() : string
+    {
+        return implode('-', array_reverse(explode('/', $this->date)));
+    }
+
     public function getRegistrationOpening() : \DateTimeImmutable
     {
-        return self::registrationOpeningFor(implode('-', array_reverse(explode('/', $this->date))));
+        return self::registrationOpeningFor($this->getDay());
     }
 
     /**
