@@ -49,34 +49,29 @@ $(document).ready(function () {
 
     if (typeof tinymce !== 'undefined') tinymce.init({
         selector: '.tinymce',
+        // The open source edition of TinyMCE, loaded from jsDelivr: no Tiny Cloud account or API key
+        license_key: 'gpl',
         content_css: '/css/materialize.min.css',
-        language_url : '/js/langs/fr_FR.js',
-        branding : false,
-        plugins: [
-            'image','imagetools',
-            'link','textcolor',
-            'colorpicker','paste',
-            'table', 'lists',
-            'code'
-        ],
+        language: 'fr_FR',
+        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.19/langs7/fr_FR.js',
+        branding: false,
+        promotion: false,
+        plugins: 'image link table lists code',
         menu: {
             edit: {title: 'Modifier', items: 'undo redo | cut copy paste pastetext | selectall'},
-            format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | formats | removeformat'},
+            format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | styles | removeformat'},
             table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'},
             tools: {title: 'Tools', items: 'code'}
         },
-        toolbar: 'undo redo | styleselect bold italic forecolor numlist | alignleft aligncenter alignright | link imageUploader image code',
+        toolbar: 'undo redo | styles bold italic forecolor numlist | alignleft aligncenter alignright | link imageUploader image code',
         height: 300,
-        setup: function(tinymce) {
-
-            function imageUploader() {
-                window.open("/admin/about/gallery", "", "width=500,height=400");
-            }
-
-            tinymce.addButton('imageUploader', {
-                image: '/images/body/cloud-upload.png',
+        setup: function (editor) {
+            editor.ui.registry.addButton('imageUploader', {
+                icon: 'upload',
                 tooltip: "Télécharger une image sur le serveur",
-                onclick: imageUploader
+                onAction: function () {
+                    window.open("/admin/about/gallery", "", "width=500,height=400");
+                }
             });
         },
         image_dimensions: true,

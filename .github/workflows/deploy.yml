@@ -16,7 +16,8 @@ permissions:
 # so there are no action versions or Node runtimes to keep up to date.
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
+    runs-on: ubuntu-26.04
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
     # Test database for the site that bin/critical-css.php reads to build the trimmed CSS

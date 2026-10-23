@@ -79,6 +79,7 @@ class App implements RequestHandlerInterface
         } elseif ($middleware instanceof MiddlewareInterface) {
             return $middleware->process($request, $this);
         }
+        throw new \Exception('A middleware must be callable or a MiddlewareInterface, got ' . get_debug_type($middleware));
     }
 
     public function run(ServerRequestInterface $request): ResponseInterface

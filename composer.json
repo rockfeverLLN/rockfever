@@ -36,6 +36,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.24",
+        "phpstan/phpstan": "^2.3",
         "robmorgan/phinx": "^0.16.12"
     },
     "scripts": {
@@ -44,12 +45,14 @@
             "ENV=dev php -S 127.0.0.1:8000 -t www bin/router.php"
         ],
         "lint": "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null",
+        "analyse": "phpstan analyse --memory-limit=1G",
         "migrate": "phinx migrate",
         "seed": "phinx seed:run"
     },
     "scripts-descriptions": {
         "serve": "Run the site locally on http://127.0.0.1:8000",
         "lint": "Check every PHP file for syntax errors",
+        "analyse": "Look for code that calls classes or methods that don't exist (new errors only, see phpstan.neon)",
         "migrate": "Apply database migrations",
         "seed": "Fill the database with sample data"
     }
