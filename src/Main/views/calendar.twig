@@ -49,44 +49,7 @@
             <h2 class="calendar-semester">{{ semester }}</h2>
             <ol class="soirees">
                 {% for soiree in soirees %}
-                    {% set label = soiree.weekday ~ ' ' ~ soiree.day ~ ' ' ~ soiree.month %}
-                    <li class="soiree{{ soiree.past ? ' soiree-past' }}{{ soiree.next ? ' soiree-next' }}">
-                        <time class="soiree-date koamaru" datetime="{{ soiree.date }}" aria-hidden="true">
-                            <span class="soiree-weekday">{{ soiree.weekday|slice(0, 3) }}</span>
-                            <span class="soiree-day">{{ soiree.day }}</span>
-                            <span class="soiree-month">{{ soiree.shortMonth }}</span>
-                        </time>
-                        <div class="soiree-content">
-                            <h3 class="soiree-title">
-                                {{ label }} {{ soiree.year }}
-                                {% if soiree.next %}<span class="soiree-badge">Prochaine soirée</span>{% endif %}
-                                {% if soiree.past %}<span class="soiree-badge soiree-badge-past">Passée</span>{% endif %}
-                            </h3>
-                            <p class="soiree-meta">
-                                {{ soiree.start|date('H:i', false)|replace({':': 'h'}) }} · {{ place }}{% if soiree.week %} · Semaine&nbsp;{{ soiree.week|replace({'S': ''}) }}{% endif %}
-                            </p>
-                            {% if soiree.next %}
-                                {%- set event = nextEvent() %}
-                                <p class="soiree-registration">
-                                    {%- if event and event.registrationOpen and event.date == soiree.start|date('d/m/Y', false) %}
-                                        <a href="{{ path('event') }}">Inscriptions ouvertes&nbsp;: inscris-toi pour payer 3&nbsp;€ au lieu de 4&nbsp;€</a>
-                                    {%- elseif date(soiree.registrationOpening) > date() %}
-                                        Inscriptions sur le site dès le {{ soiree.registrationOpening|dayLabel }}
-                                    {%- endif -%}
-                                </p>
-                            {% endif %}
-                            {% if not soiree.past %}
-                                <div class="soiree-actions">
-                                    <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light">
-                                        <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon calendrier<span class="sr-only"> : {{ label }}</span>
-                                    </a>
-                                    <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener">
-                                        <i class="mdi mdi-google left" aria-hidden="true"></i>Google<span class="sr-only"> Agenda : {{ label }}</span>
-                                    </a>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </li>
+                    {% include '@main/soiree.twig' %}
                 {% endfor %}
             </ol>
         {% endfor %}

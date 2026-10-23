@@ -51,14 +51,15 @@ class HomeAction
             $staffFound = mb_strtolower(trim($item->title)) === 'le staff';
         }
 
-        // A "[dates]" paragraph in a section becomes the list of the coming soirées of src/Main/config.php,
-        // so the home page never shows past dates and never needs editing when a soirée is over
+        // A "[dates]" paragraph in a section becomes the soirées of the quadrimestre under way from src/Main/config.php,
+        // marked past or next like on /calendrier, so it never needs editing when a soirée is over
         $dates = null;
         foreach ($items as $item) {
             if (str_contains($item->content, self::DATES)) {
                 $dates ??= $this->renderer->render('@main/soireesList', [
                     'semesters' => $this->calendar->getSemesters(),
                     'nextSemester' => $this->calendar->getNextSemester(),
+                    'place' => $this->calendar->getPlace(),
                 ]);
                 $item->content = preg_replace_callback(
                     '#<p>\s*' . preg_quote(self::DATES, '#') . '\s*</p>|' . preg_quote(self::DATES, '#') . '#',

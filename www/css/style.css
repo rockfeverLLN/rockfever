@@ -251,42 +251,37 @@ h6 {
     display: none;
 }
 
-/* The coming soirées in the "Dates de nos soirées" section of the home page (soireesList.twig) */
+/* The soirées of the quadrimestre in the "Dates de nos soirées" section of the home page (soireesList.twig),
+   as the cards of /calendrier */
 .home-soirees h3 {
-    margin: 20px 0 6px 0;
+    margin: 20px 0 12px 0;
     font-size: 18px;
     font-weight: 800;
 }
 
-.home-soirees ul {
-    margin: 0 0 12px 0;
+.home-soirees .soirees {
+    margin-bottom: 20px;
 }
 
-.home-soirees li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(3, 41, 81, 0.1);
-    font-size: 17px;
+.home-soirees .soiree-content {
+    line-height: 1.5;
 }
 
-.home-soirees li:last-child {
-    border-bottom: 0;
+.home-soirees .soiree-meta {
+    margin-bottom: 0;
 }
 
-.home-soirees time {
-    font-weight: 700;
+.home-soirees .soiree-registration {
+    margin: 6px 0 0 0;
 }
 
-.home-soiree-week {
-    color: #616161;
-    font-size: 15px;
+.home-soirees .soiree-actions {
+    margin-top: 8px;
 }
 
-.home-soiree-next time {
-    color: #00796b;
+/* .rich-text underlines its links */
+.home-soirees .soiree-actions a {
+    text-decoration: none;
 }
 
 /* Hidden on screen, still read by screen readers */
