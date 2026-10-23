@@ -22,7 +22,7 @@
                         <a class="waves-effect waves-koamaru btn-flat modal-trigger koamaru-text" href="#modal_{{ value.id }}"><i class="material-icons left">edit</i> Modifier</a>
                     </td>
 
-                    <div id="modal_{{ value.id }}" class="modal modal-fixed-footer">
+                    <dialog id="modal_{{ value.id }}" class="modal modal-fixed-footer">
                         <form method="post">
                             <div class="modal-content">
                                 <h4>
@@ -47,7 +47,7 @@
                                 <input type="hidden" name="id" value="{{ value.id }}">
                             </div>
                         </form>
-                    </div>
+                    </dialog>
                 </tr>
             {% endfor %}
             </tbody>
