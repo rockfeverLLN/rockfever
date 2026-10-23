@@ -122,7 +122,7 @@ Text written in the admin (these sections, the events' title and description) go
 
 ## Deploy
 
-Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It installs the Composer dependencies, checks PHP syntax, and uploads the project over SFTP to the OVH hosting root. It needs the `FTP_PASSWORD` repository secret.
+Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). It installs the Composer dependencies, checks PHP syntax, runs PHPStan and `bin/smoke-test.sh` on a copy of the site with a test database, and only then uploads the project over SFTP to the OVH hosting root: a push that fails a check doesn't go live. It needs the `FTP_PASSWORD` repository secret.
 
 The PHP version on OVH is set in [`.ovhconfig`](.ovhconfig).
 

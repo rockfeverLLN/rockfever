@@ -722,8 +722,9 @@ main:focus {
     box-shadow: 0 0 0 2px #00796b, 0 14px 32px rgba(0, 121, 107, 0.18);
 }
 
+/* Muted with a grey background, not opacity, so its text keeps a 4.5:1 contrast */
 .soiree-past {
-    opacity: .72;
+    background-color: #f5f7fa;
 }
 
 .soiree-past .soiree-meta {

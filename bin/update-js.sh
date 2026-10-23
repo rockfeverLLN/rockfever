@@ -74,7 +74,9 @@ case ${1:-} in
     --majors)
         for package in "${PACKAGES[@]}"; do
             current=$(current "$package")
-            latest=$(newest "$(metadata "$package")")
+            # Two steps: set -e ignores a failed download inside a "$(...)" passed as an argument
+            meta=$(metadata "$package")
+            latest=$(newest "$meta")
             if [ "${latest%%.*}" -gt "${current%%.*}" ]; then
                 echo "$package $latest"
             fi

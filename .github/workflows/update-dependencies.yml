@@ -23,6 +23,12 @@ env:
   GH_TOKEN: ${{ github.token }}
   ISSUE_TITLE: Automatic package update failed
 
+# bash -eo pipefail rather than GitHub's default bash -e: without it, a failed `bin/auto-update.sh candidates` piped
+# into sort passed as "Everything is up to date"
+defaults:
+  run:
+    shell: bash
+
 jobs:
   check:
     # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
@@ -139,7 +145,9 @@ jobs:
               echo "automatically as soon as a newer version is out. To install one now, the code needs a change."
               echo
               cat failed.md
-            } | head -c 60000 > issue.md
+            } > issue-full.md
+            # Not piped into head: with pipefail, head closing the pipe early on a long body would fail the step
+            head -c 60000 issue-full.md > issue.md
             if [ -n "$ISSUE" ]; then
               gh issue edit "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file issue.md
             else
