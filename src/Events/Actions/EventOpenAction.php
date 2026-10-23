@@ -7,11 +7,11 @@
 
 namespace App\Events\Actions;
 
-use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
 use Framework\Actions\RouterAwareAction;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class EventOpenAction
@@ -22,7 +22,7 @@ class EventOpenAction
      */
     private $renderer;
     /**
-     * @var DancerTable
+     * @var EventTable
      */
     private $table;
     /**
@@ -39,7 +39,7 @@ class EventOpenAction
 
     /**
      * @param ServerRequestInterface $request
-     * @return string
+     * @return ResponseInterface
      */
     public function __invoke(ServerRequestInterface $request)
     {

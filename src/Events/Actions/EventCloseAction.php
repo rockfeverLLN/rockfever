@@ -7,7 +7,6 @@
 
 namespace App\Events\Actions;
 
-use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
 use Framework\Actions\RouterAwareAction;
 use Framework\Renderer\RendererInterface;
@@ -23,7 +22,7 @@ class EventCloseAction
      */
     private $renderer;
     /**
-     * @var DancerTable
+     * @var EventTable
      */
     private $table;
     /**

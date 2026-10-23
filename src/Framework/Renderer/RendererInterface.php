@@ -18,7 +18,7 @@ interface RendererInterface
 
     /**
      * Permits to render a view. Path can be precised by namespaces
-     * $this->render('@blog/view');
+     * $this->render('@main/home');
      * $this->render('view');
      * @param string $view
      * @param array $params

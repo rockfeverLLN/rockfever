@@ -12,7 +12,7 @@ class PaginatedQuery implements AdapterInterface
 
     /**
      * PaginatedQuery constructor.
-     * @param Query|string $query Request to get results
+     * @param Query $query Request to get results
      */
     public function __construct(Query $query)
     {

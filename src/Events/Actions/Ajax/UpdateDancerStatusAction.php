@@ -9,7 +9,7 @@ namespace App\Events\Actions\Ajax;
 
 use App\Events\Table\DancerTable;
 use Framework\Actions\AjaxAction;
-use Framework\Database\Table;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -44,12 +44,12 @@ class UpdateDancerStatusAction extends AjaxAction
 
             if ($this->table->update($id, $params)) {
                 return "OK";
-            } else {
-                return "NOK";
             }
         } catch (\Exception $e) {
             error_log($e->getMessage());
         }
+        // guests.js shows an error for anything but "OK"
+        return new Response(500, [], 'NOK');
     }
 
     /**

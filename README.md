@@ -48,7 +48,7 @@ PHP 8.5, Twig 3, PHP-DI 7, Mezzio router, on OVH web hosting. Every push to `mai
 | Path | What it is |
 | --- | --- |
 | `www/` | Web root (`index.php`, CSS, JS, images) |
-| `src/` | Application modules (`Main`, `Events`, `Auth`, `Admin`, `Blog`) and the small `Framework` |
+| `src/` | Application modules (`Main`, `Events`, `Photos`, `Auth`, `Admin`) and the small `Framework` |
 | `views/` | Shared Twig layouts |
 | `config/` | App config. `database.php` holds the DB credentials and is not in git |
 | `src/*/db/` | Phinx migrations and seeds |

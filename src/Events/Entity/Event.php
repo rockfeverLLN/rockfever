@@ -29,6 +29,8 @@ class Event
 
     public $facebookLink;
 
+    public $coveventLink;
+
     public $photosPassword;
 
     public $participantsCount;
@@ -64,15 +66,6 @@ class Event
     public function getRegistrationOpening() : \DateTimeImmutable
     {
         return self::registrationOpeningFor($this->getDay());
-    }
-
-    /**
-     * Not closed in the admin, and the opening day is reached. findNext() only gives events of today or later
-     */
-    public function isRegistrationOpen(?\DateTimeImmutable $now = null) : bool
-    {
-        $now = $now ?? new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE));
-        return empty($this->closed) && $now >= $this->getRegistrationOpening();
     }
 
     /**

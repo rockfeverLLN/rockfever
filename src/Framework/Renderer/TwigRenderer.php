@@ -26,12 +26,14 @@ class TwigRenderer implements RendererInterface
      */
     public function addPath(string $namespace, ?string $path = null): void
     {
-        $this->twig->getLoader()->addPath($path, $namespace);
+        /** @var \Twig\Loader\FilesystemLoader $loader the one TwigRendererFactory gives */
+        $loader = $this->twig->getLoader();
+        $loader->addPath($path, $namespace);
     }
 
     /**
      * Permits to render a view. Path can be precised by namespaces
-     * $this->render('@blog/view');
+     * $this->render('@main/home');
      * $this->render('view');
      * @param string $view
      * @param array $params

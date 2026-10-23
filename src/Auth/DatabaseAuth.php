@@ -26,7 +26,7 @@ class DatabaseAuth implements Auth
     private $session;
 
     /**
-     * @var Role
+     * @var Role|null
      */
     private $user;
 
@@ -47,9 +47,14 @@ class DatabaseAuth implements Auth
             return null;
         }
 
-        /** @var \App\Auth\Role $user */
-        $user = $this->roleTable->findBy('role', $role);
-        if ($user && password_verify($password, $user->password)) {
+        // An unknown role is a failed login like a wrong password, not an error page (and it counts in the throttle)
+        try {
+            /** @var \App\Auth\Role $user */
+            $user = $this->roleTable->findBy('role', $role);
+        } catch (NoRecordException $e) {
+            return null;
+        }
+        if (password_verify($password, $user->password)) {
             $this->session->regenerate();
             $this->session->set('auth.user', $user->id);
             return $user;

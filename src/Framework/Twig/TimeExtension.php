@@ -30,30 +30,15 @@ class TimeExtension extends \Twig\Extension\AbstractExtension
     public function getFilters() : array
     {
         return [
-            new \Twig\TwigFilter('ago', [$this, 'ago'], ['is_safe'=>['html']]),
             new \Twig\TwigFilter('dateToText', [$this, 'dateToText']),
             new \Twig\TwigFilter('militaryToTime', [$this, 'militaryToTime'])
         ];
     }
 
-    public function ago($date, string $format = "d/m/Y H:i")
-    {
-
-        if (is_string($date)) {
-            $date = new \DateTime($date);
-        }
-        if (is_null($date)) {
-            return "";
-        }
-        return '<span class="timeago" datetime="'.$date->format(\DateTime::ISO8601).'">'
-            . $date->format($format)
-            .'</span>';
-    }
-
     public function dateToText(?string $date) : string
     {
         $date = explode('/', $date);
-        return $date[0] . ' ' . $this->months[$date[1]-1] . ' ' . $date[2];
+        return $date[0] . ' ' . $this->months[(int) $date[1] - 1] . ' ' . $date[2];
     }
 
     public function militaryToTime($time)

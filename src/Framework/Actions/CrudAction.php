@@ -41,7 +41,7 @@ class CrudAction
     use RouterAwareAction;
 
     /**
-     * BlogAction constructor.
+     * CrudAction constructor.
      * @param RendererInterface $renderer
      * @param Router $router
      * @param $table
@@ -83,7 +83,7 @@ class CrudAction
 
     /**
      * @param Request $request
-     * @return ResponseInterface|string
+     * @return string
      */
     public function index(Request $request) : string
     {
