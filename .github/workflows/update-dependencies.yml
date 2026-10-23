@@ -25,7 +25,8 @@ env:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     outputs:
       new: ${{ steps.check.outputs.new }}
@@ -60,7 +61,7 @@ jobs:
   update:
     needs: check
     if: needs.check.outputs.new == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     services:
       mariadb:
