@@ -1,10 +1,12 @@
-# Static analysis run before automatic package updates go live (.github/workflows/update-dependencies.yml):
-# it catches calls to classes and methods that a new version removed or changed.
+# Static analysis run at every deploy and before automatic package updates go live (.github/workflows/):
+# it catches calls to classes and methods that don't exist, or that a new version removed or changed.
 # The errors already in the code are in phpstan-baseline.neon, so only new ones fail.
 includes:
     - phpstan-baseline.neon
 parameters:
     level: 5
+    # A baseline error that went away (fixed in the code, or by a package update) isn't a failure
+    reportUnmatchedIgnoredErrors: false
     paths:
         - src
         - config

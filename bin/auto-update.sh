@@ -111,7 +111,9 @@ fail() {
 
 case ${1:-} in
     candidates)
-        candidates_of "$(minor_updates --no-install)"
+        # Assigned first: set -e ignores a failure inside a "$(...)" passed as an argument, which would list nothing
+        changes=$(minor_updates --no-install)
+        candidates_of "$changes"
         composer_majors | tr ' ' @
         bin/update-js.sh --majors | tr ' ' @
         ;;
