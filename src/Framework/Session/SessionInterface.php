@@ -23,4 +23,10 @@ interface SessionInterface
      * @return mixed
      */
     public function delete(string $key) : void;
+
+    /**
+     * Gives the session a new id, keeping what's in it: done at login, so an id someone made the visitor use
+     * before doesn't get logged in with them
+     */
+    public function regenerate() : void;
 }

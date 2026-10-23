@@ -50,6 +50,7 @@ class DatabaseAuth implements Auth
         /** @var \App\Auth\Role $user */
         $user = $this->roleTable->findBy('role', $role);
         if ($user && password_verify($password, $user->password)) {
+            $this->session->regenerate();
             $this->session->set('auth.user', $user->id);
             return $user;
         }

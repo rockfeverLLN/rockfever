@@ -1,7 +1,6 @@
 {% extends '@admin/layout.twig' %}
 {% block title %}Paramètres - Rock Fever{% endblock %}
 {% block body %}
-    {% set tokenInput = csrfInput() %}
     <div class="container">
         <h1>Valeurs par défaut</h1>
         <table class="striped">
@@ -45,7 +44,6 @@
                             <div class="modal-footer">
                                 <a href="#!" class="modal-close waves-effect waves-red btn-flat red-text">Annuler</a>
                                 <button type="submit" class="modal-close waves-effect waves-green green-text btn-flat">Modifier</button>
-                                {{ tokenInput | raw }}
                                 <input type="hidden" name="id" value="{{ value.id }}">
                             </div>
                         </form>

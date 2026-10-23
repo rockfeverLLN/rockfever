@@ -1,6 +1,5 @@
 <?php
 
-use Framework\Middleware\CsrfMiddleware;
 use Framework\Renderer\RendererInterface;
 use Framework\Renderer\TwigRendererFactory;
 use Framework\Router\Route;
@@ -8,7 +7,6 @@ use Framework\Router\RouterFactory;
 use Framework\Router\RouterTwigExtension;
 use Framework\Session\PHPSession;
 use Framework\Session\SessionInterface;
-use Framework\Twig\CsrfExtension;
 use Framework\Twig\FlashExtension;
 use Framework\Twig\FormExtension;
 use Framework\Twig\PagerFantaExtension;
@@ -29,11 +27,9 @@ return [
         \DI\get(TimeExtension::class),
         \DI\get(AssetExtension::class),
         \DI\get(FlashExtension::class),
-        \DI\get(FormExtension::class),
-        \DI\get(CsrfExtension::class)
+        \DI\get(FormExtension::class)
     ],
     SessionInterface::class => \DI\autowire(PHPSession::class),
-    CsrfMiddleware::class => \DI\autowire()->constructor(\DI\get(SessionInterface::class)),
     Route::class            => \DI\factory(RouterFactory::class),
     RendererInterface::class=> \DI\factory(TwigRendererFactory::class),
     PHPMailer::class => \DI\autowire(PHPMailer::class)->constructor(true),

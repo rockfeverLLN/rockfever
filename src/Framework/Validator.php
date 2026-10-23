@@ -167,6 +167,15 @@ class Validator
         return $this;
     }
 
+    public function email(string $key) : self
+    {
+        $value = $this->getValue($key);
+        if (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            $this->addError($key, 'email');
+        }
+        return $this;
+    }
+
     /**
      * @param string $key
      * @param Table $table

@@ -6,7 +6,6 @@
     <div class="container">
         <h1>{{ item.title }}</h1>
         <form action="{{ path('admin.about.edit', {id: item.id}) }}" method="post">
-            {{ csrfInput() }}
             <div class="row">
                 {% include '@main/admin/about/form.twig' %}
                 <div class="col s12">

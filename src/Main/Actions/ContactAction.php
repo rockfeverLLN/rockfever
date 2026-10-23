@@ -50,19 +50,18 @@ class ContactAction extends FormAction
                 $email = $this->table->getValue("CONTACT_EMAIL");
                 $params = $this->getParams($request);
 
-                $this->mailer->setFrom($params['email'], $params['name']);
+                // Sent from and to the team only: with the visitor's address in From or CC, anyone could send
+                // mail through the site to any address, and servers would refuse mail from a domain that isn't ours
+                $this->mailer->CharSet = 'UTF-8';
+                $this->mailer->setFrom($email, 'Rock Fever');
                 $this->mailer->addAddress($email, "Rock Fever");
-                $this->mailer->addCC($params['email'], $params['name']);
                 $this->mailer->addReplyTo($params['email'], $params['name']);
                 $this->mailer->isHTML(true);
                 $this->mailer->Subject = '[Rock Fever] Mail de la part de ' . $params['name'];
-                $this->mailer->Body = nl2br($params['content']) .
-                    "<br><br>--<br>Adresse de réponse : " . $params['email'];
+                $this->mailer->Body = nl2br(htmlspecialchars($params['content'])) .
+                    "<br><br>--<br>Adresse de réponse : " . htmlspecialchars($params['email']);
                 $this->mailer->send();
-
-                //mail($email,'[Rock Fever] Mail de la part de ' .
-                // $params['name'], $params['content'],"From:".$email);
-                $this->flash->success("Le message a bien été envoyé ! (Tu en as reçu une copie)");
+                $this->flash->success("Le message a bien été envoyé !");
             } catch (\Exception $e) {
                 $this->flash->error("Le message n'a pas pu être envoyé.");
             }
@@ -87,7 +86,9 @@ class ContactAction extends FormAction
     {
         $validator = parent::getValidator($request)
             ->required('name', 'email', 'content')
-            ->notEmpty('name', 'email', 'content');
+            ->notEmpty('name', 'email', 'content')
+            ->length('name', null, 100)
+            ->email('email');
         return $validator;
     }
 }

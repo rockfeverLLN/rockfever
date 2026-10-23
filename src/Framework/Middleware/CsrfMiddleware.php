@@ -1,128 +1,44 @@
 <?php
-/**.
- * User: Nicolas van de Walle
- * Date: 18-Feb-18
- * Time: 22:27
- */
 
 namespace Framework\Middleware;
 
 use Framework\Exception\CsrfInvalidException;
-use Framework\Session\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Refuses forms sent from another site. Browsers say where a request comes from (Sec-Fetch-Site, or Origin for
+ * older ones), and a page elsewhere can't change that. No token in the session: the one-time tokens this used to
+ * check failed on phones that reopened a page from their cache, after the session had expired, and on the photo
+ * uploads sending one request per photo.
+ *
+ * Requests without either header don't come from a browser (curl, the smoke test), so another site can't make
+ * a visitor's browser send them.
+ */
 class CsrfMiddleware implements MiddlewareInterface
 {
-
     /**
-     * @var \ArrayAccess
-     */
-    private $session;
-
-    /**
-     * @var string
-     */
-    private $sessionKey;
-
-    /**
-     * @var string
-     */
-    private $formKey;
-
-    /**
-     * @var int
-     */
-    private $limit;
-
-    public function __construct(&$session, int $limit = 50, string $formKey = 'csrf', string $sessionKey = 'csrf')
-    {
-        $this->validSession($session);
-        $this->session = &$session;
-        $this->formKey = $formKey;
-        $this->sessionKey = $sessionKey;
-        $this->limit = $limit;
-    }
-
-    /**
-     * Process an incoming server request and return a response, optionally delegating
-     * response creation to a handler.
-     * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
      * @throws CsrfInvalidException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE'])) {
-            $params = $request->getParsedBody() ?: [];
-            if (array_key_exists('nocsrf', $params) && $params['nocsrf'] === "0487415359") {
-                return $handler->handle($request);
-            } elseif (!array_key_exists($this->formKey, $params)) {
-                $this->reject();
-            } else {
-                $csrfList = $this->session[$this->sessionKey] ?? [];
-                if (in_array($params[$this->formKey], $csrfList)) {
-                    $this->useToken($params[$this->formKey]);
-                    return $handler->handle($request);
-                } else {
-                    $this->reject();
-                }
-            }
-        } else {
+        if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
             return $handler->handle($request);
         }
-    }
-
-    public function generateToken() : string
-    {
-        $token = bin2hex(random_bytes(16));
-        $csrfList = $this->session[$this->sessionKey] ?? [];
-        $csrfList[] = $token;
-        $this->session[$this->sessionKey] = $csrfList;
-        $this->limitTokens();
-        return $token;
-    }
-
-    /**
-     * @throws CsrfInvalidException
-     */
-    private function reject() : void
-    {
-        throw new CsrfInvalidException();
-    }
-
-    private function useToken($token) : void
-    {
-        $tokens = array_filter($this->session[$this->sessionKey], function ($t) use ($token) {
-            return $token !== $t;
-        });
-        $this->session[$this->sessionKey] = $tokens;
-    }
-
-    private function limitTokens() : void
-    {
-        $tokens = $this->session[$this->sessionKey] ?? [];
-        if (count($tokens) > $this->limit) {
-            array_shift($tokens);
+        $site = $request->getHeaderLine('Sec-Fetch-Site');
+        if ($site !== '') {
+            // "none": typed in the address bar or opened from a bookmark
+            if (!in_array($site, ['same-origin', 'none'])) {
+                throw new CsrfInvalidException();
+            }
+            return $handler->handle($request);
         }
-        $this->session[$this->sessionKey] = $tokens;
-    }
-
-    private function validSession($session)
-    {
-        if (!is_array($session) && !$session instanceof \ArrayAccess) {
-            throw new \TypeError("Session given to the CSRFMiddleware isn't an instance of \ArrayAccess");
+        $origin = $request->getHeaderLine('Origin');
+        if ($origin !== '' && parse_url($origin, PHP_URL_HOST) !== $request->getUri()->getHost()) {
+            throw new CsrfInvalidException();
         }
-    }
-
-    /**
-     * @return string
-     */
-    public function getFormKey(): string
-    {
-        return $this->formKey;
+        return $handler->handle($request);
     }
 }

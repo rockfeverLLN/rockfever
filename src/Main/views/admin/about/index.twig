@@ -17,18 +17,15 @@
             </tr>-->
             </thead>
             <tbody>
-            {% set tokenInput = csrfInput() %}
             {% for section in items %}
                 <tr>
                     <td class="reordering-cell">
                         <form style="display: inline" action="{{ path(routePrefix ~ '.moveup',{id: section.id}) }}" method="post">
-                            {{ tokenInput | raw }}
                             <button type="submit" name="moveup" class="btn-flat {% if loop.first %}waves-effect disabled{% endif %}">
                                 <i class="mdi mdi-chevron-up"></i>
                             </button>
                         </form>
                         <form style="display: inline" action="{{ path(routePrefix ~ '.movedown',{id: section.id}) }}" method="post">
-                            {{ tokenInput | raw }}
                             <button type="submit" name="movedown" class="btn-flat {% if loop.last %}waves-effect disabled{% endif %}">
                                 <i class="mdi mdi-chevron-down"></i>
                             </button>
@@ -41,7 +38,6 @@
                             <i class="mdi mdi-pencil"></i>
                         </a>
                         <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: section.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette section ?");'>
-                            {{ tokenInput | raw }}
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="submit" class="red-text text-lighten-1 tooltipped about-button" data-position="top" data-tooltip="Supprimer la section">
                                 <i class="mdi mdi-delete"></i>

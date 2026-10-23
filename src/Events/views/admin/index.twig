@@ -71,7 +71,6 @@
                                     <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: event.id}) }}"
                                           method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cet événement ?");'
                                     >
-                                        {{ tokenInput | raw }}
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement">
                                             <i class="mdi mdi-delete"></i>

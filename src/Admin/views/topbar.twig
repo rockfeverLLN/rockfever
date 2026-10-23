@@ -20,7 +20,6 @@
                 </a>
 
                 <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
-                    {{ csrfInput() }}
                 </form>
             </li>
         </ul>
@@ -59,7 +58,6 @@
             </a>
 
             <form action="{{ path('auth.logout') }}" method="post" id="logout-form">
-                {{ csrfInput() }}
             </form>
         </li>
     </ul>

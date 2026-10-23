@@ -53,7 +53,7 @@ $app->pipe(MarkdownMiddleware::class)
     ->pipe($container->get('admin.prefix').'/roles', AdminOnlyMiddleware::class)
     ->pipe($container->get('admin.prefix').'/values', AdminOnlyMiddleware::class)
     ->pipe(MethodMiddleware::class)
-    //->pipe(CsrfMiddleware::class) // Due to some Chrome mobile issues
+    ->pipe(CsrfMiddleware::class)
     ->pipe(RouterMiddleware::class)
     ->pipe(DispatcherMiddleware::class)
     ->pipe(NotFoundMiddleware::class)
