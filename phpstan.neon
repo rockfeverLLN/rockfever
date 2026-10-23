@@ -1,0 +1,12 @@
+# Static analysis run before automatic package updates go live (.github/workflows/update-dependencies.yml):
+# it catches calls to classes and methods that a new version removed or changed.
+# The errors already in the code are in phpstan-baseline.neon, so only new ones fail.
+includes:
+    - phpstan-baseline.neon
+parameters:
+    level: 5
+    paths:
+        - src
+        - config
+        - www
+        - bin

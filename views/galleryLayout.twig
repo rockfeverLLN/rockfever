@@ -5,7 +5,6 @@
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/materialize.min.css"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="{{ __DIR__ }}/css/style.css"  media="screen,projection"/>
     <link  href="{{ __DIR__ }}/css/style.css" rel="stylesheet"/>
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -21,10 +20,10 @@
 {% block body %}
 {% endblock %}
 
-<script type="text/javascript" src="{{ __DIR__ }}/js/jquery.min.js"></script>
-<script type="text/javascript" src="{{ __DIR__ }}/js/materialize.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
-<script src="https://unpkg.com/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+<script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/materialize.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
 <script type="text/javascript" src="{{ __DIR__ }}/js/script.js"></script>
 <script>
     new ClipboardJS('.to-clipboard');
