@@ -1,6 +1,9 @@
-<form action="{{ path('event') }}" method="post">
-    <input type="text" name="firstname" placeholder="Prénom" class="register-input">
-    <input type="text" name="lastname" placeholder="Nom" class="register-input">
+{#- Puts a name on the door list of the next soirée (EventAction): only shown while its sign-up is open #}
+<form action="{{ path('event') }}" method="post" aria-label="Inscription à la soirée du {{ soiree.label|lower }}">
+    <label for="register-firstname" class="sr-only">Prénom</label>
+    <input type="text" id="register-firstname" name="firstname" placeholder="Prénom" class="register-input" autocomplete="given-name" required>
+    <label for="register-lastname" class="sr-only">Nom</label>
+    <input type="text" id="register-lastname" name="lastname" placeholder="Nom" class="register-input" autocomplete="family-name" required>
     <br>
     <small class="white-text">
         En m'inscrivant à cet événement, j'accepte le

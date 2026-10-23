@@ -46,6 +46,14 @@ class EventTable extends Table
         return array_reverse($results);
     }
 
+    /**
+     * Every event, oldest first (App\Main\Calendar matches them with the soirées by day)
+     */
+    public function findAllByDay() : QueryResult
+    {
+        return $this->makeQuery()->order('e.date ASC, e.id ASC')->fetchAll();
+    }
+
     public function findNext()
     {
         return $this->makeQuery()

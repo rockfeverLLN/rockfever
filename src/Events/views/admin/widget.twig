@@ -36,10 +36,12 @@
                 {% if nextEvent %}
                 <li>
                     <b>Inscriptions :</b>
-                    {% if nextEvent.registrationOpen %}
-                        ouvertes
-                    {% elseif nextEvent.registrationUpcoming %}
-                        s'ouvrent toutes seules le {{ nextEvent.registrationOpening | dayLabel }}
+                    {% if registration.status == 'open' %}
+                        ouvertes, jusqu'au début de la soirée
+                    {% elseif registration.status == 'upcoming' %}
+                        s'ouvrent toutes seules le {{ registration.opens | dayLabel }}{% if registration.opens|date('H:i', false) != '00:00' %} à {{ registration.opens|date('H:i', false) }}{% endif %}
+                    {% elseif registration.status == 'cancelled' %}
+                        soirée annulée
                     {% else %}
                         fermées
                     {% endif %}

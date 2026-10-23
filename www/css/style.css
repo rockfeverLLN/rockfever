@@ -205,19 +205,8 @@ h6 {
     font-weight: 800;
     line-height: 1.3;
     letter-spacing: -0.01em;
+    text-align: center;
     transition: transform .15s, box-shadow .15s;
-}
-
-.next-event-link::after {
-    content: "\2192";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #00796b;
-    font-size: 20px;
 }
 
 .next-event-link:hover {
@@ -240,6 +229,92 @@ h6 {
     opacity: .85;
 }
 
+/* Its first link covers the whole card, under the calendar buttons */
+.next-event-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: inherit;
+}
+
+.next-event-main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
+
+.next-event-actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.next-event-calendar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background-color: #ffffff;
+    color: #072d55;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
+    transition: background-color .15s, color .15s;
+}
+
+.next-event-calendar .mdi {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.next-event-calendar:hover {
+    background-color: #e0f2f1;
+    border-color: #e0f2f1;
+}
+
+.next-event-google {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+.next-event-google:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: #ffffff;
+}
+
+/* Sign-ups open: a big button */
+.next-event-signup {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding: 14px 40px;
+    border-radius: 999px;
+    background-color: #00796b;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0;
+    transition: background-color .15s;
+}
+
+.next-event-signup::after {
+    content: "\2192";
+}
+
+.next-event-open:hover .next-event-signup {
+    background-color: #00897b;
+}
+
 .soiree-registration {
     margin: -6px 0 12px 0;
     color: #00796b;
@@ -251,42 +326,37 @@ h6 {
     display: none;
 }
 
-/* The coming soirées in the "Dates de nos soirées" section of the home page (soireesList.twig) */
+/* The soirées of the quadrimestre in the "Dates de nos soirées" section of the home page (soireesList.twig),
+   as the cards of /calendrier */
 .home-soirees h3 {
-    margin: 20px 0 6px 0;
+    margin: 20px 0 12px 0;
     font-size: 18px;
     font-weight: 800;
 }
 
-.home-soirees ul {
-    margin: 0 0 12px 0;
+.home-soirees .soirees {
+    margin-bottom: 20px;
 }
 
-.home-soirees li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(3, 41, 81, 0.1);
-    font-size: 17px;
+.home-soirees .soiree-content {
+    line-height: 1.5;
 }
 
-.home-soirees li:last-child {
-    border-bottom: 0;
+.home-soirees .soiree-meta {
+    margin-bottom: 0;
 }
 
-.home-soirees time {
-    font-weight: 700;
+.home-soirees .soiree-registration {
+    margin: 6px 0 0 0;
 }
 
-.home-soiree-week {
-    color: #616161;
-    font-size: 15px;
+.home-soirees .soiree-actions {
+    margin-top: 8px;
 }
 
-.home-soiree-next time {
-    color: #00796b;
+/* .rich-text underlines its links */
+.home-soirees .soiree-actions a {
+    text-decoration: none;
 }
 
 /* Hidden on screen, still read by screen readers */
@@ -525,6 +595,29 @@ main:focus {
     font-weight: 500;
 }
 
+/* The facts of one soirée on its page (soireePage.twig) */
+.site .soiree-facts {
+    margin: 0 0 24px 0;
+    padding: 0;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.site .soiree-facts li {
+    list-style: none;
+    margin-bottom: 10px;
+}
+
+.soiree-description {
+    margin: 0 0 24px 0;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.soiree-back {
+    margin-top: 32px;
+}
+
 .calendar-semester {
     font-size: 1.75rem;
     font-weight: 800;
@@ -598,6 +691,14 @@ main:focus {
     font-weight: 700;
     line-height: 1.3;
     margin: 0 0 4px 0;
+}
+
+.soiree-link {
+    color: inherit;
+}
+
+.soiree-link:hover, .soiree-link:focus {
+    text-decoration: underline;
 }
 
 .soiree-meta {
@@ -1025,11 +1126,16 @@ table tbody tr td .input-field {
     }
 
     .next-event-link {
-        justify-content: space-between;
         margin: -36px 16px 0 16px;
         padding: 18px 20px;
         border-radius: 14px;
         font-size: 18px;
+    }
+
+    .next-event-signup {
+        align-self: stretch;
+        padding: 12px 24px;
+        font-size: 20px;
     }
 
     .home-content {

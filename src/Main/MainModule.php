@@ -11,6 +11,8 @@ use App\Main\Actions\ContactAction;
 use App\Main\Actions\EventAction;
 use App\Main\Actions\LegalAction;
 use App\Main\Actions\MusicAction;
+use App\Main\Actions\SitemapAction;
+use App\Main\Actions\SoireesApiAction;
 use App\Main\Actions\ValuesAction;
 use Framework\Module;
 use Framework\Renderer\RendererInterface;
@@ -56,6 +58,11 @@ class MainModule extends Module
         $router->get('/calendrier', CalendarAction::class, 'calendar');
         $router->get('/calendrier.ics', CalendarAction::class, 'calendar.ics');
         $router->get('/calendrier/{date:\d{4}-\d{2}-\d{2}}.ics', CalendarAction::class, 'calendar.event');
+        $router->get('/calendrier/{date:\d{4}-\d{2}-\d{2}}', CalendarAction::class, 'calendar.soiree');
+
+        // The soirées as JSON, for programs and AI agents, and the pages for search engines
+        $router->get('/api/events', SoireesApiAction::class, 'api.events');
+        $router->get('/sitemap.xml', SitemapAction::class, 'sitemap');
 
 
         if ($container->has('admin.prefix')) {

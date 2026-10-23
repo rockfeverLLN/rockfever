@@ -11,10 +11,11 @@ COOKIES=$(mktemp)
 trap 'rm -f "$COOKIES"' EXIT
 FAILED=0
 
+# check PATH [STATUS]: STATUS can list several, as "200|302"
 check() {
     local path=$1 expected=${2:-200} status
     status=$(curl -s -o /dev/null -w '%{http_code}' -b "$COOKIES" -c "$COOKIES" "$BASE$path")
-    if [ "$status" = "$expected" ]; then
+    if [[ "|$expected|" == *"|$status|"* ]]; then
         echo "  ok   $status $path"
     else
         echo "  FAIL $status $path"
@@ -23,11 +24,12 @@ check() {
 }
 
 echo "Public pages"
-for path in / /contact /music /legal /login /photos; do
+for path in / /calendrier /calendrier.ics /api/events /sitemap.xml /contact /music /legal /login /photos; do
     check "$path"
 done
-# The seeded events are all in the past, and without an upcoming event this page sends you home
-check /event 302
+# The next soirée of src/Main/config.php, or home once they're all over
+check /event '200|302'
+check /calendrier/2000-01-01 404
 
 echo "Admin pages"
 curl -s -o /dev/null -b "$COOKIES" -c "$COOKIES" --data 'role=administrator&password=admin' "$BASE/login"

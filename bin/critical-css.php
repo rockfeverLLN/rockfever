@@ -42,7 +42,12 @@ foreach ($bases as $base) {
             fwrite(STDERR, "Could not fetch $base$path\n");
             exit(1);
         }
-        $documents[] = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
+        $documents[] = $document = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
+        // The page of one soirée (/calendrier/2026-11-11), whose date changes: the first one /calendrier links to
+        $soiree = $path === '/calendrier' ? $document->querySelector('a.soiree-link')?->getAttribute('href') : null;
+        if ($soiree && ($html = file_get_contents(rtrim($base, '/') . $soiree, false, $context)) !== false) {
+            $documents[] = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
+        }
     }
 }
 

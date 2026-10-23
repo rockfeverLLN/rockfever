@@ -1,0 +1,36 @@
+{#- One soirée as a card with its date, on /calendrier and in the dates of the home page (soireesList.twig): a past one
+    is greyed out (a cancelled one too), the next one is highlighted with its sign-up. Takes soiree (Calendar::getSoirees), heading
+    (h3 by default) and actions (its "add to my calendar" buttons, by default while it isn't past) #}
+{%- set label = soiree.weekday ~ ' ' ~ soiree.day ~ ' ' ~ soiree.month %}
+{%- set heading = heading|default('h3') %}
+<li class="soiree{{ soiree.past or soiree.cancelled ? ' soiree-past' }}{{ soiree.next ? ' soiree-next' }}">
+    <time class="soiree-date koamaru" datetime="{{ soiree.date }}" aria-hidden="true">
+        <span class="soiree-weekday">{{ soiree.weekday|slice(0, 3) }}</span>
+        <span class="soiree-day">{{ soiree.day }}</span>
+        <span class="soiree-month">{{ soiree.shortMonth }}</span>
+    </time>
+    <div class="soiree-content">
+        <{{ heading }} class="soiree-title">
+            <a href="{{ path('calendar.soiree', {date: soiree.date}) }}" class="soiree-link">{{ label }} {{ soiree.year }}</a>
+            {% if soiree.next %}<span class="soiree-badge">Prochaine soirée</span>{% endif %}
+            {% if soiree.cancelled %}<span class="soiree-badge soiree-badge-past">Annulée</span>
+            {%- elseif soiree.past %}<span class="soiree-badge soiree-badge-past">Passée</span>{% endif %}
+        </{{ heading }}>
+        <p class="soiree-meta">
+            {{ soiree.start|date('H:i', false)|replace({':': 'h'}) }} · {{ soiree.place }}{% if soiree.title %} · {{ soiree.title|e|typography }}{% endif %}{% if soiree.week %} · Semaine&nbsp;{{ soiree.week|replace({'S': ''}) }}{% endif %}
+        </p>
+        {% if soiree.next or soiree.cancelled %}
+            <p class="soiree-registration">{% include '@main/registration.twig' with {link: true} %}</p>
+        {% endif %}
+        {% if actions is defined ? actions : not soiree.past and not soiree.cancelled %}
+            <div class="soiree-actions">
+                <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light">
+                    <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon calendrier<span class="sr-only"> : {{ label }}</span>
+                </a>
+                <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener">
+                    <i class="mdi mdi-google left" aria-hidden="true"></i>Google<span class="sr-only"> Agenda : {{ label }}</span>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</li>

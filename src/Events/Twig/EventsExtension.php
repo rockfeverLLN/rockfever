@@ -7,28 +7,23 @@
 
 namespace App\Events\Twig;
 
-use App\Events\Table\EventTable;
 use App\Main\Calendar;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class EventsExtension extends \Twig\Extension\AbstractExtension
 {
-    /**
-     * @var EventTable
-     */
-    private $table;
-
-    public function __construct(EventTable $table)
+    public function __construct(private Calendar $calendar)
     {
-        $this->table = $table;
     }
 
     public function getFunctions() : array
     {
         return [
             new TwigFunction('nextEventExist', [$this,'nextEventExist']),
-            new TwigFunction('nextEvent', [$this,'nextEvent'])
+            new TwigFunction('nextSoiree', [$this,'nextSoiree']),
+            // The soirées as schema.org events, in a <script> for the page's head
+            new TwigFunction('soireesJsonLd', [$this, 'soireesJsonLd'], ['is_safe' => ['html']])
         ];
     }
 
@@ -42,14 +37,26 @@ class EventsExtension extends \Twig\Extension\AbstractExtension
 
     public function nextEventExist()
     {
-        return $this->table->findNext() !== false;
+        return $this->calendar->getNext() !== null;
     }
 
     /**
-     * The next event of the admin (today or later), or null when none is announced
+     * The next soirée (Calendar::getNext), or null when none is announced
      */
-    public function nextEvent()
+    public function nextSoiree() : ?array
     {
-        return $this->table->findNext() ?: null;
+        return $this->calendar->getNext();
+    }
+
+    public function soireesJsonLd(array $soirees) : string
+    {
+        // Twig's filter keeps the keys: a list, so that several events stay a JSON array
+        $events = array_map([$this->calendar, 'toSchema'], array_values($soirees));
+        if (!$events) {
+            return '';
+        }
+        return '<script type="application/ld+json">'
+            . json_encode(count($events) === 1 ? $events[0] : $events, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            . '</script>';
     }
 }

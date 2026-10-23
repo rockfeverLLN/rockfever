@@ -5,48 +5,36 @@
 {% block canonical_path %}/event{% endblock %}
 
 {% block head %}
-    {#- Schema.org event so search engines and assistants can show the date and place #}
-    {%- set day = event.date|split('/') %}
-    {%- set time = event.waltzTime ?: event.rockTime %}
-    <script type="application/ld+json">{{ {
-        '@context': 'https://schema.org',
-        '@type': 'DanceEvent',
-        name: event.title,
-        description: event.description,
-        startDate: day[2] ~ '-' ~ day[1] ~ '-' ~ day[0] ~ (time ? 'T' ~ time : ''),
-        eventStatus: 'https://schema.org/EventScheduled',
-        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        location: {
-            '@type': 'Place',
-            name: event.place,
-            address: {'@type': 'PostalAddress', addressLocality: 'Louvain-la-Neuve', addressCountry: 'BE'}
-        },
-        organizer: {'@type': 'Organization', '@id': 'https://rockfever.be/#organization', name: 'Rock Fever', url: 'https://rockfever.be/'},
-        url: 'https://rockfever.be/event'
-    }|json_encode(constant('JSON_HEX_TAG'))|raw }}</script>
+    {#- Schema.org event so search engines and assistants can show the date, place, prices and sign-up #}
+    {{ soireesJsonLd([soiree]) }}
 {% endblock %}
 
 {% block bodyColor %}deep-blue{% endblock %}
 
 {% block body %}
 
-    {#- Sign-ups open on their own Event::REGISTRATION_DAYS before the soirée, and can be closed in the admin #}
-    {%- set open = event.registrationOpen %}
+    {#- The next soirée (Calendar::getNext): its sign-up opens on its own Event::REGISTRATION_DAYS before, once its event
+        exists in the admin, can be closed there, and closes when it starts. The form is only there while it's open #}
+    {%- set status = soiree.registration.status %}
+    {%- set open = status == 'open' %}
     <div class="parallax-container form-parallax-container{{ open ? '' : ' form-parallax-closed' }}">
         <div class="container">
             {% include 'flash.twig' %}
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
-                <div class="call-to-action">
+                <p class="call-to-action" id="inscriptions" data-registration-status="{{ status }}">
                     {% if open %}
-                        Inscris-toi à la prochaine soirée et paie 3&nbsp;€ au lieu de 4&nbsp;€ à l’entrée&nbsp;:
-                    {% elseif event.registrationUpcoming %}
+                        Inscris-toi à la soirée du {{ soiree.label|lower }} et paie {{ soiree.prices.online }}&nbsp;€ au lieu de {{ soiree.prices.door }}&nbsp;€ à l’entrée&nbsp;:
+                        <br><small>Jusqu’au début de la soirée, à&nbsp;{{ soiree.registration.closes|date('H:i', false)|replace({':': 'h'}) }}. Il suffit de ton prénom et de ton nom.</small>
+                    {% elseif status == 'upcoming' or status == 'pending' %}
                         Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&#8239;!
-                        <br>Elles ouvriront le {{ event.registrationOpening|dayLabel }}.
+                        <br>{% include '@main/registration.twig' %}
+                    {% elseif status == 'cancelled' %}
+                        La soirée du {{ soiree.label|lower }} est annulée.
                     {% else %}
                         Les inscriptions à la prochaine soirée sont fermées. <br>Tu peux toujours venir et payer sur place&#8239;!
                     {% endif %}
-                </div>
+                </p>
                 {% if open %}
                     {% include "@main/registerForm.twig" %}
                 {% endif %}
@@ -57,34 +45,45 @@
         </div>
     </div>
 
-
-
-
+    {%- set time = soiree.start|date('H:i', false)|replace({':': 'h'}) %}
     <div class="container center white-text event-details">
-        <h2>«&nbsp;{{ event.title | e | typography }}&nbsp;»</h2>
+        <h2>{% if soiree.title %}«&nbsp;{{ soiree.title | e | typography }}&nbsp;»{% else %}{{ soiree.name }}{% endif %}</h2>
         <span class="spaced-item">
             <nobr>
-                <i class="mdi mdi-calendar" aria-hidden="true"></i> {{ event.date | dateToText }}
+                <i class="mdi mdi-calendar" aria-hidden="true"></i> <time datetime="{{ soiree.start|date('c', false) }}">{{ soiree.label }} {{ soiree.year }}</time>
+            </nobr>
+        </span>
+        {% if soiree.waltzTime or soiree.rockTime %}
+            {% if soiree.waltzTime %}
+            <span class="spaced-item">
+                <nobr>
+                    <i class="mdi mdi-clock" aria-hidden="true"></i> {{ soiree.waltzTime|replace({':': 'h'}) }} (valse)
+                </nobr>
+            </span>
+            {% endif %}
+            {% if soiree.rockTime %}
+            <span class="spaced-item">
+                <nobr>
+                    <i class="mdi mdi-clock" aria-hidden="true"></i> {{ soiree.rockTime|replace({':': 'h'}) }} (rock)
+                </nobr>
+            </span>
+            {% endif %}
+        {% else %}
+            <span class="spaced-item">
+                <nobr>
+                    <i class="mdi mdi-clock" aria-hidden="true"></i> {{ time }} – {{ soiree.end|date('H:i', false)|replace({':': 'h'}) }}
+                </nobr>
+            </span>
+        {% endif %}
+        <span class="spaced-item">
+            <nobr>
+                <i class="mdi mdi-map-marker" aria-hidden="true"></i> {{ soiree.place }}
             </nobr>
         </span>
         <span class="spaced-item">
             <nobr>
-                <i class="mdi mdi-clock" aria-hidden="true"></i> {{ event.waltzTime }} (valse)
-            </nobr>
-        </span>
-        <span class="spaced-item">
-            <nobr>
-                <i class="mdi mdi-clock" aria-hidden="true"></i> {{ event.rockTime }} (rock)
-            </nobr>
-        </span>
-        <span class="spaced-item">
-            <nobr>
-                <i class="mdi mdi-map-marker" aria-hidden="true"></i> {{ event.place }}
-            </nobr>
-        </span>
-        <span class="spaced-item">
-            <nobr>
-                <i class="mdi mdi-credit-card" aria-hidden="true"></i> {{ event.price }}
+                <i class="mdi mdi-credit-card" aria-hidden="true"></i>
+                {%- if soiree.prices %} {{ soiree.prices.online }}&nbsp;€ en t’inscrivant, {{ soiree.prices.door }}&nbsp;€ sur place{% else %} {{ soiree.priceText }}{% endif %}
             </nobr>
         </span>
         <br>
@@ -92,18 +91,20 @@
             N’oublie pas ta carte d’étudiant ou d’identité.
         </span>
         <br>
-        <strong class="event-description-label">Description&nbsp;:</strong>
-        <p>{{ event.description | e | typography | nl2br }}</p>
-        <br>
+        {% if soiree.description %}
+            <strong class="event-description-label">Description&nbsp;:</strong>
+            <p>{{ soiree.description | e | typography | nl2br }}</p>
+        {% endif %}
+        <p><a href="{{ soiree.url }}" class="underlined-link white-text">Page de la soirée</a> · <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="underlined-link white-text">Ajouter à mon calendrier</a></p>
     </div>
 
     <div class="event-links">
-    {% if event.coveventLink %}
-        <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
-        <a href="{{ event.coveventLink }}" class="event-link red darken-3" target="_blank">Covevent</a>
+    {% if soiree.coveventLink %}
+        <a href="{{ soiree.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
+        <a href="{{ soiree.coveventLink }}" class="event-link red darken-3" target="_blank">Covevent</a>
     {% else %}
-        {% if event.facebookLink %}
-            <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
+        {% if soiree.facebookLink %}
+            <a href="{{ soiree.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
         {% else %}
             <a href="https://www.facebook.com/rockfeverlln/" class="event-link blue darken-4" target="_blank">Notre page Facebook</a>
         {% endif %}
@@ -112,10 +113,10 @@
 
     <div id="nextEventInfos" class="modal">
         <div class="modal-footer">
-            {% if event.coveventLink %}
-                <a href="{{ event.coveventLink }}" class="modal-action waves-effect btn red darken-4" target="_blank">Covevent</a>
+            {% if soiree.coveventLink %}
+                <a href="{{ soiree.coveventLink }}" class="modal-action waves-effect btn red darken-4" target="_blank">Covevent</a>
             {% endif %}
-            <a href="{{ event.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Événement Facebook</a>
+            <a href="{{ soiree.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Événement Facebook</a>
         </div>
     </div>
 {% endblock %}

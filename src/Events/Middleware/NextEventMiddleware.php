@@ -8,7 +8,7 @@
 namespace App\Events\Middleware;
 
 use App\Events\Exception\NoNextEventException;
-use App\Events\Table\EventTable;
+use App\Main\Calendar;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -17,14 +17,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 class NextEventMiddleware implements MiddlewareInterface
 {
 
-    /**
-     * @var EventTable
-     */
-    private $table;
-
-    public function __construct(EventTable $table)
+    public function __construct(private Calendar $calendar)
     {
-        $this->table = $table;
     }
 
     /**
@@ -37,7 +31,7 @@ class NextEventMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->table->findNext() === false) {
+        if ($this->calendar->getNext() === null) {
             throw new NoNextEventException();
         }
         return $handler->handle($request);
