@@ -1,8 +1,47 @@
+<a href="https://rockfever.be"><img src=".github/assets/banner.jpg" alt="Rock Fever: the students' rock dance nights in Louvain-la-Neuve, since 2015"></a>
+
+<p align="center">
+  <a href="https://rockfever.be"><img src="https://img.shields.io/badge/live-rockfever.be-072d55?style=flat-square" alt="Live site: rockfever.be"></a>
+  <a href="https://github.com/rockfeverLLN/rockfever/actions/workflows/deploy.yml"><img src="https://github.com/rockfeverLLN/rockfever/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy to OVH"></a>
+  <a href="https://github.com/rockfeverLLN/rockfever/actions/workflows/update-dependencies.yml"><img src="https://github.com/rockfeverLLN/rockfever/actions/workflows/update-dependencies.yml/badge.svg?branch=main" alt="Package updates"></a>
+  <br>
+  <img src="https://img.shields.io/badge/PHP-8.5-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.5">
+  <img src="https://img.shields.io/badge/Twig-3-bacf29?style=flat-square&logo=symfony&logoColor=white" alt="Twig 3">
+  <img src="https://img.shields.io/badge/MariaDB-MySQL-003545?style=flat-square&logo=mariadb&logoColor=white" alt="MariaDB / MySQL">
+  <img src="https://img.shields.io/badge/hosted%20on-OVH-123f6d?style=flat-square&logo=ovh&logoColor=white" alt="Hosted on OVH">
+</p>
+
 # Rock Fever
 
-Website of Rock Fever: https://rockfever.be
+The website of **Rock Fever**, the student ASBL that has been running rock (and waltz) dance nights, the soirées, at the Hall Sainte-Barbe in Louvain-la-Neuve since 2015, open to anyone aged 18 to 35. On the site, dancers find the next soirée and sign up for it, propose songs and get the photos; the team runs everything from its admin.
 
-PHP 8.5, Twig 3, PHP-DI 7, Mezzio router. Hosted on OVH web hosting.
+PHP 8.5, Twig 3, PHP-DI 7, Mezzio router, on OVH web hosting. Every push to `main` goes live.
+
+<p align="center">
+  <img src=".github/assets/phones.webp" alt="The home page, the calendar and the photo gallery on a phone" width="900">
+</p>
+
+<details>
+<summary><b>On a computer</b></summary>
+<br>
+<img src=".github/assets/desktop.jpg" alt="The home page of rockfever.be on a computer">
+</details>
+
+### What's on the site
+
+| Page | For | What it does |
+| --- | --- | --- |
+| [`/`](https://rockfever.be) | Everyone | Who we are, the next soirée, the coming dates and the staff |
+| [`/calendrier`](https://rockfever.be/calendrier) | Everyone | Every soirée of the quadrimestre, to add to a calendar in one click (`.ics` feed) |
+| [`/event`](https://rockfever.be/event) | Dancers | Sign up for the next soirée (3 € instead of 4 € at the door), from a week before |
+| [`/photos`](https://rockfever.be/photos) | Dancers | The soirées' photo albums, each behind its own password |
+| [`/music`](https://rockfever.be/music) | Dancers | Propose a song for the soirées |
+| [`/contact`](https://rockfever.be/contact) | Everyone | Write to the team |
+| `/admin` | The team | Events and the sign-up list at the door, home page sections, songs, photos, users |
+
+### Contents
+
+[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates)
 
 ## Layout
 
