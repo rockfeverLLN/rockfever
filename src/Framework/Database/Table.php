@@ -156,26 +156,6 @@ class Table
     }
 
     /**
-     * @param string $query
-     * @param array $params
-     * @return mixed
-     * @throws NoRecordException
-     */
-    /*protected function fetchOrFail(string $query, array $params = [])
-    {
-        $query = $this->pdo->prepare($query);
-        $query->execute($params);
-        if ($this->entity) {
-            $query->setFetchMode(\PDO::FETCH_CLASS, $this->entity);
-        }
-        $record = $query->fetch();
-        if ($record === false) {
-            throw new NoRecordException();
-        }
-        return $record;
-    }*/
-
-    /**
      * @param array $params
      * @return string
      */

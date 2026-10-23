@@ -101,11 +101,14 @@
         if (!button) {
             return;
         }
-        button.parentElement.querySelector('.loader').style.display = 'block';
+        var loader = button.parentElement.querySelector('.loader');
+        loader.style.display = 'block';
         post(list.dataset.statusUrl, {id: button.dataset.dancer, status: button.dataset.status}).then(function (data) {
             if (data === 'OK') {
                 loadList();
             } else {
+                // The list isn't reloaded, so the spinner would keep turning
+                loader.style.display = 'none';
                 alert('Oops');
             }
             search.value = '';

@@ -50,7 +50,6 @@ class PHPSession implements SessionInterface, \ArrayAccess
     /**
      * @param string $key
      * @param $value
-     * @return mixed
      */
     public function set(string $key, $value): void
     {
@@ -60,7 +59,6 @@ class PHPSession implements SessionInterface, \ArrayAccess
 
     /**
      * @param string $key
-     * @return mixed
      */
     public function delete(string $key): void
     {

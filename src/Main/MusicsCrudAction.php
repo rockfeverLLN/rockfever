@@ -48,7 +48,7 @@ class MusicsCrudAction extends CrudAction
 
     /**
      * @param ServerRequestInterface $request
-     * @return ResponseInterface|string
+     * @return string
      */
     public function index(ServerRequestInterface $request) : string
     {
@@ -65,9 +65,8 @@ class MusicsCrudAction extends CrudAction
 
     public function edit(ServerRequestInterface $request)
     {
-
-        /** @var Music $item */
         try {
+            /** @var Music $item */
             $item = $this->table->find($request->getAttribute('id'));
             if ($item->added == 0) {
                 $this->flash->success($this->messages['read']);

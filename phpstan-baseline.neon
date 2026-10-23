@@ -19,52 +19,10 @@ parameters:
 			path: src/Auth/Actions/LoginAttemptAction.php
 
 		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: src/Auth/DatabaseAuth.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: src/Auth/DatabaseAuth.php
-
-		-
-			message: '#^Property App\\Auth\\DatabaseAuth\:\:\$user is never written, only read\.$#'
-			identifier: property.onlyRead
-			count: 1
-			path: src/Auth/DatabaseAuth.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: src/Auth/DatabaseAuth.php
-
-		-
-			message: '#^Method App\\Events\\Actions\\Ajax\\UpdateDancerStatusAction\:\:edit\(\) should return Psr\\Http\\Message\\ResponseInterface\|string but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/Events/Actions/Ajax/UpdateDancerStatusAction.php
-
-		-
 			message: '#^Property App\\Events\\Actions\\EventCloseAction\:\:\$renderer is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
 			path: src/Events/Actions/EventCloseAction.php
-
-		-
-			message: '#^Property App\\Events\\Actions\\EventCloseAction\:\:\$table \(App\\Events\\Table\\DancerTable\) does not accept App\\Events\\Table\\EventTable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Events/Actions/EventCloseAction.php
-
-		-
-			message: '#^Method App\\Events\\Actions\\EventOpenAction\:\:__invoke\(\) should return string but returns Psr\\Http\\Message\\ResponseInterface\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Events/Actions/EventOpenAction.php
 
 		-
 			message: '#^Property App\\Events\\Actions\\EventOpenAction\:\:\$renderer is never read, only written\.$#'
@@ -73,46 +31,10 @@ parameters:
 			path: src/Events/Actions/EventOpenAction.php
 
 		-
-			message: '#^Property App\\Events\\Actions\\EventOpenAction\:\:\$table \(App\\Events\\Table\\DancerTable\) does not accept App\\Events\\Table\\EventTable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Events/Actions/EventOpenAction.php
-
-		-
-			message: '#^Call to function compact\(\) contains possibly undefined variable \$event\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/Events/Actions/EventStatisticsAction.php
-
-		-
-			message: '#^Property App\\Events\\Actions\\EventStatisticsAction\:\:\$loadDancersStatsAction \(App\\Events\\Actions\\Ajax\\LoadDancersListAction\) does not accept App\\Events\\Actions\\Ajax\\LoadDancersStatsAction\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Events/Actions/EventStatisticsAction.php
-
-		-
-			message: '#^Parameter \#2 \$callable of method Framework\\Router\:\:crud\(\) expects callable\(\)\: mixed, ''App\\\\Events\\\\Actions\\\\EventCrudAction'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Events/EventsModule.php
-
-		-
 			message: '#^Access to an undefined property Framework\\Actions\\AjaxAction\:\:\$router\.$#'
 			identifier: property.notFound
 			count: 1
 			path: src/Framework/Actions/AjaxAction.php
-
-		-
-			message: '#^PHPDoc tag @return with type Psr\\Http\\Message\\ResponseInterface\|string is not subtype of native type string\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Framework/Actions/CrudAction.php
-
-		-
-			message: '#^PHPDoc tag @return with type Psr\\Http\\Message\\ResponseInterface\|string is not subtype of native type string\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Framework/Actions/FormAction.php
 
 		-
 			message: '#^Call to function is_null\(\) with object will always evaluate to false\.$#'
@@ -133,64 +55,10 @@ parameters:
 			path: src/Framework/App.php
 
 		-
-			message: '#^PHPDoc tag @param for parameter \$query with type Framework\\Database\\Query\|string is not subtype of native type Framework\\Database\\Query\.$#'
-			identifier: parameter.phpDocType
-			count: 1
-			path: src/Framework/Database/PaginatedQuery.php
-
-		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/Framework/Database/Query.php
-
-		-
-			message: '#^Cannot assign new offset to string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: src/Framework/Database/Query.php
-
-		-
-			message: '#^Cannot assign offset string to string\.$#'
-			identifier: offsetAssign.dimType
-			count: 1
-			path: src/Framework/Database/Query.php
-
-		-
-			message: '#^Parameter \#1 \$array of function current expects array\|object, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Framework/Database/Query.php
-
-		-
-			message: '#^Call to an undefined method Twig\\Loader\\LoaderInterface\:\:addPath\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Framework/Renderer/TwigRenderer.php
-
-		-
 			message: '#^Call to an undefined method Psr\\Http\\Server\\MiddlewareInterface\:\:getCallback\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: src/Framework/Router.php
-
-		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type void\.$#'
-			identifier: return.phpDocType
-			count: 2
-			path: src/Framework/Session/PHPSession.php
-
-		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type void\.$#'
-			identifier: return.phpDocType
-			count: 2
-			path: src/Framework/Session/SessionInterface.php
-
-		-
-			message: '#^Binary operation "\-" between string and 1 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: src/Framework/Twig/TimeExtension.php
 
 		-
 			message: '#^Method Framework\\Validator\:\:getErrors\(\) should return array\<Framework\\Validator\\ValidationError\> but returns array\<string\>\.$#'
@@ -259,37 +127,7 @@ parameters:
 			path: src/Main/Actions/ContactAction.php
 
 		-
-			message: '#^Call to function compact\(\) contains undefined variable \$errors\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/Main/Actions/RolesAction.php
-
-		-
-			message: '#^Access to an undefined property App\\Events\\Entity\\Event\:\:\$coveventLink\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Main/Calendar.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>coveventLink" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: src/Main/Calendar.php
-
-		-
-			message: '#^Method App\\Main\\MusicsCrudAction\:\:index\(\) has invalid return type App\\Main\\ResponseInterface\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Main/MusicsCrudAction.php
-
-		-
-			message: '#^PHPDoc tag @return with type App\\Main\\ResponseInterface\|string is not subtype of native type string\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: src/Main/MusicsCrudAction.php
-
-		-
-			message: '#^Variable \$item in PHPDoc tag @var does not exist\.$#'
-			identifier: varTag.variableNotFound
-			count: 1
-			path: src/Main/MusicsCrudAction.php

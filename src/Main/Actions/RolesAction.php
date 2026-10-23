@@ -59,7 +59,7 @@ class RolesAction extends FormAction
             }
         }
         $roles = $this->table->findAll();
-        return $this->renderer->render($this->viewPath . '/index', compact('roles', 'errors'));
+        return $this->renderer->render($this->viewPath . '/index', compact('roles'));
     }
 
     /**

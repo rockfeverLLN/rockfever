@@ -14,7 +14,7 @@ class Query implements \IteratorAggregate
     private $select;
 
     /**
-     * @var string
+     * @var array
      */
     private $from;
 

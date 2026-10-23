@@ -7,7 +7,6 @@
 
 namespace App\Events\Actions;
 
-use App\Events\Actions\Ajax\LoadDancersListAction;
 use App\Events\Actions\Ajax\LoadDancersStatsAction;
 use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
@@ -36,7 +35,7 @@ class EventStatisticsAction
      */
     private $eventTable;
     /**
-     * @var LoadDancersListAction
+     * @var LoadDancersStatsAction
      */
     private $loadDancersStatsAction;
 
@@ -62,7 +61,7 @@ class EventStatisticsAction
         try {
             $event = $this->eventTable->find($id);
         } catch (NoRecordException $e) {
-            $this->redirect('admin.events.index');
+            return $this->redirect('admin.events.index');
         }
 
         $stats = json_decode($this->loadDancersStatsAction->index($request));

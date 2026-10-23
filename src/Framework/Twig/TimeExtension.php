@@ -38,7 +38,7 @@ class TimeExtension extends \Twig\Extension\AbstractExtension
     public function dateToText(?string $date) : string
     {
         $date = explode('/', $date);
-        return $date[0] . ' ' . $this->months[$date[1]-1] . ' ' . $date[2];
+        return $date[0] . ' ' . $this->months[(int) $date[1] - 1] . ' ' . $date[2];
     }
 
     public function militaryToTime($time)

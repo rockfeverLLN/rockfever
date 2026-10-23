@@ -14,13 +14,11 @@ interface SessionInterface
     /**
      * @param string $key
      * @param $value
-     * @return mixed
      */
     public function set(string $key, $value) : void;
 
     /**
      * @param string $key
-     * @return mixed
      */
     public function delete(string $key) : void;
 

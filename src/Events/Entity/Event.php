@@ -29,6 +29,8 @@ class Event
 
     public $facebookLink;
 
+    public $coveventLink;
+
     public $photosPassword;
 
     public $participantsCount;

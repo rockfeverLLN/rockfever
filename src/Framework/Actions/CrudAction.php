@@ -83,7 +83,7 @@ class CrudAction
 
     /**
      * @param Request $request
-     * @return ResponseInterface|string
+     * @return string
      */
     public function index(Request $request) : string
     {

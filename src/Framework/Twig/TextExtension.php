@@ -92,9 +92,12 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         return $content;
     }
 
-    public function toSearch(?string $title)
+    /**
+     * For a search URL: "AC/DC & co" becomes "AC%2FDC+%26+co", where a "&" or "#" would have cut the query
+     */
+    public function toSearch(?string $title) : string
     {
-        return preg_replace("/\s+/", "+", $title);
+        return urlencode(trim(preg_replace('/\s+/', ' ', (string) $title)));
     }
 
     public function round(float $value, int $precision = 2)

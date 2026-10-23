@@ -62,7 +62,7 @@ class Router
 
     /**
      * @param string $prefixPath
-     * @param callable $callable
+     * @param string|callable $callable
      * @param string $prefixName
      */
     public function crud(string $prefixPath, $callable, string $prefixName)
