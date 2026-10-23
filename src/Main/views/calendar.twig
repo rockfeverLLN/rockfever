@@ -65,6 +65,16 @@
                             <p class="soiree-meta">
                                 {{ soiree.start|date('H:i', false)|replace({':': 'h'}) }} · {{ place }}{% if soiree.week %} · Semaine&nbsp;{{ soiree.week|replace({'S': ''}) }}{% endif %}
                             </p>
+                            {% if soiree.next %}
+                                {%- set event = nextEvent() %}
+                                <p class="soiree-registration">
+                                    {%- if event and event.registrationOpen and event.date == soiree.start|date('d/m/Y', false) %}
+                                        <a href="{{ path('event') }}">Inscriptions ouvertes&nbsp;: inscris-toi pour payer 3&nbsp;€ au lieu de 4&nbsp;€</a>
+                                    {%- elseif date(soiree.registrationOpening) > date() %}
+                                        Inscriptions sur le site dès le {{ soiree.registrationOpening|dayLabel }}
+                                    {%- endif -%}
+                                </p>
+                            {% endif %}
                             {% if not soiree.past %}
                                 <div class="soiree-actions">
                                     <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light">

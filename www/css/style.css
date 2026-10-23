@@ -225,6 +225,32 @@ h6 {
     box-shadow: 0 22px 48px rgba(3, 41, 81, 0.45);
 }
 
+/* Sign-ups not open yet: the date, between what's going on and when they open (nextSoiree.twig) */
+.next-event-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+}
+
+.next-event-note {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    opacity: .85;
+}
+
+.soiree-registration {
+    margin: -6px 0 12px 0;
+    color: #00796b;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.soiree-registration:empty {
+    display: none;
+}
+
 /* The coming soirées in the "Dates de nos soirées" section of the home page (soireesList.twig) */
 .home-soirees h3 {
     margin: 20px 0 6px 0;

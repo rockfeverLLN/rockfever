@@ -33,7 +33,8 @@ composer serve                                       # http://127.0.0.1:8000
 
 The same dates feed the home page, so nothing there needs editing when a soirée is over:
 
-- **Next soirée card** under the header of the home page: "Inscris-toi à la soirée du …" (to `/event`) once the event is created in admin > Événements, otherwise "Prochaine soirée : mercredi 11 novembre à 20h30" (to `/calendrier`). Past soirées never show. On `/calendrier`, the card only appears for the sign-up.
+- **Sign-ups open on their own** at midnight, 7 days before the soirée (`Event::REGISTRATION_DAYS`), once its event exists in admin > Événements: the team can create it as early as it likes. The lock in the admin still closes them by hand (and reopens them), and the dashboard says whether they're open, closed or when they open. Before the opening, `/event` shows the soirée without the form and refuses sign-ups.
+- **Next soirée card** under the header of the home page, which follows the sign-ups: "Inscris-toi à la soirée du …" while they're open; before that, "Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée : Mercredi 11 novembre à 20h30", with the opening day (to `/event` if the event exists, else `/calendrier`); "Prochaine soirée : …" once they're closed. Past soirées never show. On `/calendrier`, the card only appears while sign-ups are open, and the next soirée says when they open.
 - **Date list:** a paragraph containing only `[dates]` in an "À propos" section (the "Dates de nos soirées" one) is replaced by the coming soirées, grouped by quadrimestre, with the next one marked. When they're all past, it says the next dates are coming. Don't type dates by hand in that section.
 
 ## Home page

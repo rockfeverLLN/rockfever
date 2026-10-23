@@ -33,6 +33,18 @@
                 <li>
                     <b>Prix :</b> {{ nextEvent.price | default('--€') }}
                 </li>
+                {% if nextEvent %}
+                <li>
+                    <b>Inscriptions :</b>
+                    {% if nextEvent.registrationOpen %}
+                        ouvertes
+                    {% elseif nextEvent.registrationUpcoming %}
+                        s'ouvrent toutes seules le {{ nextEvent.registrationOpening | dayLabel }}
+                    {% else %}
+                        fermées
+                    {% endif %}
+                </li>
+                {% endif %}
                 {% if nextEvent.facebookLink %}
                 <li>
                     <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook</a></b>
