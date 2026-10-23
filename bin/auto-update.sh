@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs package updates as soon as they're out, each one tested before it goes live. Run every hour by
+# Installs package updates within a day of their release, each one tested before it goes live. Run every day by
 # .github/workflows/update-dependencies.yml, on GitHub Actions: Composer and PHP run in their official Docker
 # images, for the PHP version in PHP_VERSION (from .ovhconfig).
 #
