@@ -3,6 +3,7 @@
 namespace App\Photos;
 
 use App\Photos\Actions\AlbumAdminAction;
+use App\Photos\Actions\AlbumCoverAction;
 use App\Photos\Actions\AlbumCreateAction;
 use App\Photos\Actions\AlbumDeleteAction;
 use App\Photos\Actions\AlbumShowAction;
@@ -52,6 +53,11 @@ class PhotosModule extends Module
                 $adminPrefix . '/photos/albums/{id:\d+}/delete',
                 AlbumDeleteAction::class,
                 'admin.photos.album.delete'
+            );
+            $router->post(
+                $adminPrefix . '/photos/albums/{id:\d+}/cover',
+                AlbumCoverAction::class,
+                'admin.photos.album.cover'
             );
             $router->post(
                 $adminPrefix . '/photos/albums/{id:\d+}/upload',

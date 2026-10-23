@@ -38,7 +38,8 @@
                                 {% endif %}
                                 <span class="photos-album-title">{{ album.title }}</span>
                                 <span class="photos-album-meta">
-                                    {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}{% if album.photographer %} · par {{ album.photographer }}{% endif %}
+                                    {% if album.eventDate %}{{ album.eventDate|date('j/n/Y')|dateToText }} · {% endif %}
+                                    {{- album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}{% if album.photographer %} · par {{ album.photographer }}{% endif %}
                                 </span>
                             </a>
                         </li>

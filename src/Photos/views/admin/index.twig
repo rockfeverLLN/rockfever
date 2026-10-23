@@ -84,7 +84,7 @@
                                 {% if album.coverId %}<img src="{{ path('photos.file', {id: album.coverId, size: '480'}) }}" alt="" loading="lazy">{% endif %}
                             </span>
                             <span class="title">{{ album.title }}</span>
-                            <span class="meta">{{ album.collection }} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
+                            <span class="meta">{{ album.collection }}{% if album.eventDate %} · {{ album.eventDate|date('d/m/Y') }}{% endif %} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
                             {% if not album.photosPassword %}<span class="meta red-text text-darken-2">Équipe seulement : pas de mot de passe</span>{% endif %}
                         </a>
                     {% endfor %}

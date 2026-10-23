@@ -40,7 +40,8 @@ class AlbumTable extends Table
     }
 
     /**
-     * Newest first, with their number of photos and the id of the first one, for the cover
+     * By the date of their soirée, newest first (those without one, by when they were made), with their number of
+     * photos and their cover: the photo chosen for it if it's still in the album, else the first one
      */
     public function findAllWithCovers() : Query
     {
@@ -48,10 +49,14 @@ class AlbumTable extends Table
             ->select(
                 'p.*',
                 'e.photos_password AS photos_password',
+                'e.date AS event_date',
                 '(SELECT COUNT(*) FROM photos WHERE album_id = p.id) AS photo_count',
-                '(SELECT id FROM photos WHERE album_id = p.id ORDER BY id LIMIT 1) AS cover_id'
+                'COALESCE(
+                    (SELECT id FROM photos WHERE id = p.cover_photo_id AND album_id = p.id),
+                    (SELECT id FROM photos WHERE album_id = p.id ORDER BY id LIMIT 1)
+                ) AS cover_id'
             )
-            ->order('p.created_at DESC, p.id DESC');
+            ->order('COALESCE(e.date, DATE(p.created_at)) DESC, p.id DESC');
     }
 
     /**

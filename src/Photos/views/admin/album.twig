@@ -85,6 +85,11 @@
         <div class="row"><div class="col s12"><div class="card-panel">
             <h2>Photos ({{ photos|length }})</h2>
             {% if photos|length %}
+                {#- The tiles' cover buttons submit this form (forms can't be nested in the delete form) #}
+                <form action="{{ path('admin.photos.album.cover', {id: album.id}) }}" method="post" id="photos-cover">
+                    {{ tokenInput|raw }}
+                </form>
+                {% set cover = album.coverPhotoId in photos|map(p => p.id) ? album.coverPhotoId : photos[0].id %}
                 <form action="{{ path('admin.photos.delete') }}" method="post" id="photos-delete">
                     {{ tokenInput|raw }}
                     <input type="hidden" name="album" value="{{ album.id }}">
@@ -101,6 +106,12 @@
                                     <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}">
                                     <span></span>
                                 </label>
+                                {% if photo.id == cover %}
+                                    <span class="cover is-cover" title="La couverture de l'album">★ Couverture</span>
+                                {% else %}
+                                    <button type="submit" form="photos-cover" name="photo_id" value="{{ photo.id }}"
+                                            class="cover" title="En faire la couverture de l'album" aria-label="En faire la couverture de l'album">☆</button>
+                                {% endif %}
                                 {% if photo.id in requested %}
                                     <span class="badge-bottom requested">Suppression demandée</span>
                                 {% elseif photo.section %}

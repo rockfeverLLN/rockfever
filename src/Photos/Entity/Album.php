@@ -17,6 +17,11 @@ class Album
     public $eventId;
 
     /**
+     * The photo chosen as cover, if any: coverId is the one to show (AlbumTable::findAllWithCovers)
+     */
+    public $coverPhotoId;
+
+    /**
      * Its soirée's photo password, when the query joins it (AlbumTable::makeAccessQuery)
      */
     public $photosPassword;
@@ -24,11 +29,14 @@ class Album
     public $createdAt;
 
     /**
-     * Number of photos and the first one's id, when the query asks for them (AlbumTable::findAllWithCovers)
+     * Number of photos, the cover's id and the soirée's date, when the query asks for them
+     * (AlbumTable::findAllWithCovers)
      */
     public $photoCount = 0;
 
     public $coverId;
+
+    public $eventDate;
 
     /**
      * Anchor of the album's collection on /photos, for the breadcrumb
