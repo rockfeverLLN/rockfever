@@ -1,6 +1,8 @@
 <?php
 namespace App\Main;
 
+use App\Events\Entity\Event;
+
 /**
  * The soirées listed in src/Main/config.php, with what the calendar page and its .ics files need
  */
@@ -61,14 +63,22 @@ class Calendar
                 'month' => self::MONTHS[$start->format('n') - 1],
                 'shortMonth' => self::SHORT_MONTHS[$start->format('n') - 1],
                 'year' => $start->format('Y'),
-                // "Mercredi 11 novembre", "Mercredi 1er octobre"
-                'label' => self::WEEKDAYS[$start->format('w')] . ' ' . ($start->format('j') === '1' ? '1er' : $start->format('j'))
-                    . ' ' . self::MONTHS[$start->format('n') - 1],
+                'label' => self::label($start),
+                'registrationOpening' => Event::registrationOpeningFor($soiree['date']),
                 'past' => $past,
                 'next' => $next,
                 'googleUrl' => $this->getGoogleUrl($start, $end),
             ];
         }, $this->soirees);
+    }
+
+    /**
+     * "Mercredi 11 novembre", "Mercredi 1er octobre"
+     */
+    public static function label(\DateTimeInterface $date) : string
+    {
+        return self::WEEKDAYS[$date->format('w')] . ' ' . ($date->format('j') === '1' ? '1er' : $date->format('j'))
+            . ' ' . self::MONTHS[$date->format('n') - 1];
     }
 
     /**
