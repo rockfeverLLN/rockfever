@@ -31,9 +31,18 @@ composer serve                                       # http://127.0.0.1:8000
 
 `/calendrier` lists the dates of the soirées, with buttons to add one or all of them to a calendar app. The dates, times and place are in `calendar.soirees` and the lines under it in [`src/Main/config.php`](src/Main/config.php): add the next semester's dates there. `/calendrier.ics` serves them all, so calendars that subscribed to it get the new dates on their own.
 
+The same dates feed the home page, so nothing there needs editing when a soirée is over:
+
+- **Next soirée card** under the header of the home page: "Inscris-toi à la soirée du …" (to `/event`) once the event is created in admin > Événements, otherwise "Prochaine soirée : mercredi 11 novembre à 20h30" (to `/calendrier`). Past soirées never show. On `/calendrier`, the card only appears for the sign-up.
+- **Date list:** a paragraph containing only `[dates]` in an "À propos" section (the "Dates de nos soirées" one) is replaced by the coming soirées, grouped by quadrimestre, with the next one marked. When they're all past, it says the next dates are coming. Don't type dates by hand in that section.
+
 ## Home page
 
 The home page shows the sections of the admin's "À propos" in order. The sections after the one titled **Le Staff** each present a member: they are shown side by side as cards (photo, name, then text), so keep that title, or change it in [`HomeAction`](src/Main/Actions/HomeAction.php). In a member's text, the first paragraph with a photo becomes the top of the card. Sections with no title and nothing visible (a commented-out video) are skipped.
+
+Text written in the admin (these sections, the events' title and description) goes through the `typography` Twig filter ([`TextExtension`](src/Framework/Twig/TextExtension.php)), so it follows French typography whatever was typed: no-break spaces before `:` and inside `« »`, narrow ones before `; ! ?`, and `’` apostrophes. Use it on any new admin text (`|e|typography` for plain text).
+
+**Emojis:** the production tables were created in `utf8` (utf8mb3), which saves emojis as `?`. [`src/Main/db/fix-home-copy.sql`](src/Main/db/fix-home-copy.sql) converts `aboutSections` and `events` to utf8mb4, puts `[dates]` in the dates section and fixes the spelling of the home page. Run it once in phpMyAdmin after deploying; running it again changes nothing.
 
 ## Photos
 

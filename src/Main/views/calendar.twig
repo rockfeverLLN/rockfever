@@ -12,8 +12,9 @@
 {% endblock %}
 
 {% block body %}
-    {%- set hasNextEvent = nextEventExist() %}
-    <div class="parallax-container home-parallax-container{{ hasNextEvent ? '' : ' home-parallax-compact' }}">
+    {#- The page already shows the next soirée: the card is only for its sign-up #}
+    {%- set nextSoiree %}{% include '@main/nextSoiree.twig' with {soirees: semesters|reduce((all, soirees) => all|merge(soirees), []), signUpOnly: true} %}{% endset %}
+    <div class="parallax-container home-parallax-container{{ nextSoiree|trim ? '' : ' home-parallax-compact' }}">
         <div class="container">
             <div class="center">
                 <h1 class="white-text home-title">Calendrier</h1>
@@ -23,11 +24,7 @@
             <img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high">
         </div>
     </div>
-    {% if hasNextEvent %}
-    <a href="{{ path('event') }}" class="next-event-link koamaru">
-        Inscris-toi à notre prochain événement !
-    </a>
-    {% endif %}
+    {{ nextSoiree }}
 
     {%- set first = (semesters|first)|first %}
     <div class="container calendar-page">

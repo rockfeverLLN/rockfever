@@ -24,8 +24,44 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             ]),
             new \Twig\TwigFilter('round', [$this, 'round']),
             new \Twig\TwigFilter('lazyImages', [$this, 'lazyImages']),
-            new \Twig\TwigFilter('withoutEmptyParagraphs', [$this, 'withoutEmptyParagraphs'])
+            new \Twig\TwigFilter('withoutEmptyParagraphs', [$this, 'withoutEmptyParagraphs']),
+            new \Twig\TwigFilter('typography', [$this, 'typography'], ['is_safe' => ['html']])
         ];
+    }
+
+    /**
+     * French typography for the text written in the admin, so every page follows the same rules: a no-break
+     * space before : and inside « », a narrow one before ; ! ? (added when missing before ! and ?), and
+     * apostrophes as ’. Also drops the "�" left by characters a database couldn't store.
+     * Only the text changes, never the tags, comments, scripts or styles. Takes HTML: escape plain text first
+     * (description|e|typography)
+     * @param string|null $content
+     * @return string
+     */
+    public function typography(?string $content) : string
+    {
+        $parts = preg_split(
+            '#(<!--.*?-->|<script\b.*?</script>|<style\b.*?</style>|<[^>]*>)#is',
+            $content ?? '',
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE
+        );
+        foreach ($parts as $i => $part) {
+            // Odd parts are the tags
+            if ($i % 2 === 1 || trim($part) === '') {
+                continue;
+            }
+            $text = html_entity_decode($part, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $text = str_replace("\u{FFFD}", '', $text);
+            $text = preg_replace("/(?<=\p{L})'(?=\p{L})/u", '’', $text);
+            // "personnes!" gets its space, "page.php?id=1" doesn't
+            $text = preg_replace('/(?<=[\p{L}\d)])(?=[!?]+(?:\s|$|[)»"]))/u', "\u{202F}", $text);
+            $text = preg_replace('/[ \x{A0}\x{202F}]+(?=[!?;])/u', "\u{202F}", $text);
+            $text = preg_replace('/[ \x{A0}\x{202F}]+(?=:)/u', "\u{A0}", $text);
+            $text = preg_replace(['/«[ \x{A0}\x{202F}]*/u', '/[ \x{A0}\x{202F}]*»/u'], ["«\u{A0}", "\u{A0}»"], $text);
+            $parts[$i] = htmlspecialchars($text, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return implode('', $parts);
     }
 
     /**
