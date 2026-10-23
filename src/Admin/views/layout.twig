@@ -4,7 +4,7 @@
     <title>{% block title %}Rock Fever{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <link type="text/css" rel="stylesheet" href="{{ asset('/css/materialize.min.css') }}"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="{{ asset('/css/base.css') }}"/>
     <link  href="{{ asset('/css/style.css') }}" rel="stylesheet"/>
 
     {% block css %}{% endblock %}
@@ -21,9 +21,6 @@
 </div>
 
 {% block body %}{% endblock %}
-
-<script type="text/javascript" src="{{ asset('/js/jquery.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('/js/materialize.min.js') }}"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/tinymce@8.10.0/tinymce.min.js"></script>
 {% block js %}{% endblock %}

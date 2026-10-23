@@ -4,17 +4,17 @@
             {{ field('title', item.title, 'Titre de l\'événement') }}
         </div>
         <div class="col s12 m6">
-            {{ field('date', item.date, 'Date de l\'événement', {class: 'datepicker'}) }}
+            {{ field('date', item.date, 'Date de l\'événement', {type: 'date'}) }}
         </div>
     </div>
 </div>
 <div class="col s12">
     <div class="row">
         <div class="col s12 m3">
-            {{ field('waltz_time', item.waltzTime, 'Heure de la valse', {class: 'timepicker'}) }}
+            {{ field('waltz_time', item.waltzTime, 'Heure de la valse', {type: 'time'}) }}
         </div>
         <div class="col s12 m3">
-            {{ field('rock_time', item.rockTime, 'Heure du rock', {class: 'timepicker'}) }}
+            {{ field('rock_time', item.rockTime, 'Heure du rock', {type: 'time'}) }}
         </div>
         <div class="col s12 m3">
             {{ field('place', item.place, 'Lieu') }}

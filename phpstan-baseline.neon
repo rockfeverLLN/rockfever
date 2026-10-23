@@ -211,24 +211,6 @@ parameters:
 			path: src/Framework/Validator.php
 
 		-
-			message: '#^Parameter \#1 \$month of function checkdate expects int, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Framework/Validator.php
-
-		-
-			message: '#^Parameter \#2 \$day of function checkdate expects int, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Framework/Validator.php
-
-		-
-			message: '#^Parameter \#3 \$year of function checkdate expects int, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Framework/Validator.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between Psr\\Http\\Message\\UploadedFileInterface and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1

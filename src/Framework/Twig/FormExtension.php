@@ -64,6 +64,12 @@ class FormExtension extends \Twig\Extension\AbstractExtension
             $input = $this->select($value, $options['options'], $attributes);
         } elseif ($type === 'password') {
             $input = $this->password($value, $attributes);
+        } elseif ($type === 'date' || $type === 'time') {
+            // The browser's own date and time pickers. A date field's value is Y-m-d, the entities' dates are d/m/Y
+            if ($type === 'date') {
+                $value = preg_replace('#^(\d{2})/(\d{2})/(\d{4})$#', '$3-$2-$1', $value);
+            }
+            $input = $this->input($value, $attributes, $type);
         } else {
             $input = $this->input($value, $attributes);
         }
@@ -80,9 +86,9 @@ class FormExtension extends \Twig\Extension\AbstractExtension
      * @param array $attributes
      * @return string
      */
-    private function input(?string $value, array $attributes) : string
+    private function input(?string $value, array $attributes, string $type = 'text') : string
     {
-        return "<input type=\"text\" ". $this->getHtmlFromArray($attributes) ." value=\"$value\">";
+        return "<input type=\"$type\" ". $this->getHtmlFromArray($attributes) ." value=\"$value\">";
     }
 
     /**

@@ -130,12 +130,16 @@ class Validator
      */
     public function date(string $key, string $format = 'jour/mois/année') : self
     {
-        $value = $this->getValue($key);
+        $value = (string) $this->getValue($key);
 
-        $explodedDate = explode('/', $value);
-        if (!preg_match('/[\d]{2}\/[\d]{2}\/[\d]{4}/', $value)
-            || empty($value)
-            || !checkdate($explodedDate[1], $explodedDate[0], $explodedDate[2])
+        // Typed as d/m/Y, or Y-m-d from a date field (<input type="date">)
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $parts)) {
+            $explodedDate = [$parts[3], $parts[2], $parts[1]];
+        } else {
+            $explodedDate = explode('/', $value);
+        }
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$|[\d]{2}\/[\d]{2}\/[\d]{4}/', $value)
+            || !checkdate((int) $explodedDate[1], (int) $explodedDate[0], (int) $explodedDate[2])
         ) {
             $this->addError($key, 'date', [$format]);
         }
