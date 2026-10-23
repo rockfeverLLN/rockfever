@@ -773,8 +773,11 @@ main:focus {
     margin: 24px 0 0.656rem 0;
 }
 
-ul.pagination li.disabled{
+ul.pagination li .page-link{
     padding: 0 10px;
+    font-size: 1.2rem;
+    line-height: 30px;
+    display: inline-block;
 }
 
 ul.pagination li.page-item.active{
@@ -782,10 +785,6 @@ ul.pagination li.page-item.active{
 }
 
 ul.pagination li.page-item.active span.page-link{
-    padding: 0 10px;
-    font-size: 1.2rem;
-    line-height: 30px;
-    display: inline-block;
     color: #ffffff;
 }
 
@@ -1574,7 +1573,7 @@ input:not([type]).mce-textbox {
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/mdi.woff2?v=976904fb) format('woff2');
+    src: url(/fonts/mdi.woff2?v=d22315e6) format('woff2');
 }
 
 .mdi:before {

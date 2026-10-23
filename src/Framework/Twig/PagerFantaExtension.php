@@ -46,8 +46,8 @@ class PagerFantaExtension extends \Twig\Extension\AbstractExtension
             }
             return $this->router->generateUri($route, $routerParams, ['p' => $page]);
         }, [
-            'prev_message'      => '<i class="material-icons">chevron_left</i></a>',
-            'next_message'          => '<i class="material-icons">chevron_right</i></a>',
+            'prev_message'      => '<i class="material-icons">chevron_left</i>',
+            'next_message'          => '<i class="material-icons">chevron_right</i>',
             'css_container_class'   => 'pagination center',
             'css_prev_class'        => '',
             'css_next_class'        => ''
