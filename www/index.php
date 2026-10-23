@@ -10,6 +10,7 @@ use App\Photos\PhotosModule;
 use Framework\App;
 use Framework\Auth\ForbiddenMiddleware;
 use Framework\Auth\LoggedInMiddleWare;
+use Framework\Middleware\ContentSecurityPolicyMiddleware;
 use Framework\Middleware\CsrfMiddleware;
 use Framework\Middleware\DispatcherMiddleware;
 use Framework\Middleware\ExceptionCatcherMiddleware;
@@ -37,6 +38,8 @@ $app = (new App('config/config.php'))
 $container = $app->getContainer();
 $env = $container->get('env');
 
+// First, so the error pages get the nonce too
+$app->pipe(ContentSecurityPolicyMiddleware::class);
 if ($env == 'dev') {
     $app->pipe(Whoops::class);
 } else {

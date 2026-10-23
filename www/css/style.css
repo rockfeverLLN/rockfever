@@ -161,6 +161,14 @@ h6 {
     z-index: 1;
 }
 
+/* Keeps their white text readable while the photo loads or if it doesn't, and for contrast checkers, which don't
+   see photos. isolation: the photo (z-index: -1) stays above this color */
+.home-parallax-container,
+.form-parallax-container {
+    background-color: #032951;
+    isolation: isolate;
+}
+
 .error-parallax-container {
     height: 500px;
 }
@@ -833,6 +841,23 @@ table tbody tr td .input-field {
 /* Lines up with the logo and the copyright row, at a width that stays easy to read */
 .footer-social {
     max-width: 760px;
+}
+
+.footer-social-icons {
+    margin: 0 0 15px 0;
+    font-size: 32px;
+    line-height: 1;
+}
+
+.footer-social-icons a + a {
+    margin-left: 10px;
+}
+
+/* The legal texts' sub-headings: h3s for the outline, at the size of the h6s the editor makes */
+.legal-subheading {
+    font-size: 1.15rem;
+    line-height: 110%;
+    margin: 0.7666666667rem 0 0.46rem 0;
 }
 
 .page-footer .footer-copyright {

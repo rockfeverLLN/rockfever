@@ -126,12 +126,37 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         }
         $count = 0;
         return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use (&$count, $eager) {
-            $tag = $this->addSrcset($match[0]);
+            $tag = $this->addSrcset($this->cleanSrc($match[0]));
             if (preg_match('/\bloading=/i', $tag) || $count++ < $eager) {
                 return $tag;
             }
             return substr_replace($tag, '<img loading="lazy" decoding="async"', 0, 4);
         }, $content);
+    }
+
+    /**
+     * Writes the src of this site's images as /images/... with its spaces encoded. The editor inserts
+     * ../../images/photo staff.jpg: invalid HTML, and link checkers resolve it to a page that doesn't exist
+     */
+    private function cleanSrc(string $tag) : string
+    {
+        return preg_replace_callback(
+            '/(\ssrc=)(["\'])(?:https?:\/\/(?:www\.)?rockfever\.be)?[.\/]*images\/([^"\'?#]+)\2/i',
+            function ($match) {
+                $path = rawurldecode(html_entity_decode($match[3], ENT_QUOTES | ENT_HTML5));
+                return str_contains($path, '..') ? $match[0] : $match[1] . $match[2] . self::imageUrl($path) . $match[2];
+            },
+            $tag,
+            1
+        );
+    }
+
+    /**
+     * URL of a file of www/images/. Spaces or commas in a file name would split a srcset entry
+     */
+    private static function imageUrl(string $path) : string
+    {
+        return '/images/' . implode('/', array_map('rawurlencode', explode('/', $path)));
     }
 
     /**
@@ -152,8 +177,7 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         if (str_contains($path, '..') || !is_file($file)) {
             return $tag;
         }
-        // Spaces or commas in a file name would split a srcset entry
-        $url = fn (string $path) => '/images/' . implode('/', array_map('rawurlencode', explode('/', $path)));
+        $url = fn (string $path) => self::imageUrl($path);
         $candidates = [];
         $info = pathinfo($file);
         $pattern = preg_replace('/[*?\[\]\\\\]/', '\\\\$0', $info['dirname'] . '/sizes/' . $info['filename']) . '-*.webp';

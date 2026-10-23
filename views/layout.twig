@@ -4,8 +4,9 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!-- Google tag (gtag.js), as Google gives it, so Analytics' tag check finds it. async: it doesn't block the page -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W"></script>
-    <script>
+    {#- Every script carries the page's nonce: the Content-Security-Policy blocks the others (ContentSecurityPolicyMiddleware) #}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W" nonce="{{ csp_nonce }}"></script>
+    <script nonce="{{ csp_nonce }}">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
@@ -21,7 +22,7 @@
     </script>
     <!-- The site's scripts are only needed once the page is shown: they load after its first paint, so that on a slow
          connection they don't hold it back -->
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             var loaded = false;
             function loadScripts() {
@@ -88,7 +89,14 @@
     {# Rules the public pages need for the first paint, then the one stylesheet (base.css's part and style.css),
        loaded in the background #}
     <style>{{ source('critical.css', ignore_missing = true) }}</style>
-    <link rel="preload" href="{{ asset('/css/site.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'"/>
+    <link rel="preload" href="{{ asset('/css/site.css') }}" as="style" id="site-css"/>
+    {#- Not an onload attribute: the Content-Security-Policy blocks those. The script runs before the file can load #}
+    <script nonce="{{ csp_nonce }}">
+        document.getElementById('site-css').onload = function () {
+            this.onload = null;
+            this.rel = 'stylesheet';
+        };
+    </script>
     <noscript>
         <link rel="stylesheet" href="{{ asset('/css/site.css') }}"/>
     </noscript>
