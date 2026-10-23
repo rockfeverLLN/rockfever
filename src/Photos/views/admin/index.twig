@@ -1,0 +1,97 @@
+{% extends '@admin/layout.twig' %}
+
+{% block title %}Photos - Rock Fever{% endblock %}
+
+{% block css %}{% include '@photos/admin/style.twig' %}{% endblock %}
+
+{% block body %}
+    {% set tokenInput = csrfInput() %}
+    <div class="container photos-admin">
+        <h1>
+            Photos
+            <a href="{{ path('photos') }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir la galerie</a>
+        </h1>
+
+        {#- The deletion requests are the team's: photographers don't see them (PhotographerMiddleware) #}
+        {% if requests|length and not isPhotographer() %}
+            <div class="row"><div class="col s12"><div class="card-panel" id="demandes">
+                <h2 class="red-text text-darken-2">Demandes de suppression ({{ requests|length }})</h2>
+                <ul class="photos-requests">
+                    {% for request in requests %}
+                        <li>
+                            <a href="{{ path('photos.file', {id: request.photoId, size: 'full'}) }}" target="_blank">
+                                <img src="{{ path('photos.file', {id: request.photoId, size: '480'}) }}" alt="Photo concernée">
+                            </a>
+                            <div class="details">
+                                <b>{{ request.name }}</b>
+                                {% if request.email %}
+                                    · <a href="mailto:{{ request.email }}">{{ request.email }}</a>
+                                {% endif %}
+                                · <span class="grey-text">{{ request.createdAt|date('d/m/Y H:i') }}</span>
+                                {% if request.reason %}<p>{{ request.reason }}</p>{% endif %}
+                                <div class="actions">
+                                    <form action="{{ path('admin.photos.delete') }}" method="post" onsubmit="return confirm('Supprimer définitivement cette photo ?')">
+                                        {{ tokenInput|raw }}
+                                        <input type="hidden" name="ids[]" value="{{ request.photoId }}">
+                                        <button class="btn red waves-effect waves-light"><i class="mdi mdi-delete left"></i>Supprimer la photo</button>
+                                    </form>
+                                    <form action="{{ path('admin.photos.request.dismiss', {id: request.id}) }}" method="post" onsubmit="return confirm('Garder la photo et ignorer cette demande ?')">
+                                        {{ tokenInput|raw }}
+                                        <button class="btn-flat waves-effect">Ignorer la demande</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div></div></div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col s12 l8">
+                <div class="card-panel">
+                    <h2>Nouvel album</h2>
+                    <p class="grey-text">Un album par soirée, rangé dans la collection du quadrimestre. Tu y ajouteras les photos ensuite.</p>
+                    <form action="{{ path('admin.photos.album.create') }}" method="post">
+                        {{ tokenInput|raw }}
+                        {% include '@photos/admin/album-fields.twig' with {album: null, suffix: ''} %}
+                        <button class="btn koamaru waves-effect waves-light"><i class="mdi mdi-plus left"></i>Créer l'album</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col s12 l4">
+                <div class="card-panel">
+                    <h2><i class="mdi mdi-lock"></i> Mots de passe</h2>
+                    {% if isPhotographer() %}
+                        <p>Chaque album s'ouvre avec le mot de passe de sa soirée, que l'équipe donne aux danseurs.
+                            Choisis bien la soirée de l'album : connecté, tu vois tous les albums sans mot de passe.</p>
+                    {% else %}
+                        <p>Chaque album s'ouvre avec le <b>mot de passe des photos de sa soirée</b>, à choisir dans
+                            <a href="{{ path('admin.events.index') }}">Événements</a> en modifiant la soirée. Donne-le à ses danseurs.</p>
+                        <p class="grey-text">Un album sans soirée, ou dont la soirée n'a pas de mot de passe, n'est visible que par l'équipe.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row"><div class="col s12"><div class="card-panel">
+            <h2>Albums ({{ albums|length }})</h2>
+            {% if albums|length %}
+                <div class="photos-admin-albums">
+                    {% for album in albums %}
+                        <a href="{{ path('admin.photos.album', {id: album.id}) }}">
+                            <span class="cover">
+                                {% if album.coverId %}<img src="{{ path('photos.file', {id: album.coverId, size: '480'}) }}" alt="" loading="lazy">{% endif %}
+                            </span>
+                            <span class="title">{{ album.title }}</span>
+                            <span class="meta">{{ album.collection }}{% if album.eventDate %} · {{ album.eventDate|date('d/m/Y') }}{% endif %} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
+                            {% if not album.photosPassword %}<span class="meta red-text text-darken-2">Équipe seulement : pas de mot de passe</span>{% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="grey-text">Pas encore d'album.</p>
+            {% endif %}
+        </div></div></div>
+    </div>
+{% endblock %}

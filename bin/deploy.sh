@@ -5,7 +5,7 @@
 #   (full mirror when there is no record yet). OVH's SFTP doesn't keep file times, so lftp
 #   can't detect changes by itself.
 # - vendor/: only re-synced when composer.lock changed since the last deploy.
-# - config/database.php is not in git and stays on the server untouched.
+# - config/database.php and storage/ (the gallery's photos) are not in git and stay on the server untouched.
 set -euo pipefail
 
 SERVER=(lftp --env-password -u rockfevexj sftp://$FTP_HOST)
@@ -42,7 +42,7 @@ if [ -n "$DEPLOYED_SHA" ] && git cat-file -e "$DEPLOYED_SHA^{commit}" 2>/dev/nul
     done < <(git -c core.quotePath=false diff -z --name-status --no-renames "$DEPLOYED_SHA" HEAD -- . "${EXCLUDE[@]}")
 else
     echo "No previous deploy recorded, uploading everything"
-    COMMANDS+=" mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' --exclude '^config/database\.php$' ./ ./;"
+    COMMANDS+=" mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' --exclude '^storage/' --exclude '^config/database\.php$' ./ ./;"
 fi
 
 # Built by bin/critical-css.php in deploy.yml and not in git, so not in the diff above: always upload them,

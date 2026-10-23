@@ -1,0 +1,41 @@
+{#- Full-screen photo viewer (www/js/photos.js), with the deletion request form #}
+<dialog class="photos-viewer" id="photos-viewer" aria-label="Photo agrandie">
+    <div class="photos-viewer-bar">
+        <span class="photos-viewer-count" aria-live="polite"></span>
+        <a class="photos-viewer-action" data-viewer="download" href="#" download>
+            <i class="mdi mdi-download" aria-hidden="true"></i><span>Télécharger</span>
+        </a>
+        <button type="button" class="photos-viewer-action" data-viewer="request">
+            <i class="mdi mdi-delete" aria-hidden="true"></i><span>Demander la suppression</span>
+        </button>
+        <button type="button" class="photos-viewer-icon" data-viewer="close" aria-label="Fermer">
+            <i class="mdi mdi-close" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="photos-viewer-stage">
+        <button type="button" class="photos-viewer-icon photos-viewer-prev" data-viewer="prev" aria-label="Photo précédente">
+            <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
+        </button>
+        <img class="photos-viewer-image" alt="">
+        <button type="button" class="photos-viewer-icon photos-viewer-next" data-viewer="next" aria-label="Photo suivante">
+            <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <form class="photos-request" method="post" hidden>
+        {{ csrfInput() }}
+        <h2>Demander la suppression</h2>
+        <p>Tu es sur cette photo et tu ne veux pas qu'elle soit en ligne ? Dis-nous qui tu es : l'équipe la retirera au plus vite.</p>
+        <label class="photos-label" for="photos-request-name">Ton nom</label>
+        <input class="photos-input browser-default" id="photos-request-name" name="name" maxlength="100" autocomplete="name" required>
+        <label class="photos-label" for="photos-request-email">Ton adresse email <span>(facultatif, pour qu'on te réponde)</span></label>
+        <input class="photos-input browser-default" id="photos-request-email" name="email" type="email" maxlength="255" autocomplete="email">
+        <label class="photos-label" for="photos-request-reason">Un mot pour l'équipe <span>(facultatif)</span></label>
+        <textarea class="photos-input browser-default" id="photos-request-reason" name="reason" rows="3" maxlength="2000"></textarea>
+        <p class="photos-request-message" role="status"></p>
+        <div class="photos-request-buttons">
+            <button type="button" class="photos-button" data-viewer="cancel">Annuler</button>
+            <button type="submit" class="photos-button photos-button-primary">Envoyer la demande</button>
+        </div>
+    </form>
+</dialog>

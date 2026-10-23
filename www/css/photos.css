@@ -1,0 +1,819 @@
+/* The photo gallery (/photos, src/Photos/views). Its own file: the page is behind a password, so
+   bin/critical-css.php never sees it and site.css only has the rules of the other pages */
+
+.photos-page, .photos-lock, .photos-viewer {
+    --photos-blue: #072d55;
+    --photos-text: #1f2933;
+    --photos-muted: #52606d;
+    --photos-line: #d9e2ec;
+}
+
+/* Dark pages, like a photographer's gallery: the photos are what you see. Between the site's menu and footer */
+
+.photos-dark > main {
+    color: #e6e6e6;
+    background: #000;
+}
+
+.photos-dark .photos-page {
+    --photos-dark-muted: #8a8a8a;
+    --photos-dark-line: #2b2b2b;
+}
+
+.photos-page {
+    max-width: 1720px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Password */
+
+.photos-lock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    padding: 40px 16px;
+}
+
+.photos-lock-card {
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+.photos-lock-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border: 1px solid #3a3a3a;
+    border-radius: 50%;
+    font-size: 26px;
+    color: #e6e6e6;
+}
+
+.photos-lock h1 {
+    margin: 20px 0 10px;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.photos-lock p {
+    margin: 0 0 28px;
+    color: #8a8a8a;
+}
+
+.photos-lock form {
+    text-align: left;
+}
+
+.photos-lock .photos-label {
+    color: #bdbdbd;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+
+.site .photos-lock .photos-input, .site .photos-lock .photos-input:focus {
+    color: #fff;
+    background: #111;
+    border-color: #3a3a3a;
+}
+
+.site .photos-lock .photos-input:focus {
+    outline-color: #fff;
+}
+
+.photos-lock .photos-button {
+    width: 100%;
+    margin-top: 16px;
+    color: #000;
+    background: #fff;
+    border-color: #fff;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.photos-lock .photos-button:hover {
+    background: #d9d9d9;
+}
+
+.photos-lock-collection {
+    margin: 20px 0 0 !important;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.photos-lock-collection + h1 {
+    margin-top: 4px;
+}
+
+.photos-lock-back {
+    display: inline-block;
+    margin-top: 24px;
+    color: #bdbdbd;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.photos-lock-back:hover {
+    color: #fff;
+}
+
+.photos-lock .photos-error {
+    color: #ff8a80 !important;
+}
+
+/* Form fields, without Materialize's: the fields have its browser-default class */
+
+.photos-label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--photos-text);
+}
+
+.photos-label span {
+    font-weight: 400;
+    color: var(--photos-muted);
+}
+
+.site .photos-input, .site .photos-input:focus {
+    box-sizing: border-box;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 10px 12px;
+    font: inherit;
+    color: var(--photos-text);
+    background: #fff;
+    border: 1px solid #bcccdc;
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.site .photos-input:focus {
+    outline: 2px solid var(--photos-blue);
+    outline-offset: 1px;
+}
+
+.site textarea.photos-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.photos-error {
+    margin: 8px 0 0 !important;
+    color: #c62828 !important;
+    font-size: 0.9rem;
+}
+
+.photos-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 18px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--photos-blue);
+    background: #fff;
+    border: 1px solid var(--photos-line);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.photos-button:hover {
+    background: #f0f4f8;
+}
+
+.photos-button-primary, .photos-button-primary:hover {
+    color: #fff;
+    background: var(--photos-blue);
+    border-color: var(--photos-blue);
+}
+
+.photos-button-primary:hover {
+    background: #0b3d70;
+}
+
+.photos-button[hidden] {
+    display: none;
+}
+
+.photos-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Titles: thin capitals with some air, as on the photographers' galleries */
+
+.photos-index-header h1, .photos-album-header h1, .photos-collection h2, .photos-album-title, .photos-crumbs {
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.photos-flash {
+    margin: 24px 0 0;
+    padding: 12px 16px;
+    border: 1px solid;
+    border-radius: 4px;
+}
+
+.photos-flash-success {
+    color: #a5d6a7;
+}
+
+.photos-flash-error {
+    color: #ff8a80;
+}
+
+/* Albums (/photos) */
+
+.photos-index-header {
+    padding: 56px 0 8px;
+}
+
+.photos-index-header h1 {
+    margin: 0 0 12px;
+    font-size: 2rem;
+}
+
+.photos-index-header p {
+    max-width: 640px;
+    margin: 0;
+    color: var(--photos-dark-muted);
+}
+
+.photos-index-header strong {
+    color: #e6e6e6;
+    font-weight: 500;
+}
+
+.photos-collection {
+    padding: 40px 0 8px;
+}
+
+.photos-collection h2 {
+    margin: 0 0 24px;
+    padding-bottom: 16px;
+    font-size: 1.1rem;
+    color: #bdbdbd;
+    border-bottom: 1px solid var(--photos-dark-line);
+}
+
+.photos-albums {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 40px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.photos-albums a {
+    display: block;
+    color: inherit;
+}
+
+.photos-album-cover {
+    display: block;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    background: #161616;
+}
+
+.photos-album-cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.photos-album-locked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #8a8a8a;
+    background: radial-gradient(circle at 50% 40%, #1f1f1f, #0d0d0d);
+    border: 1px solid #222;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.photos-album-locked .mdi {
+    font-size: 32px;
+}
+
+.photos-albums a:hover .photos-album-locked {
+    color: #e6e6e6;
+    border-color: #3a3a3a;
+}
+
+.photos-albums a:hover img {
+    transform: scale(1.02);
+    opacity: 0.9;
+}
+
+.photos-albums a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+}
+
+.photos-album-title {
+    display: block;
+    margin-top: 14px;
+    font-size: 1.05rem;
+}
+
+.photos-album-meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.85rem;
+    color: var(--photos-dark-muted);
+}
+
+/* One album */
+
+.photos-crumbs {
+    padding: 48px 0 0;
+    font-size: 1.15rem;
+    color: #d0d0d0;
+}
+
+.photos-crumbs a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+}
+
+.photos-crumbs a:hover {
+    color: #fff;
+}
+
+.photos-crumbs span[aria-hidden] {
+    margin: 0 10px;
+}
+
+.photos-album-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 48px 0 40px;
+}
+
+.photos-album-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    line-height: 1.2;
+}
+
+.photos-album-header p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--photos-dark-muted);
+}
+
+.photos-download-all {
+    flex: none;
+    display: inline-flex;
+    padding: 8px;
+    color: #d0d0d0;
+    border-radius: 4px;
+}
+
+.photos-download-all:hover, .photos-download-all:focus-visible {
+    color: #fff;
+    background: #161616;
+}
+
+.photos-tabs {
+    border-top: 1px solid #2b2b2b;
+    border-bottom: 1px solid #2b2b2b;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.photos-tabs .photos-page {
+    display: flex;
+    gap: 40px;
+    white-space: nowrap;
+}
+
+.photos-tabs a {
+    padding: 28px 0;
+    font-size: 1.15rem;
+    letter-spacing: 0.03em;
+    color: #d0d0d0;
+}
+
+.photos-tabs a:hover {
+    color: #fff;
+}
+
+.photos-tabs a[aria-current] {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    text-decoration-thickness: 1px;
+}
+
+/* Masonry: columns of photos, each shown whole */
+.photos-grid {
+    column-count: 4;
+    column-gap: 24px;
+    margin: 0;
+    padding: 56px 0 0;
+    list-style: none;
+}
+
+.photos-tile {
+    position: relative;
+    break-inside: avoid;
+    margin: 0 0 24px;
+    background: #161616;
+}
+
+.photos-tile a {
+    display: block;
+}
+
+/* Download button in the corner, over a shadow at the bottom of the photo. On hover or keyboard focus: phones,
+   without hover, download from the viewer */
+.photos-tile > a[data-large]::after {
+    content: '';
+    position: absolute;
+    inset: 40% 0 0 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.55));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.photos-tile .photos-tile-download {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 46px;
+    color: #fff;
+    background: #5fbf6a;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
+}
+
+.photos-tile .photos-tile-download:hover {
+    background: #4caf57;
+}
+
+.photos-tile-download:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+@media (hover: hover) {
+    .photos-tile:hover > a[data-large]::after, .photos-tile:hover .photos-tile-download {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.photos-tile:has(:focus-visible) > a[data-large]::after, .photos-tile:has(:focus-visible) .photos-tile-download {
+    opacity: 1;
+    transform: none;
+}
+
+.photos-tile img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: opacity 0.3s ease;
+}
+
+.photos-tile a:hover img {
+    opacity: 0.92;
+}
+
+.photos-tile a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.photos-album-note {
+    margin: 24px 0 0;
+    padding: 0 0 56px;
+    font-size: 0.85rem;
+    color: var(--photos-dark-muted);
+    text-align: center;
+}
+
+.photos-album-note strong {
+    color: #d0d0d0;
+    font-weight: 500;
+}
+
+.photos-empty {
+    padding: 80px 16px;
+    text-align: center;
+    color: var(--photos-dark-muted);
+}
+
+.photos-empty .mdi {
+    font-size: 48px;
+    color: #3a3a3a;
+}
+
+@media (max-width: 1100px) {
+    .photos-grid {
+        column-count: 3;
+        column-gap: 16px;
+    }
+
+    .photos-tile {
+        margin-bottom: 16px;
+    }
+}
+
+@media (max-width: 700px) {
+    .photos-page {
+        padding: 0 16px;
+    }
+
+    .photos-index-header {
+        padding-top: 32px;
+    }
+
+    .photos-crumbs {
+        padding-top: 28px;
+        font-size: 0.95rem;
+    }
+
+    .photos-album-header {
+        padding: 28px 0 24px;
+    }
+
+    .photos-album-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .photos-tabs .photos-page {
+        gap: 24px;
+    }
+
+    .photos-tabs a {
+        padding: 18px 0;
+        font-size: 1rem;
+    }
+
+    .photos-grid {
+        column-count: 2;
+        column-gap: 8px;
+        padding-top: 16px;
+    }
+
+    .photos-tile {
+        margin-bottom: 8px;
+    }
+
+    .photos-albums {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
+
+/* Photo viewer */
+
+.photos-viewer {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: #fff;
+    background: #000;
+    overflow: hidden;
+}
+
+.photos-viewer[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.photos-viewer::backdrop {
+    background: #000;
+}
+
+.photos-viewer-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 8px 8px 16px;
+}
+
+.photos-viewer-count {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #9aa5b1;
+}
+
+.photos-viewer-action, .photos-viewer-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: #fff;
+    background: transparent;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.photos-viewer-action .mdi, .photos-viewer-icon .mdi {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.photos-viewer-action:hover, .photos-viewer-icon:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.photos-viewer-action:focus-visible, .photos-viewer-icon:focus-visible {
+    outline: 2px solid #fff;
+}
+
+.photos-viewer-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px 16px;
+    touch-action: pan-y pinch-zoom;
+}
+
+.photos-viewer-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    user-select: none;
+    transition: opacity 0.15s ease;
+}
+
+.photos-viewer-image.is-loading {
+    opacity: 0.4;
+}
+
+.photos-viewer-prev, .photos-viewer-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+}
+
+.photos-viewer-prev .mdi, .photos-viewer-next .mdi {
+    font-size: 32px;
+}
+
+.photos-viewer-prev {
+    left: 12px;
+}
+
+.photos-viewer-next {
+    right: 12px;
+}
+
+.photos-viewer-prev:disabled, .photos-viewer-next:disabled {
+    visibility: hidden;
+}
+
+@media (max-width: 600px) {
+    /* Swipe instead, and only the icons in the bar */
+    .photos-viewer-prev, .photos-viewer-next {
+        display: none;
+    }
+
+    .photos-viewer-action span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .photos-viewer-stage {
+        padding: 0 0 8px;
+    }
+}
+
+/* Deletion request, over the photo */
+
+.photos-request {
+    position: absolute;
+    inset: auto 0 0 0;
+    max-width: 480px;
+    max-height: calc(100% - 60px);
+    margin: 0 auto;
+    padding: 24px;
+    overflow-y: auto;
+    color: var(--photos-text);
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 601px) {
+    .photos-request {
+        inset: 50% 0 auto 0;
+        transform: translateY(-50%);
+        border-radius: 16px;
+    }
+}
+
+.photos-request[hidden] {
+    display: none;
+}
+
+.photos-request h2 {
+    margin: 0 0 8px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.photos-request p {
+    margin: 0;
+    color: #52606d;
+    font-size: 0.95rem;
+}
+
+.photos-request-message:empty {
+    display: none;
+}
+
+.photos-request-message {
+    margin-top: 12px !important;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f0f4f8;
+}
+
+.photos-request-message.is-error {
+    color: #b71c1c !important;
+    background: #ffebee;
+}
+
+.photos-request-message.is-success {
+    color: #1b5e20 !important;
+    background: #e8f5e9;
+}
+
+.photos-request-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.photos-request label, .photos-request .photos-button {
+    color: inherit;
+}
+
+.photos-request .photos-button-primary {
+    color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .photos-tile img, .photos-album-cover img, .photos-viewer-image {
+        transition: none;
+    }
+}

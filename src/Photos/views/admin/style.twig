@@ -1,0 +1,44 @@
+<style>
+    .photos-admin h1 { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .photos-admin h1 .btn-flat { margin-left: auto; }
+    .photos-admin h2 { font-size: 1.6rem; margin: 0 0 16px; }
+    .photos-admin .card-panel { border-radius: 12px; }
+    .photos-admin .crumbs { margin: 24px 0 -16px; }
+    .photos-admin .crumbs a { color: #072d55; }
+    .photos-drop { position: relative; display: block; padding: 32px 16px; border: 2px dashed #9fb3c8; border-radius: 12px; text-align: center; color: #52606d; cursor: pointer; transition: background .2s, border-color .2s; }
+    .photos-drop:hover, .photos-drop.is-over { background: #f0f4f8; border-color: #072d55; }
+    .photos-drop .mdi { display: block; font-size: 48px; color: #072d55; }
+    .photos-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .photos-progress { margin: 16px 0 0; }
+    .photos-progress:empty { display: none; }
+    .photos-progress .progress { margin: 4px 0 12px; }
+    .photos-requests li { display: flex; gap: 16px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #e4e7eb; }
+    .photos-requests li:first-child { border-top: 0; }
+    .photos-requests img { width: 120px; height: 90px; object-fit: cover; border-radius: 6px; flex: none; }
+    .photos-requests .details { flex: 1; min-width: 0; }
+    .photos-requests .details p { margin: 4px 0; white-space: pre-line; }
+    .photos-requests .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .photos-requests form { display: inline; }
+    .photos-admin-albums { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .photos-admin-albums a { display: block; color: inherit; }
+    .photos-admin-albums .cover { display: block; aspect-ratio: 3 / 2; border-radius: 8px; overflow: hidden; background: #e4e7eb; }
+    .photos-admin-albums .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photos-admin-albums .title { display: block; margin-top: 6px; font-weight: 600; }
+    .photos-admin-albums .meta { display: block; font-size: .85rem; color: #757575; }
+    .photos-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .photos-admin-tile { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #e4e7eb; }
+    .photos-admin-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photos-admin-tile label { position: absolute; inset: 0; cursor: pointer; }
+    .photos-admin-tile [type="checkbox"].filled-in + span { position: absolute; top: 8px; left: 8px; }
+    .photos-admin-tile [type="checkbox"].filled-in:not(:checked) + span:after { background: rgba(255, 255, 255, .85); }
+    .photos-admin-tile:has(:checked) { outline: 4px solid #072d55; outline-offset: -4px; }
+    .photos-admin-tile:has(:checked) img { opacity: .75; }
+    .photos-admin-tile .badge-bottom { position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 2px 8px; border-radius: 10px; background: rgba(0, 0, 0, .65); color: #fff; font-size: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .photos-admin-tile .badge-bottom.requested { background: #c62828; }
+    .photos-admin-tile .cover { position: absolute; top: 6px; right: 6px; z-index: 1; padding: 2px 8px; border: 0; border-radius: 10px; background: rgba(0, 0, 0, .55); color: #fff; font-size: .85rem; line-height: 1.6; cursor: pointer; opacity: 0; transition: opacity .15s; }
+    .photos-admin-tile:hover .cover, .photos-admin-tile .cover:focus-visible { opacity: 1; }
+    .photos-admin-tile .cover:hover { background: #f0b429; color: #000; }
+    .photos-admin-tile .cover.is-cover { opacity: 1; background: #f0b429; color: #000; cursor: default; }
+    .photos-toolbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 0; margin-bottom: 8px; background: #fff; }
+    .photos-toolbar .count { margin-right: auto; color: #52606d; }
+</style>

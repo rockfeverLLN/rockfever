@@ -23,7 +23,7 @@ check() {
 }
 
 echo "Public pages"
-for path in / /contact /music /legal /login; do
+for path in / /contact /music /legal /login /photos; do
     check "$path"
 done
 # The seeded events are all in the past, and without an upcoming event this page sends you home
@@ -31,7 +31,7 @@ check /event 302
 
 echo "Admin pages"
 curl -s -o /dev/null -b "$COOKIES" -c "$COOKIES" --data 'role=administrator&password=admin' "$BASE/login"
-for path in /admin /admin/events /admin/about /admin/about/gallery /admin/musics /admin/roles /admin/values; do
+for path in /admin /admin/events /admin/about /admin/about/gallery /admin/musics /admin/roles /admin/values /admin/photos; do
     check "$path"
 done
 

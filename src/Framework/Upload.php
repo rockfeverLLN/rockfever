@@ -44,7 +44,7 @@ class Upload
     {
         if ($file->getError() === UPLOAD_ERR_OK) {
             $this->delete($oldFile);
-            $targetPath = $this->addCopySuffix($this->path . '/' . $file->getClientFilename());
+            $targetPath = $this->addCopySuffix($this->path . '/' . $this->getFilename($file));
             $dirname = pathinfo($targetPath, PATHINFO_DIRNAME);
             if (!file_exists($dirname)) {
                 mkdir($dirname, 0755, true);
@@ -58,6 +58,14 @@ class Upload
             return pathinfo($targetPath)['basename'];
         }
         return null;
+    }
+
+    /**
+     * Name the file is saved under, before a _copy suffix if that name is taken
+     */
+    protected function getFilename(UploadedFileInterface $file) : string
+    {
+        return $file->getClientFilename();
     }
 
     private function addCopySuffix(string $targetPath) : string

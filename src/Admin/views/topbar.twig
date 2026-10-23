@@ -1,14 +1,19 @@
 <nav class="koamaru" aria-label="Menu principal">
     <div class="nav-wrapper container">
-        <a href="{{ path('admin.dashboard') }}" class="brand-logo">Administration</a>
+        <a href="{{ path(isPhotographer() ? 'admin.photos.index' : 'admin.dashboard') }}" class="brand-logo">Administration</a>
         <a href="#" data-target="sidenav" class="sidenav-trigger">
             <i class="material-icons">menu</i>
         </a>
         <ul class="right hide-on-med-and-down">
-            <li class="{{ isSubPath('admin.dashboard') ? 'active' }}">
-                <a href="{{ path('admin.dashboard') }}"><i class="mdi mdi-view-dashboard"></i></a>
-            </li>
-            {{ renderMenu() }}
+            {#- The photographers' login only opens the photos (App\Photos\PhotographerMiddleware) #}
+            {% if isPhotographer() %}
+                {% include '@photos/admin/menu.twig' %}
+            {% else %}
+                <li class="{{ isSubPath('admin.dashboard') ? 'active' }}">
+                    <a href="{{ path('admin.dashboard') }}"><i class="mdi mdi-view-dashboard"></i></a>
+                </li>
+                {{ renderMenu() }}
+            {% endif %}
             <li>
                 <a onclick="$('#logout-form').submit()">
                     <i class="mdi mdi-logout"></i>
@@ -25,6 +30,7 @@
 {#- A div with the role, not a <nav>: Materialize styles every nav as the top bar #}
 <div role="navigation" aria-label="Menu mobile">
     <ul class="sidenav" id="sidenav">
+        {% if not isPhotographer() %}
         <li><a href="{{ path('admin.dashboard') }}">Tableau de bord</a></li>
         {% if isAdmin() %}
             <li class="{{ isSubPath('admin.about.index') ? 'active' }}">
@@ -42,6 +48,10 @@
         {% endif %}
         <li class="{{ isSubPath('admin.events.index') ? 'active' }}">
             <a href="{{ path('admin.events.index') }}">Événements</a>
+        </li>
+        {% endif %}
+        <li class="{{ isSubPath('admin.photos.index') ? 'active' }}">
+            <a href="{{ path('admin.photos.index') }}">Photos</a>
         </li>
         <li>
             <a onclick="$('#logout-form').submit()">

@@ -63,10 +63,13 @@ class EventCrudAction extends CrudAction
                     'place',
                     'price',
                     'facebook_link',
-                    'covevent_link'
+                    'covevent_link',
+                    'photos_password'
                 ]
             );
         }, ARRAY_FILTER_USE_KEY);
+        // Empty: the soirée's album is only for the team
+        $params['photos_password'] = trim($params['photos_password'] ?? '') ?: null;
 
         $explodedDate = explode('/', $params['date']);
         $params['date'] = join('-', array_reverse($explodedDate));
@@ -98,6 +101,9 @@ class EventCrudAction extends CrudAction
             ->time('waltz_time')
             ->time('rock_time')
             ->facebookEventUrl('facebook_link');
+        if (trim($request->getParsedBody()['photos_password'] ?? '') !== '') {
+            $validator->length('photos_password', 4, 100);
+        }
         return $validator;
     }
 
