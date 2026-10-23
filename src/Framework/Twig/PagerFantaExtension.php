@@ -3,7 +3,6 @@ namespace Framework\Twig;
 
 use Framework\Router;
 use Pagerfanta\Pagerfanta;
-use Pagerfanta\View\DefaultView;
 use Pagerfanta\View\TwitterBootstrap4View;
 
 class PagerFantaExtension extends \Twig\Extension\AbstractExtension

@@ -189,14 +189,6 @@ class Table
     /**
      * @return string
      */
-    public function getEntity(): string
-    {
-        return $this->entity;
-    }
-
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return $this->table;

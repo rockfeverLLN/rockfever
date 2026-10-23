@@ -112,22 +112,6 @@ class Validator
      * @param string $format
      * @return Validator
      */
-    public function dateTime(string $key, string $format = 'Y-m-d H:i:s') : self
-    {
-        $value = $this->getValue($key);
-        $date = \DateTime::createFromFormat($format, $value);
-        $errors = \DateTime::getLastErrors();
-        if ($errors['error_count'] > 0 || $errors['warning_count'] || $date == false) {
-            $this->addError($key, 'datetime', [$format]);
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $key
-     * @param string $format
-     * @return Validator
-     */
     public function date(string $key, string $format = 'jour/mois/année') : self
     {
         $value = (string) $this->getValue($key);

@@ -1,7 +1,6 @@
 <?php
 namespace Framework\Actions;
 
-use Framework\Database\Hydrator;
 use Framework\Database\Table;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
@@ -40,7 +39,7 @@ class FormAction
     use RouterAwareAction;
 
     /**
-     * BlogAction constructor.
+     * FormAction constructor.
      * @param RendererInterface $renderer
      * @param Router $router
      * @param $table

@@ -8,7 +8,6 @@
 namespace Framework\Router;
 
 use Framework\Router;
-use Psr\Http\Message\ServerRequestInterface;
 
 class RouterTwigExtension extends \Twig\Extension\AbstractExtension
 {

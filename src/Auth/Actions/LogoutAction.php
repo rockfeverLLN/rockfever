@@ -2,7 +2,6 @@
 namespace App\Auth\Actions;
 
 use App\Auth\DatabaseAuth;
-use Framework\Renderer\RendererInterface;
 use Framework\Responses\RedirectResponse;
 use Framework\Session\FlashService;
 use Psr\Http\Message\ServerRequestInterface;

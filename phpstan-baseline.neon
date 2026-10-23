@@ -43,12 +43,6 @@ parameters:
 			path: src/Auth/DatabaseAuth.php
 
 		-
-			message: '#^Access to an undefined property App\\Blog\\Actions\\PostIndexAction\:\:\$router\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Blog/Actions/PostIndexAction.php
-
-		-
 			message: '#^Method App\\Events\\Actions\\Ajax\\UpdateDancerStatusAction\:\:edit\(\) should return Psr\\Http\\Message\\ResponseInterface\|string but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
@@ -179,12 +173,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: src/Framework/Router.php
-
-		-
-			message: '#^PHPDoc tag @return with type mixed is not subtype of native type void\.$#'
-			identifier: return.phpDocType
-			count: 2
-			path: src/Framework/Session/ArraySession.php
 
 		-
 			message: '#^PHPDoc tag @return with type mixed is not subtype of native type void\.$#'

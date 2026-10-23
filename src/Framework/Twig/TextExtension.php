@@ -17,7 +17,6 @@ class TextExtension extends \Twig\Extension\AbstractExtension
     {
         return [
             new \Twig\TwigFilter('excerpt', [$this, 'excerpt']),
-            new \Twig\TwigFilter('removeSpecialChars', [$this, 'removeSpecialChars']),
             new \Twig\TwigFilter('toSearch', [$this, 'toSearch']),
             new \Twig\TwigFilter('statusToText', [$this, 'statusToText'], [
                 'is_safe' => ['html']
@@ -90,14 +89,6 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             $lastSpace = mb_strrpos($excerpt, ' ');
             return mb_substr($excerpt, 0, $lastSpace) . '...';
         }
-        return $content;
-    }
-
-    public function removeSpecialChars(?string $content) : string
-    {
-        $content = preg_replace('/\'/', '', $content);
-        $content = preg_replace('/\"/', '', $content);
-
         return $content;
     }
 

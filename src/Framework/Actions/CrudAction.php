@@ -41,7 +41,7 @@ class CrudAction
     use RouterAwareAction;
 
     /**
-     * BlogAction constructor.
+     * CrudAction constructor.
      * @param RendererInterface $renderer
      * @param Router $router
      * @param $table

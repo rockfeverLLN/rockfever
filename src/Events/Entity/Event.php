@@ -67,15 +67,6 @@ class Event
     }
 
     /**
-     * Not closed in the admin, and the opening day is reached. findNext() only gives events of today or later
-     */
-    public function isRegistrationOpen(?\DateTimeImmutable $now = null) : bool
-    {
-        $now = $now ?? new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE));
-        return empty($this->closed) && $now >= $this->getRegistrationOpening();
-    }
-
-    /**
      * Sign-ups that will open on their own later (the event is announced early)
      */
     public function isRegistrationUpcoming(?\DateTimeImmutable $now = null) : bool

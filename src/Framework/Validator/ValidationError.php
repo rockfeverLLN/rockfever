@@ -14,7 +14,6 @@ class ValidationError
         'minLength'  =>  'Ce champs doit contenir plus de %d caractères',
         'maxLength'  =>  'Ce champs doit contenir moins de %d caractères',
         'betweenLength'  =>  'Ce champs doit contenir entre %d et %d caractères',
-        'datetime'  =>  'Ce champs doit contenir une date valide (%s)',
         'date'  =>  'Ce champs doit contenir une date valide (%s)',
         'time'  =>  'Ce champs doit contenir une heure valide (%s)',
         'exists'  =>  'La valeur choisie n\'existe pas dans la base de données %s',
