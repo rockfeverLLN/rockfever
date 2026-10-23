@@ -16,6 +16,8 @@ class HomeAction
     protected $viewPath = '@main/home';
 
     protected $routePrefix = 'home';
+
+    private const DATES = '[dates]';
     /**
      * @var AboutTable
      */
@@ -49,7 +51,24 @@ class HomeAction
             $staffFound = mb_strtolower(trim($item->title)) === 'le staff';
         }
 
-        // The coming soirées, marked up as events in the page's head
+        // A "[dates]" paragraph in a section becomes the list of the coming soirées of src/Main/config.php,
+        // so the home page never shows past dates and never needs editing when a soirée is over
+        $dates = null;
+        foreach ($items as $item) {
+            if (str_contains($item->content, self::DATES)) {
+                $dates ??= $this->renderer->render('@main/soireesList', [
+                    'semesters' => $this->calendar->getSemesters(),
+                    'nextSemester' => $this->calendar->getNextSemester(),
+                ]);
+                $item->content = preg_replace_callback(
+                    '#<p>\s*' . preg_quote(self::DATES, '#') . '\s*</p>|' . preg_quote(self::DATES, '#') . '#',
+                    fn () => $dates,
+                    $item->content
+                );
+            }
+        }
+
+        // The coming soirées, marked up as events in the page's head and featured under the header
         return $this->renderer->render($this->viewPath, compact('items', 'members') + [
             'soirees' => $this->calendar->getSoirees(),
             'place' => $this->calendar->getPlace(),

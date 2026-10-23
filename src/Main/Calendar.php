@@ -61,6 +61,9 @@ class Calendar
                 'month' => self::MONTHS[$start->format('n') - 1],
                 'shortMonth' => self::SHORT_MONTHS[$start->format('n') - 1],
                 'year' => $start->format('Y'),
+                // "Mercredi 11 novembre", "Mercredi 1er octobre"
+                'label' => self::WEEKDAYS[$start->format('w')] . ' ' . ($start->format('j') === '1' ? '1er' : $start->format('j'))
+                    . ' ' . self::MONTHS[$start->format('n') - 1],
                 'past' => $past,
                 'next' => $next,
                 'googleUrl' => $this->getGoogleUrl($start, $end),

@@ -10,8 +10,8 @@
 {% endblock %}
 
 {% block body %}
-    {%- set hasNextEvent = nextEventExist() %}
-    <div class="parallax-container home-parallax-container{{ hasNextEvent ? '' : ' home-parallax-compact' }}">
+    {%- set nextSoiree %}{% include '@main/nextSoiree.twig' %}{% endset %}
+    <div class="parallax-container home-parallax-container{{ nextSoiree|trim ? '' : ' home-parallax-compact' }}">
         <div class="container">
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
@@ -21,26 +21,22 @@
             <img src="{{ __DIR__ }}/images/body/bg.webp" alt="People dancing rock" width="1412" height="796" fetchpriority="high">
         </div>
     </div>
-    {% if hasNextEvent %}
-    <a href="{{ path('event') }}" class="next-event-link koamaru">
-        Inscris-toi à notre prochain événement !
-    </a>
-    {% endif %}
+    {{ nextSoiree }}
 
     <div class="container home-content">
         {% include 'flash.twig' %}
         {% for item in items %}
             <section class="home-section rich-text">
-                <h2>{{ item.title }}</h2>
-                <div>{{ item.content | lazyImages | raw }}</div>
+                <h2>{{ item.title | e | typography }}</h2>
+                <div>{{ item.content | lazyImages | typography }}</div>
             </section>
         {% endfor %}
         {% if members %}
             <div class="staff-grid">
                 {% for member in members %}
                     <section class="staff-card rich-text">
-                        <h3>{{ member.title }}</h3>
-                        <div class="staff-card-content">{{ member.content | withoutEmptyParagraphs | lazyImages | raw }}</div>
+                        <h3>{{ member.title | e | typography }}</h3>
+                        <div class="staff-card-content">{{ member.content | withoutEmptyParagraphs | lazyImages | typography }}</div>
                     </section>
                 {% endfor %}
             </div>

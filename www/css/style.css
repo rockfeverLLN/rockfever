@@ -225,6 +225,44 @@ h6 {
     box-shadow: 0 22px 48px rgba(3, 41, 81, 0.45);
 }
 
+/* The coming soirées in the "Dates de nos soirées" section of the home page (soireesList.twig) */
+.home-soirees h3 {
+    margin: 20px 0 6px 0;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.home-soirees ul {
+    margin: 0 0 12px 0;
+}
+
+.home-soirees li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(3, 41, 81, 0.1);
+    font-size: 17px;
+}
+
+.home-soirees li:last-child {
+    border-bottom: 0;
+}
+
+.home-soirees time {
+    font-weight: 700;
+}
+
+.home-soiree-week {
+    color: #616161;
+    font-size: 15px;
+}
+
+.home-soiree-next time {
+    color: #00796b;
+}
+
 /* Hidden on screen, still read by screen readers */
 .sr-only {
     position: absolute;

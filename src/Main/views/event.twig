@@ -37,9 +37,9 @@
                 <h1 class="white-text home-title">Rock Fever</h1>
                 <div class="call-to-action">
                     {% if event.closed == 0 %}
-                        Inscris-toi pour notre prochain événement et bénéficie d'une réduction de 30% à l'entrée :
+                        Inscris-toi à la prochaine soirée et paie 3&nbsp;€ au lieu de 4&nbsp;€ à l’entrée&nbsp;:
                     {% else %}
-                        Les inscriptions au prochain événement sont maintenant fermées. <br>Tu es néanmoins toujours le bienvenu !
+                        Les inscriptions à la prochaine soirée sont fermées. <br>Tu peux toujours venir et payer sur place&#8239;!
                     {% endif %}
                 </div>
                 {% if event.closed == 0 %}
@@ -56,7 +56,7 @@
 
 
     <div class="container center white-text event-details">
-        <h2>&laquo; {{ event.title }} &raquo;</h2>
+        <h2>«&nbsp;{{ event.title | e | typography }}&nbsp;»</h2>
         <span class="spaced-item">
             <nobr>
                 <i class="mdi mdi-calendar" aria-hidden="true"></i> {{ event.date | dateToText }}
@@ -84,23 +84,23 @@
         </span>
         <br>
         <span class="event-reminder">
-            N'oublie pas ta carte d'étudiant ou d'identité
+            N’oublie pas ta carte d’étudiant ou d’identité.
         </span>
         <br>
-        <strong class="event-description-label">Description :</strong>
-        <p>{{ event.description | nl2br }}</p>
+        <strong class="event-description-label">Description&nbsp;:</strong>
+        <p>{{ event.description | e | typography | nl2br }}</p>
         <br>
     </div>
 
     <div class="event-links">
     {% if event.coveventLink %}
-        <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Evénement facebook</a>
+        <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
         <a href="{{ event.coveventLink }}" class="event-link red darken-3" target="_blank">Covevent</a>
     {% else %}
         {% if event.facebookLink %}
-            <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Evénement facebook</a>
+            <a href="{{ event.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
         {% else %}
-            <a href="https://www.facebook.com/rockfeverlln/" class="event-link blue darken-4" target="_blank">Notre page facebook</a>
+            <a href="https://www.facebook.com/rockfeverlln/" class="event-link blue darken-4" target="_blank">Notre page Facebook</a>
         {% endif %}
     {% endif %}
     </div>
@@ -110,7 +110,7 @@
             {% if event.coveventLink %}
                 <a href="{{ event.coveventLink }}" class="modal-action waves-effect btn red darken-4" target="_blank">Covevent</a>
             {% endif %}
-            <a href="{{ event.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Evénement Facebook</a>
+            <a href="{{ event.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Événement Facebook</a>
         </div>
     </div>
 {% endblock %}
