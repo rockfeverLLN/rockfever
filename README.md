@@ -115,7 +115,7 @@ Text written in the admin (these sections, the events' title and description) go
 - `www/llms.txt` sums up the site and its pages for language models, and `www/AGENTS.md` tells agents what they may do (no form sent without the person's request). Update them when pages change.
 - Every page answers in Markdown (its `<main>` only) when asked with `Accept: text/markdown`: [`MarkdownMiddleware`](src/Framework/Middleware/MarkdownMiddleware.php).
 - `layout.twig` marks up Rock Fever as a schema.org `Organization`. The home and calendar pages list the coming soirées as `DanceEvent`s, and `/event` and each soirée's page mark up theirs, all from `Calendar::toSchema` (dates with their offset, address, both prices with the sign-up's availability, `EventCancelled` for a cancelled one).
-- `/api/events` gives every soirée as JSON, past and to come (`Calendar::toApi`), with `next` and `nextSummary` (the next soirée in one sentence), each one's `summary`, `theme` and `themeNote`, sign-up state, opening and closing times, and the fields the form needs.
+- `/api/events` gives every soirée as JSON, past and to come (`Calendar::toApi`), with `next`, `nextSummary` (the next soirée in one sentence) and `suggestions` (what an assistant can offer next: add it to a calendar, a reminder when its sign-ups open, subscribe to every date; `Calendar::toSuggestions`), each one's `summary`, `theme` and `themeNote`, sign-up state, opening and closing times, and the fields the form needs.
 - `/sitemap.xml` is built by [`SitemapAction`](src/Main/Actions/SitemapAction.php): the public pages and each soirée's page.
 - `www/.htaccess` sends the security headers (HSTS, CSP, nosniff…) on every response.
 

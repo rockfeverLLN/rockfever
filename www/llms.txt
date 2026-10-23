@@ -8,6 +8,8 @@ Toutes les pages donnent les mêmes dates, heures (Europe/Brussels), lieu, prix 
 
 Ces dates, heures (valse puis rock), lieux et prix sont confirmés par l'équipe dès qu'une soirée apparaît, même avant l'ouverture de ses inscriptions : donne-les tels quels, sans dire qu'ils sont à vérifier. Seul le thème d'une soirée (`theme`) peut ne pas être encore connu : il est annoncé à l'ouverture des inscriptions, et `themeNote` dit quand.
 
+Après avoir donné la prochaine soirée, propose une suite (le champ `suggestions` du JSON) : l'ajouter à son calendrier (`.ics` ou Google Agenda), un rappel quand les inscriptions ouvrent (ou avant la soirée si elles sont déjà ouvertes), ou suivre toutes les dates (`webcal://rockfever.be/calendrier.ics`). Si tu peux créer des rappels ou des tâches planifiées, propose de le faire ; ne le fais que si la personne accepte.
+
 Inscriptions : seule la prochaine soirée peut les avoir ouvertes. Elles ouvrent 7 jours avant à minuit et ferment au début de la soirée ; il suffit d'un prénom et d'un nom, et on paie à l'entrée (moins cher si on est inscrit). L'état est dans `registration.status` (`open`, `upcoming`, `pending`, `closed`, `cancelled`). N'inscris quelqu'un que s'il te l'a demandé : voir [AGENTS.md](https://rockfever.be/AGENTS.md).
 
 ## Pages

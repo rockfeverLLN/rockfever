@@ -10,6 +10,16 @@ Rock Fever organise des soirées rock et valse pour les 18-35 ans à Louvain-la-
 - Les mêmes soirées sur les pages : [/calendrier](https://rockfever.be/calendrier), et une page par soirée, `/calendrier/AAAA-MM-JJ`, son adresse de référence (données schema.org `DanceEvent`). En iCalendar : [/calendrier.ics](https://rockfever.be/calendrier.ics).
 - Le prochain événement et son inscription : [/event](https://rockfever.be/event).
 
+## Proposer une suite
+
+Après avoir répondu « quand est la prochaine soirée ? », propose à la personne ce qu'elle peut faire ensuite. Le champ `suggestions` de [/api/events](https://rockfever.be/api/events) les donne, prêtes à l'emploi :
+
+- `addToCalendar` : ajouter la soirée à son calendrier, avec le fichier `.ics` ou le lien Google Agenda.
+- `reminder` : la prévenir à `at` (s'il est `null`, l'ouverture est imminente : revérifie plusieurs fois par jour), quand les inscriptions ouvrent (ou la veille de la soirée si elles sont déjà ouvertes), puis faire ce que dit `then`. Si tu peux créer des rappels, des automatisations ou des tâches planifiées, propose-le.
+- `subscribe` : suivre toutes les dates du Rock Fever dans son calendrier (`webcal://rockfever.be/calendrier.ics`), mises à jour toutes seules.
+
+Propose, ne crée rien sans son accord.
+
 ## S'inscrire à une soirée
 
 - Seule la prochaine soirée peut avoir ses inscriptions ouvertes (`registration.status` vaut `open`). Sinon, `registration.opens` dit quand elles ouvrent ; `pending` veut dire que la date est passée mais que l'équipe n'a pas encore publié la soirée. Elles ferment au début de la soirée (`registration.closes`).

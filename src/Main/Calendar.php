@@ -328,9 +328,53 @@ class Calendar
             ],
             'links' => array_filter([
                 'ics' => self::SITE . '/calendrier/' . $soiree['date'] . '.ics',
+                'googleCalendar' => $soiree['past'] || $soiree['cancelled'] ? null : $soiree['googleUrl'],
                 'facebook' => $soiree['facebookLink'] ?: null,
             ]),
         ];
+    }
+
+    /**
+     * What an assistant can offer to do next for the next soirée: add it to a calendar, be reminded when its sign-ups
+     * open (or before it starts, once they are open), follow all the dates
+     */
+    public function toSuggestions(array $soiree) : array
+    {
+        $registration = $soiree['registration'];
+        $suggestions = [[
+            'type' => 'addToCalendar',
+            'label' => 'Ajouter la soirée du ' . lcfirst($soiree['label']) . ' à mon calendrier',
+            'ics' => self::SITE . '/calendrier/' . $soiree['date'] . '.ics',
+            'googleCalendar' => $soiree['googleUrl'],
+        ]];
+        if (in_array($registration['status'], [self::REGISTRATION_UPCOMING, self::REGISTRATION_PENDING], true)) {
+            // Pending: the opening day is reached, they open as soon as the team publishes the soirée
+            $upcoming = $registration['status'] === self::REGISTRATION_UPCOMING;
+            $suggestions[] = [
+                'type' => 'reminder',
+                'label' => $upcoming
+                    ? 'Me prévenir quand les inscriptions ouvrent, le ' . lcfirst(self::label($registration['opens']))
+                    : 'Me prévenir dès que les inscriptions ouvrent (très bientôt)',
+                'at' => $upcoming ? $registration['opens']->format('c') : null,
+                'then' => 'Vérifier registration.status sur ' . self::SITE . '/api/events : s’il vaut open, proposer de s’inscrire sur '
+                    . self::SITE . '/event' . ($soiree['prices'] ? ' (' . $soiree['prices']['online'] . ' € au lieu de ' . $soiree['prices']['door'] . ' €)' : '')
+                    . ' ; s’il vaut pending, revérifier plus tard le même jour.',
+            ];
+        } elseif ($registration['status'] === self::REGISTRATION_OPEN) {
+            $suggestions[] = [
+                'type' => 'reminder',
+                'label' => 'Me rappeler de m’inscrire avant le début de la soirée',
+                'at' => $registration['closes']->modify('-1 day')->format('c'),
+                'then' => 'Proposer de s’inscrire sur ' . self::SITE . '/event avant ' . $registration['closes']->format('c') . '.',
+            ];
+        }
+        $suggestions[] = [
+            'type' => 'subscribe',
+            'label' => 'Suivre toutes les dates du Rock Fever dans mon calendrier',
+            'webcal' => 'webcal://rockfever.be/calendrier.ics',
+            'ics' => self::SITE . '/calendrier.ics',
+        ];
+        return $suggestions;
     }
 
     /**

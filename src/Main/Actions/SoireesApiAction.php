@@ -30,6 +30,8 @@ class SoireesApiAction
                 . 'même avant l\'ouverture des inscriptions. Seul le thème (theme) peut manquer : themeNote dit quand il est annoncé.',
             'next' => $next ? $next['date'] : null,
             'nextSummary' => $next ? $next['summary'] : null,
+            // Offer them after answering when the next soirée is: the assistant sets them up only if the person says yes
+            'suggestions' => $next ? $this->calendar->toSuggestions($next) : [],
             'registration' => [
                 'about' => 'Seule la prochaine soirée peut avoir ses inscriptions ouvertes. Elles ouvrent '
                     . Event::REGISTRATION_DAYS . ' jours avant à minuit (pas avant la fin de la soirée précédente) '
