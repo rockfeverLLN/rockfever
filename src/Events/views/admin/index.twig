@@ -37,7 +37,7 @@
                                     {% else %}
                                         <a href="{{ path(routePrefix ~ '.close', {id: event.id}) }}"
                                            class="orange-text tooltipped event-button" data-position="top"
-                                           data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)"
+                                           data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Cloturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
                                         >
                                             <i class="mdi mdi-lock-open"></i>
                                         </a>

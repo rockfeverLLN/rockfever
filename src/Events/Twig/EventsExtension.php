@@ -8,6 +8,8 @@
 namespace App\Events\Twig;
 
 use App\Events\Table\EventTable;
+use App\Main\Calendar;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class EventsExtension extends \Twig\Extension\AbstractExtension
@@ -27,6 +29,14 @@ class EventsExtension extends \Twig\Extension\AbstractExtension
         return [
             new TwigFunction('nextEventExist', [$this,'nextEventExist']),
             new TwigFunction('nextEvent', [$this,'nextEvent'])
+        ];
+    }
+
+    public function getFilters() : array
+    {
+        return [
+            // "mercredi 4 novembre"
+            new TwigFilter('dayLabel', fn (\DateTimeInterface $date) => mb_strtolower(Calendar::label($date)))
         ];
     }
 

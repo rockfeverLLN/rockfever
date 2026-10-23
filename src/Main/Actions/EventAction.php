@@ -58,6 +58,10 @@ class EventAction extends FormAction
     public function edit(ServerRequestInterface $request)
     {
         $item = $this->getNewEntity();
+        if (!$this->table->findNext()->isRegistrationOpen()) {
+            $this->flash->error("Les inscriptions ne sont pas ouvertes");
+            return $this->redirect('event');
+        }
         $validator = $this->getValidator($request);
         if ($validator->isValid()) {
             $params = $this->getParams($request, $item);

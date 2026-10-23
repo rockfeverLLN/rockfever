@@ -30,19 +30,24 @@
 
 {% block body %}
 
-    <div class="parallax-container form-parallax-container{{ event.closed == 1 ? ' form-parallax-closed' }}">
+    {#- Sign-ups open on their own Event::REGISTRATION_DAYS before the soirée, and can be closed in the admin #}
+    {%- set open = event.registrationOpen %}
+    <div class="parallax-container form-parallax-container{{ open ? '' : ' form-parallax-closed' }}">
         <div class="container">
             {% include 'flash.twig' %}
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
                 <div class="call-to-action">
-                    {% if event.closed == 0 %}
+                    {% if open %}
                         Inscris-toi à la prochaine soirée et paie 3&nbsp;€ au lieu de 4&nbsp;€ à l’entrée&nbsp;:
+                    {% elseif event.registrationUpcoming %}
+                        Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&#8239;!
+                        <br>Elles ouvriront le {{ event.registrationOpening|dayLabel }}.
                     {% else %}
                         Les inscriptions à la prochaine soirée sont fermées. <br>Tu peux toujours venir et payer sur place&#8239;!
                     {% endif %}
                 </div>
-                {% if event.closed == 0 %}
+                {% if open %}
                     {% include "@main/registerForm.twig" %}
                 {% endif %}
             </div>
