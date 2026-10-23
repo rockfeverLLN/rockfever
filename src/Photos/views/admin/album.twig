@@ -5,7 +5,6 @@
 {% block css %}{% include '@photos/admin/style.twig' %}{% endblock %}
 
 {% block body %}
-    {% set tokenInput = csrfInput() %}
     <div class="container photos-admin">
         <p class="crumbs"><a href="{{ path('admin.photos.index') }}">Photos</a> › {{ album.collection }}</p>
         <h1>
@@ -46,7 +45,6 @@
                 <div class="card-panel">
                     <h2>Ajouter des photos</h2>
                     <form action="{{ path('admin.photos.upload', {id: album.id}) }}" method="post" enctype="multipart/form-data" id="photos-upload">
-                        {{ tokenInput|raw }}
                         <div class="input-field">
                             <input type="text" id="photos-section" name="section" maxlength="100" list="photos-sections" placeholder="Aucun : seulement dans « Toutes les photos »">
                             <label for="photos-section" class="active">Onglet (facultatif, par ex. « Photobooth »)</label>
@@ -69,13 +67,11 @@
                 <div class="card-panel">
                     <h2>Album</h2>
                     <form action="{{ path('admin.photos.album', {id: album.id}) }}" method="post">
-                        {{ tokenInput|raw }}
                         {% include '@photos/admin/album-fields.twig' with {suffix: '-edit', event: null} %}
                         <button class="btn koamaru waves-effect waves-light">Enregistrer</button>
                     </form>
                     <form action="{{ path('admin.photos.album.delete', {id: album.id}) }}" method="post" style="margin-top: 16px"
                           onsubmit="return confirm('Supprimer l\'album et ses {{ photos|length }} photos ? C\'est définitif.')">
-                        {{ tokenInput|raw }}
                         <button class="btn-flat red-text waves-effect"><i class="mdi mdi-delete left"></i>Supprimer l'album</button>
                     </form>
                 </div>
@@ -87,11 +83,9 @@
             {% if photos|length %}
                 {#- The tiles' cover buttons submit this form (forms can't be nested in the delete form) #}
                 <form action="{{ path('admin.photos.album.cover', {id: album.id}) }}" method="post" id="photos-cover">
-                    {{ tokenInput|raw }}
                 </form>
                 {% set cover = album.coverPhotoId in photos|map(p => p.id) ? album.coverPhotoId : photos[0].id %}
                 <form action="{{ path('admin.photos.delete') }}" method="post" id="photos-delete">
-                    {{ tokenInput|raw }}
                     <input type="hidden" name="album" value="{{ album.id }}">
                     <div class="photos-toolbar">
                         <span class="count" id="photos-count">Coche des photos pour les supprimer</span>

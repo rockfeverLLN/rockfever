@@ -14,7 +14,6 @@
                         </div>
                         <h1 class="center" style="font-size: 2rem; margin-top: 0">{{ role.label }}</h1>
                         <form action="{{ path('admin.roles.index') }}" method="post">
-                            {{ csrfInput() }}
                             <input type="hidden" name="id" value="{{ role.id }}">
                             {{ field('label', role.label, 'Label', {idSuffix:role.id}) }}
                             {{ field('password', null, 'Nouveau mot de passe', {type:'password', idSuffix:role.id}) }}

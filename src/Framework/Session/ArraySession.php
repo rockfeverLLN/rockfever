@@ -43,4 +43,8 @@ class ArraySession implements SessionInterface
     {
         unset($this->session[$key]);
     }
+
+    public function regenerate(): void
+    {
+    }
 }

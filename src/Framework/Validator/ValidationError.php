@@ -21,7 +21,8 @@ class ValidationError
         'unique'  =>  'La valeur de ce champs doit être unique',
         'filetype'  =>  'Le fichier choisi n\'est pas au bon format (Allowed extensions : %s)',
         'uploaded'  =>  'Vous devez choisir un fichier',
-        'facebookEventUrl' =>  'Ce lien ne pointe pas vers un événement facebook (https://www.facebook.com/events/[ID])'
+        'email'  =>  'Ce champ doit contenir une adresse email valide',
+        'facebookEventUrl' =>'Ce lien ne pointe pas vers un événement facebook (https://www.facebook.com/events/[ID])'
     ];
     /**
      * @var array

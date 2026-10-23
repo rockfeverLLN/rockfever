@@ -10,8 +10,27 @@ class PHPSession implements SessionInterface, \ArrayAccess
     private function ensureStarted()
     {
         if (session_status() == PHP_SESSION_NONE) {
-            session_start();
+            session_start([
+                // Not readable by scripts, not sent over http, and not sent with forms posted from other sites
+                'cookie_httponly' => true,
+                'cookie_secure' => $this->isHttps(),
+                'cookie_samesite' => 'Lax',
+                // Ignores session ids the server didn't hand out
+                'use_strict_mode' => true
+            ]);
         }
+    }
+
+    private function isHttps() : bool
+    {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https';
+    }
+
+    public function regenerate(): void
+    {
+        $this->ensureStarted();
+        session_regenerate_id(true);
     }
 
     /**

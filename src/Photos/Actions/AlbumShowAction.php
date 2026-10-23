@@ -10,7 +10,7 @@ use Framework\Database\NoRecordException;
 use Framework\Renderer\RendererInterface;
 use Framework\Responses\RedirectResponse;
 use Framework\Router;
-use Framework\Session\SessionInterface;
+use Framework\Throttle;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -53,9 +53,9 @@ class AlbumShowAction
     private $access;
 
     /**
-     * @var SessionInterface
+     * @var Throttle
      */
-    private $session;
+    private $throttle;
 
     public function __construct(
         RendererInterface $renderer,
@@ -63,14 +63,14 @@ class AlbumShowAction
         AlbumTable $albumTable,
         PhotoTable $photoTable,
         PhotoAccess $access,
-        SessionInterface $session
+        Throttle $throttle
     ) {
         $this->renderer = $renderer;
         $this->router = $router;
         $this->albumTable = $albumTable;
         $this->photoTable = $photoTable;
         $this->access = $access;
-        $this->session = $session;
+        $this->throttle = $throttle;
     }
 
     public function __invoke(Request $request) : ResponseInterface
@@ -105,21 +105,16 @@ class AlbumShowAction
 
     private function unlock(Request $request, Album $album) : ResponseInterface
     {
-        $attempts = array_filter(
-            $this->session->get('photos.attempts', []),
-            fn ($time) => $time > time() - self::ATTEMPTS_DELAY
-        );
-        if (count($attempts) >= self::ATTEMPTS) {
+        if ($this->throttle->isBlocked($request, 'photos', self::ATTEMPTS, self::ATTEMPTS_DELAY)) {
             return $this->passwordForm($album, 'Trop d\'essais. Réessaie dans quelques minutes.');
         }
         $password = $request->getParsedBody()['password'] ?? '';
         if (is_string($password) && $this->access->checkPassword($album, $password)) {
-            $this->session->delete('photos.attempts');
+            $this->throttle->clear($request, 'photos');
             $url = $this->router->generateUri('photos.album', ['slug' => $album->slug]);
             return $this->access->grant(new RedirectResponse($url), $request, $album);
         }
-        $attempts[] = time();
-        $this->session->set('photos.attempts', $attempts);
+        $this->throttle->fail($request, 'photos', self::ATTEMPTS_DELAY);
         // Slows down bots trying passwords
         sleep(1);
         return $this->passwordForm($album, 'Ce n\'est pas le bon mot de passe.');

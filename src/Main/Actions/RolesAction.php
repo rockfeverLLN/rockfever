@@ -90,7 +90,7 @@ class RolesAction extends FormAction
         $validator = parent::getValidator($request)
             ->required('label', 'password')
             ->length('label', 2)
-            ->length('password', 2);
+            ->length('password', 10);
         return $validator;
     }
 

@@ -5,7 +5,6 @@
 {% block css %}{% include '@photos/admin/style.twig' %}{% endblock %}
 
 {% block body %}
-    {% set tokenInput = csrfInput() %}
     <div class="container photos-admin">
         <h1>
             Photos
@@ -31,12 +30,10 @@
                                 {% if request.reason %}<p>{{ request.reason }}</p>{% endif %}
                                 <div class="actions">
                                     <form action="{{ path('admin.photos.delete') }}" method="post" onsubmit="return confirm('Supprimer définitivement cette photo ?')">
-                                        {{ tokenInput|raw }}
                                         <input type="hidden" name="ids[]" value="{{ request.photoId }}">
                                         <button class="btn red waves-effect waves-light"><i class="mdi mdi-delete left"></i>Supprimer la photo</button>
                                     </form>
                                     <form action="{{ path('admin.photos.request.dismiss', {id: request.id}) }}" method="post" onsubmit="return confirm('Garder la photo et ignorer cette demande ?')">
-                                        {{ tokenInput|raw }}
                                         <button class="btn-flat waves-effect">Ignorer la demande</button>
                                     </form>
                                 </div>
@@ -53,7 +50,6 @@
                     <h2>Nouvel album</h2>
                     <p class="grey-text">Un album par soirée, rangé dans la collection du quadrimestre. Tu y ajouteras les photos ensuite.</p>
                     <form action="{{ path('admin.photos.album.create') }}" method="post">
-                        {{ tokenInput|raw }}
                         {% include '@photos/admin/album-fields.twig' with {album: null, suffix: ''} %}
                         <button class="btn koamaru waves-effect waves-light"><i class="mdi mdi-plus left"></i>Créer l'album</button>
                     </form>

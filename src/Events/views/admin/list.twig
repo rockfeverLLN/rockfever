@@ -68,8 +68,7 @@
                 "{{ path('admin.ajax.dancer.update-status') }}",
                 {
                     id: id,
-                    status: status,
-                    nocsrf: "0487415359"
+                    status: status
                 },
                 function (data) {
                     console.log(data);
@@ -159,8 +158,7 @@
                         firstname: firstname,
                         lastname: lastname,
                         status: status,
-                        event_id: {{ id }},
-                        nocsrf: "0487415359"
+                        event_id: {{ id }}
                     },
                     function (data) {
                         if (data === "OK") {
