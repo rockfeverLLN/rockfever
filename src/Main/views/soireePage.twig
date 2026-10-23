@@ -42,7 +42,10 @@
             <li><strong>Heures&nbsp;:</strong>
                 <time datetime="{{ soiree.start|date('c', false) }}">{{ soiree.start|date(hour, false)|replace({':': 'h'}) }}</time>
                 à <time datetime="{{ soiree.end|date('c', false) }}">{{ soiree.end|date(hour, false)|replace({':': 'h'}) }}</time>, heure de Bruxelles
-                {%- if soiree.waltzTime and soiree.rockTime %} (valse à {{ soiree.waltzTime|replace({':': 'h'}) }}, rock à {{ soiree.rockTime|replace({':': 'h'}) }}){% endif %}
+                {%- if soiree.waltzTime and soiree.rockTime %} (valse à {{ soiree.waltzTime|replace({':': 'h'}) }}, rock dès {{ soiree.rockTime|replace({':': 'h'}) }}){% endif %}
+            </li>
+            <li><strong>Thème&nbsp;:</strong>
+                {% if soiree.title %}{{ soiree.title|e|typography }}{% else %}{{ soiree.themeNote|default('—') }}{% endif %}
             </li>
             <li><strong>Lieu&nbsp;:</strong> {{ soiree.place }}{% if soiree.address %}, {{ soiree.address }}{% endif %}</li>
             <li><strong>Prix&nbsp;:</strong>

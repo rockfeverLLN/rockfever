@@ -52,6 +52,7 @@ class Calendar
     public function __construct(
         array $soirees,
         private string $start,
+        private string $rock,
         private string $end,
         private string $place,
         private string $address,
@@ -294,6 +295,9 @@ class Calendar
             'id' => $soiree['date'],
             'url' => $soiree['url'],
             'name' => $soiree['name'],
+            'summary' => $soiree['summary'],
+            'theme' => $soiree['title'],
+            'themeNote' => $soiree['themeNote'],
             'description' => self::description($soiree, false),
             'startDate' => $soiree['start']->format('c'),
             'endDate' => $soiree['end']->format('c'),
@@ -339,9 +343,13 @@ class Calendar
         \DateTimeImmutable $now,
         ?\DateTimeImmutable $previousEnd
     ) : array {
+        // The times of the admin's event, or the usual ones, so that every soirée says when the waltz and the rock start
         $waltzTime = $event?->waltzTime ?: null;
         $rockTime = $event?->rockTime ?: null;
-        [$start, $end] = $this->getTimes($day, $waltzTime ?? $rockTime ?? $this->start);
+        if ($waltzTime === null && $rockTime === null) {
+            [$waltzTime, $rockTime] = [$this->start, $this->rock];
+        }
+        [$start, $end] = $this->getTimes($day, $waltzTime ?? $rockTime);
         $cancelled = !empty($listed['cancelled']);
         $past = $end <= $now;
 
@@ -403,6 +411,17 @@ class Calendar
             'year' => $start->format('Y'),
             'label' => self::label($start),
         ];
+        // Its theme (the admin's title) comes with its event, which the team publishes when sign-ups open
+        if ($soiree['title'] || $past || $cancelled) {
+            $soiree['themeNote'] = null;
+        } elseif ($event) {
+            $soiree['themeNote'] = 'Pas de thème particulier pour cette soirée.';
+        } elseif ($now < $opens) {
+            $soiree['themeNote'] = 'Thème annoncé à l’ouverture des inscriptions, le ' . lcfirst(self::label($opens)) . ' ' . $opens->format('Y') . '.';
+        } else {
+            $soiree['themeNote'] = 'Thème annoncé très bientôt, avec l’ouverture des inscriptions.';
+        }
+        $soiree['summary'] = self::summary($soiree);
         $soiree['googleUrl'] = $this->getGoogleUrl($soiree);
         return $soiree;
     }
@@ -427,11 +446,14 @@ class Calendar
     }
 
     /**
-     * The admin's description, or what every soirée is, followed by its prices and page with $details
+     * The admin's description, followed by its prices and page with $details; or the soirée's summary
      */
     private static function description(array $soiree, bool $details = true) : string
     {
-        $text = $soiree['description'] ?? "Soirée rock et valse du Rock Fever, ouverte aux 18-35 ans (carte d'identité obligatoire).";
+        if ($soiree['description'] === null) {
+            return $soiree['summary'] . ($details ? "\n" . $soiree['url'] : '');
+        }
+        $text = $soiree['description'];
         if (!$details) {
             return $text;
         }
@@ -440,6 +462,39 @@ class Calendar
                 . $soiree['prices']['door'] . ' € sur place.';
         }
         return $text . "\n" . $soiree['url'];
+    }
+
+    /**
+     * Everything about the soirée in a few sentences, for those who only read one: "Soirée Rock Fever le mercredi
+     * 11 novembre 2026 au Hall Sainte-Barbe (…) : valse à 20h30, rock dès 21h, jusqu'à 1h. 3 € …"
+     */
+    private static function summary(array $soiree) : string
+    {
+        $times = array_filter([
+            $soiree['waltzTime'] ? 'valse à ' . self::hour($soiree['waltzTime']) : null,
+            $soiree['rockTime'] ? 'rock dès ' . self::hour($soiree['rockTime']) : null,
+        ]);
+        $text = ($soiree['title'] ? '« ' . $soiree['title'] . ' », soirée rock et valse du Rock Fever' : 'Soirée rock et valse du Rock Fever')
+            . ($soiree['cancelled'] ? ', annulée,' : '')
+            . ' le ' . lcfirst($soiree['label']) . ' ' . $soiree['year'] . ' au ' . self::location($soiree)
+            . ' : ' . implode(', ', $times) . ', jusqu’à ' . self::hour($soiree['end']->format('H:i')) . ' (heure de Bruxelles).';
+        if ($soiree['prices']) {
+            $text .= ' ' . $soiree['prices']['online'] . ' € en s’inscrivant sur rockfever.be, '
+                . $soiree['prices']['door'] . ' € sans inscription, payé à l’entrée.';
+        } elseif ($soiree['priceText']) {
+            $text .= ' Prix : ' . $soiree['priceText'] . '.';
+        }
+        $text .= ' Pour les 18-35 ans, carte d’identité ou d’étudiant obligatoire.';
+        return $soiree['themeNote'] ? $text . ' ' . $soiree['themeNote'] : $text;
+    }
+
+    /**
+     * "20:30" as "20h30", "21:00" as "21h", "01:00" as "1h"
+     */
+    private static function hour(string $time) : string
+    {
+        [$hours, $minutes] = explode(':', $time);
+        return (int) $hours . 'h' . ($minutes === '00' ? '' : $minutes);
     }
 
     /**

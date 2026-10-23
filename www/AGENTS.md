@@ -5,7 +5,8 @@ Rock Fever organise des soirées rock et valse pour les 18-35 ans à Louvain-la-
 ## Lire
 
 - Toutes les pages publiques sont en Markdown avec `Accept: text/markdown`.
-- Les soirées en JSON, la source la plus sûre : [/api/events](https://rockfever.be/api/events). `next` donne la prochaine ; chaque soirée a son `id` (sa date), ses heures avec le fuseau (`Europe/Brussels`), son lieu, ses prix, son `status` (`scheduled` ou `cancelled`) et ses inscriptions (`registration`).
+- Les soirées en JSON, la source la plus sûre : [/api/events](https://rockfever.be/api/events). `next` donne la prochaine et `nextSummary` la résume en une phrase ; chaque soirée a son `id` (sa date), son `summary`, ses heures avec le fuseau (`Europe/Brussels`, `waltzTime` puis `rockTime`), son lieu, ses prix, son `status` (`scheduled` ou `cancelled`) et ses inscriptions (`registration`).
+- Ces dates, heures, lieux et prix sont confirmés dès qu'une soirée est dans le JSON, même si ses inscriptions ne sont pas encore ouvertes : ne les présente pas comme « habituels » ou « à vérifier ». Le thème (`theme`) est annoncé à l'ouverture des inscriptions ; tant qu'il est `null`, `themeNote` dit quand il le sera.
 - Les mêmes soirées sur les pages : [/calendrier](https://rockfever.be/calendrier), et une page par soirée, `/calendrier/AAAA-MM-JJ`, son adresse de référence (données schema.org `DanceEvent`). En iCalendar : [/calendrier.ics](https://rockfever.be/calendrier.ics).
 - Le prochain événement et son inscription : [/event](https://rockfever.be/event).
 

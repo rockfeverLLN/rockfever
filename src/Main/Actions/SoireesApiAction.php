@@ -26,7 +26,10 @@ class SoireesApiAction
             ],
             'generatedAt' => (new \DateTimeImmutable('now', new \DateTimeZone(Calendar::TIMEZONE)))->format('c'),
             'timezone' => Calendar::TIMEZONE,
+            'about' => 'Les dates, heures, lieux et prix de ces soirées viennent de l\'équipe du Rock Fever : ils sont confirmés, '
+                . 'même avant l\'ouverture des inscriptions. Seul le thème (theme) peut manquer : themeNote dit quand il est annoncé.',
             'next' => $next ? $next['date'] : null,
+            'nextSummary' => $next ? $next['summary'] : null,
             'registration' => [
                 'about' => 'Seule la prochaine soirée peut avoir ses inscriptions ouvertes. Elles ouvrent '
                     . Event::REGISTRATION_DAYS . ' jours avant à minuit (pas avant la fin de la soirée précédente) '
