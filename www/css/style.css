@@ -240,6 +240,66 @@ h6 {
     opacity: .85;
 }
 
+/* Its first link covers the whole card, under the calendar buttons */
+.next-event-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: inherit;
+}
+
+.next-event-main::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
+
+.next-event-actions {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.next-event-calendar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background-color: #ffffff;
+    color: #072d55;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.2;
+    transition: background-color .15s, color .15s;
+}
+
+.next-event-calendar .mdi {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.next-event-calendar:hover {
+    background-color: #e0f2f1;
+    border-color: #e0f2f1;
+}
+
+.next-event-google {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+.next-event-google:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: #ffffff;
+}
+
 .soiree-registration {
     margin: -6px 0 12px 0;
     color: #00796b;

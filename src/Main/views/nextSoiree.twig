@@ -14,13 +14,24 @@
 {%- elseif status == 'closed' %}
     <a href="{{ path('event') }}" class="next-event-link koamaru">Prochaine soirée&nbsp;: {{ when }}</a>
 {%- else %}
-    <a href="{{ path('event') }}" class="next-event-link next-event-soon koamaru">
+    {#- The whole card still opens /event through its first link, and its "add to my calendar" buttons sit over it #}
+    <div class="next-event-link next-event-soon koamaru">
         <span class="next-event-text">
-            <span class="next-event-note">Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&nbsp;:</span>
-            <span>{{ when|capitalize }} à&nbsp;{{ time|replace({':': 'h'}) }}</span>
+            <a href="{{ path('event') }}" class="next-event-main">
+                <span class="next-event-note">Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&nbsp;:</span>
+                <span>{{ when|capitalize }} à&nbsp;{{ time|replace({':': 'h'}) }}</span>
+            </a>
             <span class="next-event-note">
                 {%- if status == 'upcoming' %}Ouverture des inscriptions le {{ opens|dayLabel }}{% else %}Ouverture des inscriptions très bientôt{% endif -%}
             </span>
+            <span class="next-event-actions">
+                <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="next-event-calendar">
+                    <i class="mdi mdi-calendar-plus" aria-hidden="true"></i>Ajouter à mon calendrier
+                </a>
+                <a href="{{ soiree.googleUrl }}" class="next-event-calendar next-event-google" target="_blank" rel="noopener">
+                    <i class="mdi mdi-google" aria-hidden="true"></i>Google<span class="sr-only"> Agenda</span>
+                </a>
+            </span>
         </span>
-    </a>
+    </div>
 {%- endif %}
