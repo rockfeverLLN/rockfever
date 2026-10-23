@@ -241,6 +241,7 @@ class Calendar
     public function toSchema(array $soiree) : array
     {
         $registration = $soiree['registration'];
+        $rockFever = ['@type' => 'Organization', '@id' => self::SITE . '/#organization', 'name' => 'Rock Fever', 'url' => self::SITE . '/'];
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'DanceEvent',
@@ -258,7 +259,9 @@ class Calendar
             'inLanguage' => 'fr',
             'typicalAgeRange' => '18-35',
             'isAccessibleForFree' => false,
-            'organizer' => ['@type' => 'Organization', '@id' => self::SITE . '/#organization', 'name' => 'Rock Fever', 'url' => self::SITE . '/'],
+            'organizer' => $rockFever,
+            // No band or DJ: the team plays the music, from the songs proposed on /music
+            'performer' => $rockFever,
         ];
         if ($soiree['prices'] && !$soiree['past']) {
             $schema['offers'] = [
@@ -279,6 +282,9 @@ class Calendar
                     'priceCurrency' => 'EUR',
                     'url' => $soiree['url'],
                     'availability' => 'https://schema.org/' . ($soiree['cancelled'] ? 'OutOfStock' : 'InStock'),
+                    // Paid at the door: from the start of the soirée to its end
+                    'validFrom' => $soiree['start']->format('c'),
+                    'validThrough' => $soiree['end']->format('c'),
                 ],
             ];
         }

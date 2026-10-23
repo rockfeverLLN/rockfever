@@ -4,7 +4,7 @@
 
 {% block head %}
     {% include '@photos/head.twig' %}
-    <script src="{{ asset('/js/photos.js') }}" defer></script>
+    <script src="{{ asset('/js/photos.js') }}" defer nonce="{{ csp_nonce }}"></script>
 {% endblock %}
 
 {% block bodyColor %}photos-dark{% endblock %}

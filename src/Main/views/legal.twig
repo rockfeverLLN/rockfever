@@ -3,9 +3,11 @@
 {% block canonical_path %}/legal{% endblock %}
 {% block body %}
     <div class="container" style="text-align: justify">
-        {{ roi | raw }}
-        {{ terms | raw }}
-        <!--<h2>Règlement d’ordre intérieur</h2>
+        {#- The editor's Heading 6 comes right after the h2s: an h3 keeps the heading levels in order #}
+        {{ roi | replace({'<h6>': '<h3 class="legal-subheading">', '</h6>': '</h3>'}) | raw }}
+        {{ terms | replace({'<h6>': '<h3 class="legal-subheading">', '</h6>': '</h3>'}) | raw }}
+        {#- The texts before they were editable in the admin. A Twig comment: not sent to visitors
+        <h2>Règlement d’ordre intérieur</h2>
         1. Rock Fever décline toute responsabilité en cas d&#39;accident pendant les activités.
         Dès lors, il est entre autre du ressort des danseurs d&#39;adapter leurs passes à leur
         niveau.
@@ -171,7 +173,7 @@
 
         <h6>16. Statutory and regulatory disclosures</h6>
         You can contact us by email, as published in our contact tab.
-        -->
+        #}
     </div>
     <br>
 {% endblock %}

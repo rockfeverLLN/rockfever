@@ -76,6 +76,14 @@ options.name_IDs = ['*']
 s = subset.Subsetter(options)
 s.populate(unicodes=[int(code, 16) for code in icons.values()])
 s.subset(font)
+# MDI 2.x gives every glyph a left side bearing of 0 although its outline starts further right. Browsers line the
+# outline's left edge up with that bearing, which draws every icon 1/8 of its size to the left of center
+glyf, hmtx = font['glyf'], font['hmtx']
+for name in font.getGlyphOrder():
+    glyph = glyf[name]
+    if glyph.numberOfContours:
+        glyph.recalcBounds(glyf)
+        hmtx[name] = (hmtx[name][0], glyph.xMin)
 font.flavor = 'woff2'
 font.save(font_dst)
 

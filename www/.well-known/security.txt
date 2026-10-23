@@ -1,0 +1,6 @@
+# How to tell Rock Fever about a security problem on this site (RFC 9116, https://securitytxt.org).
+# Expires must stay within a year: move it forward every autumn.
+Contact: https://rockfever.be/contact
+Expires: 2027-10-23T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://rockfever.be/.well-known/security.txt
