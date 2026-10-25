@@ -13,6 +13,10 @@
 {% block canonical_path %}{{ path('calendar.soiree', {date: soiree.date}) }}{% endblock %}
 
 {% block head %}
+    {#- A past soirée stays reachable from /calendrier, but out of search results #}
+    {%- if soiree.past %}
+    <meta name="robots" content="noindex, follow"/>
+    {%- endif %}
     <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
     {{ soireesJsonLd([soiree]) }}
 {% endblock %}

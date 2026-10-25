@@ -5,11 +5,12 @@ use App\Main\Calendar;
 use GuzzleHttp\Psr7\Response;
 
 /**
- * /sitemap.xml: the public pages and the page of each soirée of /calendrier, so it never needs editing
+ * /sitemap.xml: the public pages and the page of each soirée of /calendrier still to come, so it never needs editing.
+ * /music and the past soirées are left out: their pages are noindex
  */
 class SitemapAction
 {
-    private const PAGES = ['/', '/event', '/calendrier', '/music', '/contact', '/legal'];
+    private const PAGES = ['/', '/event', '/calendrier', '/contact', '/legal'];
 
     public function __construct(private Calendar $calendar)
     {
@@ -30,6 +31,9 @@ class SitemapAction
             $xml->endElement();
         }
         foreach ($this->calendar->getSoirees() as $soiree) {
+            if ($soiree['past']) {
+                continue;
+            }
             $xml->startElement('url');
             $xml->writeElement('loc', $soiree['url']);
             $xml->endElement();
