@@ -11,6 +11,7 @@ use App\Events\Actions\EventCrudAction;
 use App\Events\Actions\EventListAction;
 use App\Events\Actions\EventListPrintAction;
 use App\Events\Actions\EventOpenAction;
+use App\Events\Actions\FacebookPostAction;
 use App\Events\Actions\EventStatisticsAction;
 use Framework\Module;
 use Framework\Renderer\RendererInterface;
@@ -86,6 +87,12 @@ class EventsModule extends Module
                 $adminPrefix . '/ajax/dancers/get-stats/{id:[0-9]+}',
                 LoadDancersStatsAction::class,
                 'admin.ajax.dancers.get-stats'
+            );
+
+            $router->get(
+                $adminPrefix . '/ajax/facebook-post',
+                FacebookPostAction::class,
+                'admin.ajax.facebook-post'
             );
 
             $router->post(
