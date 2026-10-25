@@ -6,4 +6,6 @@ return [
     'database.username'     =>   'rockfever',
     'database.password'     =>   '',
     'database.name'         =>   'rockfever',
+    // Optional: the Rock Fever Page's token, for the event form's "post Facebook" field (README, Facebook posts)
+    'facebook.page_token'   =>   '',
 ];

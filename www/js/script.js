@@ -321,6 +321,49 @@
         new Masonry(grid, {itemSelector: '.col'});
     }
 
+    // Event form: pasting the link of the Facebook post that announces the soirée puts its text in the description
+    // (src/Events/FacebookPosts.php)
+    var facebookPost = document.getElementById('facebook_post');
+    var facebookStatus = document.getElementById('facebook_post-status');
+    var description = document.getElementById('description');
+    if (facebookPost && facebookStatus && description) {
+        var lastLink = '';
+        var fillFromFacebook = function () {
+            var link = facebookPost.value.trim();
+            if (link === '' || link === lastLink) {
+                return;
+            }
+            lastLink = link;
+            facebookStatus.textContent = 'Lecture du post sur Facebook…';
+            fetch(facebookStatus.dataset.url + '?url=' + encodeURIComponent(link), {credentials: 'same-origin'})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    if (link !== facebookPost.value.trim()) {
+                        return;
+                    }
+                    if (data.message) {
+                        description.value = data.message;
+                        description.dispatchEvent(new Event('input', {bubbles: true}));
+                        description.dispatchEvent(new Event('change', {bubbles: true}));
+                        facebookStatus.textContent = 'Description remplie avec le texte du post : relis-la avant d\'enregistrer.';
+                    } else {
+                        facebookStatus.textContent = data.error || 'Le post n\'a pas pu être lu.';
+                    }
+                })
+                .catch(function () {
+                    lastLink = '';
+                    facebookStatus.textContent = 'Le post n\'a pas pu être lu : réessaie.';
+                });
+        };
+        // On paste, and when a typed link is left: not at every key
+        facebookPost.addEventListener('paste', function () {
+            setTimeout(fillFromFacebook);
+        });
+        facebookPost.addEventListener('change', fillFromFacebook);
+    }
+
     if (typeof tinymce !== 'undefined') tinymce.init({
         selector: '.tinymce',
         // The open source edition of TinyMCE, loaded from jsDelivr: no Tiny Cloud account or API key
