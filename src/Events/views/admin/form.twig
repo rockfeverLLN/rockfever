@@ -40,5 +40,12 @@
     </div>
 </div>
 <div class="col s12">
+    {#- Not saved: pasting the link fills the description below with the post's text (www/js/script.js) #}
+    {{ field('facebook_post', '', 'Lien vers le post Facebook qui annonce la soirée') }}
+    <span class="helper-text" id="facebook_post-status" data-url="{{ path('admin.ajax.facebook-post') }}" aria-live="polite">
+        Colle-le ici : son texte remplit la description, que tu peux encore modifier.
+    </span>
+</div>
+<div class="col s12">
     {{ field('description', item.description, 'Description de l\'événement', {type: 'textarea'}) }}
 </div>

@@ -18,6 +18,9 @@ use Psr\Container\ContainerInterface;
 
 return [
     'env'   =>  \DI\env('ENV', 'production'),
+    // The Facebook Page's token, to fill an event's description from its post (App\Events\FacebookPosts). Like the
+    // database credentials it's a secret: set it in config/database.php, which overrides this
+    'facebook.page_token'   =>  '',
     ...require __DIR__ . '/database.php',
     'views.path'            =>   dirname(__DIR__). '/views',
     'twig.extensions'       =>   [

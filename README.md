@@ -41,7 +41,7 @@ PHP 8.5, Twig 3, PHP-DI 7, Mezzio router, on OVH web hosting. Every push to `mai
 
 ### Contents
 
-[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates)
+[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Facebook posts](#facebook-posts) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates)
 
 ## Layout
 
@@ -98,6 +98,24 @@ Text written in the admin (these sections, the events' title and description) go
 - **Photographers:** the **Photographe** login (pick it on `/login`) only opens `/admin/photos`: albums, uploads and deletes. Every other admin page sends it back there, and it never shows the soirées' passwords or the deletion requests. Logged in, photographers see every album on `/photos` without a password. Give it a password, and change it, in Paramètres > Utilisateurs: until then nobody can log in with it. The role comes from a migration; on OVH, run [`src/Photos/db/add-photographer-role.sql`](src/Photos/db/add-photographer-role.sql) in phpMyAdmin.
 - **Deletion requests:** in the viewer, "Demander la suppression" sends a name, an optional email and a message. The team gets an email at `CONTACT_EMAIL`, a card on the dashboard, and the request on `/admin/photos`, where it can delete the photo or ignore the request.
 - **Database:** the tables (and the events' `photos_password` column) come from a Phinx migration. With no SSH on OVH, run [`src/Photos/db/create-photos-tables.sql`](src/Photos/db/create-photos-tables.sql) once in phpMyAdmin before deploying.
+
+## Facebook posts
+
+In admin > Événements, pasting the link of the Rock Fever Page's post that announces a soirée (any link Facebook gives: *Copier le lien*, the post's date, a photo) fills the event's description with the post's text, to read over before saving. The link itself isn't saved. [`FacebookPosts`](src/Events/FacebookPosts.php) looks for it among the Page's 50 latest posts with the Graph API.
+
+It has to be a post: Facebook only lets its Marketing Partners read events, so an event's link (`facebook.com/events/…`) can't fill anything. That one still goes in the "Lien vers l'événement Facebook" field.
+
+**Setting it up, once.** The site reads the posts with a token of the Page, made by someone who is an admin of the Page:
+
+1. On [developers.facebook.com](https://developers.facebook.com/apps), create an app (use case: *Other*, type: *Business*). Leave it in development mode: its admins can use it without App Review.
+2. In the [Graph API Explorer](https://developers.facebook.com/tools/explorer), pick that app and *Generate Access Token* with the permissions `pages_show_list`, `pages_read_engagement` and `pages_read_user_content`, choosing the Rock Fever Page.
+3. Paste that token into the [Access Token Debugger](https://developers.facebook.com/tools/debug/accesstoken) and click *Extend Access Token*.
+4. Back in the Explorer, with the extended token, run `GET me/accounts` and copy Rock Fever's `access_token`. The debugger should say it *never* expires.
+5. Over SFTP, add it to the server's `config/database.php`: `'facebook.page_token' => '…',` (the file stays on the server and isn't in git).
+
+The token stops working if its owner leaves the Page's admins, changes their Facebook password, or deletes the app: the form then shows Facebook's reason, and steps 2 to 5 make a new one.
+
+Facebook posts are full of emojis: if they come out as `?`, run [`src/Events/db/events-utf8mb4.sql`](src/Events/db/events-utf8mb4.sql) once in phpMyAdmin.
 
 ## Page speed
 
