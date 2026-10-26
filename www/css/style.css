@@ -1612,12 +1612,13 @@ input:not([type]).mce-textbox {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Printing and saving as PDF, on the public pages: their content in dark text on white, without the menu, the header
-   photo and the buttons that only work on screen. Browsers leave out background colors when printing, which would
-   leave the white text of the headers and cards on white paper */
+/* Printing and saving as PDF, on the public pages: their content in dark text on white, compact enough for the home
+   page to fit on about one sheet, without the menu, the header photo and the buttons that only work on screen.
+   Browsers leave out background colors when printing, which would leave the white text of the headers and cards on
+   white paper */
 @media print {
     @page {
-        margin: 14mm 12mm;
+        margin: 10mm 12mm;
     }
 
     html, body {
@@ -1630,6 +1631,7 @@ input:not([type]).mce-textbox {
         min-height: 0;
         color: #1f2933;
         background: none !important;
+        font-size: 9.5pt;
     }
 
     .site *, .site *::before, .site *::after {
@@ -1640,8 +1642,13 @@ input:not([type]).mce-textbox {
 
     .site > nav, .site [role="navigation"], .site .skip-link, .site .parallax, .site .parallax-container::before,
     .site .next-event-actions, .site .calendar-subscribe, .site .soiree-actions, .site .footer-social,
-    .site .page-footer .footer-copyright .right {
+    .site .page-footer .footer-copyright .right, .site .rich-text h2::after, .site .staff-card h3::after {
         display: none !important;
+    }
+
+    /* Past soirées among the dates of the home page: what's ahead is what a printout is for */
+    .site .home-soirees .soiree-past {
+        display: none;
     }
 
     .site .container {
@@ -1670,51 +1677,40 @@ input:not([type]).mce-textbox {
     }
 
     .site main .home-title {
-        margin: 0 0 6mm 0;
-        font-size: 30pt;
+        margin: 0 0 3mm 0;
+        font-size: 20pt;
         color: #072d55 !important;
     }
 
-    /* The next soirée: a framed box. Its button says where to sign up */
+    /* The next soirée: a framed line. Its button says where to sign up */
     .site .next-event-link {
         max-width: none;
-        margin: 0 0 6mm 0;
-        padding: 4mm;
-        border: 2px solid #072d55;
-        border-radius: 10px;
+        margin: 0 0 3mm 0;
+        padding: 2mm 4mm;
+        border: 1.5px solid #072d55;
+        border-radius: 8px;
         color: #072d55;
-        font-size: 14pt;
+        font-size: 11pt;
+    }
+
+    .site .next-event-text, .site .next-event-main {
+        gap: 0;
+    }
+
+    .site .next-event-note {
+        font-size: 8.5pt;
     }
 
     .site .next-event-signup {
-        margin-top: 2mm;
+        margin-top: 1mm;
         padding: 0;
+        gap: .3em;
         background: none;
-        font-size: 14pt;
+        font-size: 11pt;
     }
 
     .site .next-event-signup::after {
         content: "sur rockfever.be/event";
-    }
-
-    /* The date of each soirée keeps its navy block: it is small and is what the eye looks for */
-    .site .soiree-date.koamaru {
-        background-color: #072d55 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .site .soiree-past .soiree-date {
-        background-color: #616161 !important;
-    }
-
-    .site .soiree-badge {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .site .soiree-next {
-        border: 2px solid #00796b;
     }
 
     .site .btn, .site .event-link, .site .spaced-item {
@@ -1726,42 +1722,176 @@ input:not([type]).mce-textbox {
     .site .event-link {
         flex: 0 1 auto;
         padding: 2mm 4mm;
-        font-size: 12pt;
+        font-size: 11pt;
     }
 
     .site .register-input {
         border: 1px solid #9e9e9e !important;
     }
 
-    /* Less empty space than on a screen */
+    /* Smaller type and spacing than on a screen */
     .site .home-content, .site .calendar-page, .site .event-details, .site .event-links {
         padding-top: 0;
         padding-bottom: 0;
     }
 
+    .site .rich-text, .site .calendar-intro, .site .soiree-description, .site .site .soiree-facts {
+        font-size: 9.5pt;
+        line-height: 1.45;
+    }
+
+    .site .rich-text p {
+        margin: 0 0 2mm 0;
+    }
+
     .site .rich-text h2, .site .calendar-semester {
-        margin: 8mm 0 3mm 0;
+        margin: 4mm 0 1.5mm 0;
+        font-size: 13pt;
+    }
+
+    .site .press-list time {
+        font-size: 8pt;
+    }
+
+    .site .home-section + .home-section, .site .home-press {
+        margin-top: 0;
+        border-top: none;
     }
 
     .site .calendar-intro {
         margin-top: 0;
     }
 
+    /* A section's photos: small, beside its text instead of across the page */
+    .site .home-section {
+        display: flow-root;
+    }
+
     .site .rich-text img {
+        float: right !important;
         width: auto;
-        max-height: 9cm;
+        max-width: 38%;
+        max-height: 4.2cm;
+        margin: 0 0 2mm 4mm;
+        border-radius: 6px;
+    }
+
+    /* Staff: three columns, each member a small round photo next to the name, then the text */
+    .site .staff-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3mm 5mm;
+        margin-top: 2mm;
+    }
+
+    .site .staff-card {
+        display: grid;
+        grid-template-columns: 1.4cm minmax(0, 1fr);
+        column-gap: 2.5mm;
+        align-content: start;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        font-size: 7.5pt;
+        line-height: 1.35;
+    }
+
+    .site .staff-card h3 {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        margin: 0;
+        font-size: 10pt;
+    }
+
+    .site .staff-card .staff-card-content > * {
+        grid-column: 1 / -1;
+        margin: 1.5mm 0 0 0;
+    }
+
+    .site .staff-card .staff-card-content > p:has(img) {
+        grid-column: 1;
+        grid-row: 1;
+        margin: 0;
     }
 
     .site .staff-card .staff-card-content img {
-        width: 100%;
-        height: 4.5cm;
+        float: none !important;
+        width: 1.4cm;
+        max-width: none;
+        height: 1.4cm;
+        max-height: none;
+        margin: 0;
+        border-radius: 50%;
+    }
+
+    /* Soirée cards: one short line each, the date block keeping its navy: it is small and is what the eye looks for */
+    .site .soirees {
+        gap: 1.5mm;
+        margin-bottom: 3mm;
+    }
+
+    .site .home-soirees h3 {
+        margin: 2mm 0 1.5mm 0;
+        font-size: 10pt;
+    }
+
+    .site .soiree {
+        border-radius: 6px;
+    }
+
+    .site .soiree-date {
+        flex-basis: 1.3cm;
+        padding: 1mm;
+    }
+
+    .site .soiree-date.koamaru {
+        background-color: #072d55 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .site .soiree-past .soiree-date {
+        background-color: #616161 !important;
+    }
+
+    .site .soiree-weekday, .site .soiree-month {
+        font-size: 6.5pt;
+    }
+
+    .site .soiree-day {
+        font-size: 14pt;
+    }
+
+    .site .soiree-content {
+        padding: 1.5mm 3mm;
+    }
+
+    .site .soiree-title {
+        font-size: 10pt;
+        margin: 0;
+    }
+
+    .site .soiree-meta, .site .soiree-registration, .site .home-soirees .soiree-registration {
+        margin: 0;
+        font-size: 8pt;
+    }
+
+    .site .soiree-badge {
+        padding: 0 2mm;
+        font-size: 7pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .site .soiree-next {
+        border: 1.5px solid #00796b;
     }
 
     /* Where links go, since they can't be clicked on paper */
     .site main a[href^="http"]:not(.btn):not(.btn-flat)::after,
     .site .rich-text a[href^="/"]:not(.soiree-link)::after, .site .soiree-back a[href^="/"]::after {
         content: " (" attr(href) ")";
-        font-size: .85em;
+        font-size: .8em;
         font-weight: normal;
         word-break: break-all;
     }
@@ -1785,15 +1915,16 @@ input:not([type]).mce-textbox {
 
     /* Only the copyright line of the footer, in grey under a rule */
     .site .page-footer, .site .page-footer .footer-copyright {
-        margin-top: 8mm;
+        margin-top: 4mm;
         padding: 0;
         background: none !important;
         color: #616161;
+        font-size: 7.5pt;
     }
 
     .site .page-footer .footer-copyright {
         margin-top: 0;
-        padding-top: 3mm;
+        padding-top: 1.5mm;
         border-top: 1px solid #e3e8ef;
     }
 }
