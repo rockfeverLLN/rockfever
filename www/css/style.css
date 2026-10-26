@@ -1762,17 +1762,32 @@ input:not([type]).mce-textbox {
         margin-top: 0;
     }
 
-    /* A section's photos: small, beside its text instead of across the page */
-    .site .home-section {
-        display: flow-root;
+    /* A section's photo: small, at the top right with the text beside it, wherever it is in the text written in the
+       admin (often at its end) */
+    .site .home-section :has(> :is(div, p) > img) {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        column-gap: 5mm;
+        align-items: start;
+    }
+
+    .site .home-section :has(> :is(div, p) > img) > * {
+        grid-column: 1;
+    }
+
+    .site .home-section :has(> :is(div, p) > img) > :is(div, p):has(> img) {
+        grid-column: 2;
+        grid-row: 1 / span 20;
+        margin: 0;
     }
 
     .site .rich-text img {
-        float: right !important;
+        float: none !important;
+        display: block;
         width: auto;
-        max-width: 38%;
+        max-width: 6.5cm;
         max-height: 4.2cm;
-        margin: 0 0 2mm 4mm;
+        margin: 0;
         border-radius: 6px;
     }
 
@@ -1887,17 +1902,28 @@ input:not([type]).mce-textbox {
         border: 1.5px solid #00796b;
     }
 
-    /* Where links go, since they can't be clicked on paper */
+    /* Links in navy, followed by where they go in small grey, since they can't be clicked on paper. An inline-block,
+       so the link's underline doesn't run under it and the address moves to the next line whole instead of being
+       cut anywhere */
+    .site main a {
+        color: #072d55;
+    }
+
     .site main a[href^="http"]:not(.btn):not(.btn-flat)::after,
     .site .rich-text a[href^="/"]:not(.soiree-link)::after, .site .soiree-back a[href^="/"]::after {
-        content: " (" attr(href) ")";
+        content: "(" attr(href) ")";
+        display: inline-block;
+        max-width: 100%;
+        margin-left: .3em;
+        color: #616161;
         font-size: .8em;
         font-weight: normal;
-        word-break: break-all;
+        text-decoration: none;
+        overflow-wrap: anywhere;
     }
 
     .site .rich-text a[href^="/"]:not(.soiree-link)::after, .site .soiree-back a[href^="/"]::after {
-        content: " (rockfever.be" attr(href) ")";
+        content: "(rockfever.be" attr(href) ")";
     }
 
     .site h1, .site h2, .site h3, .site h4 {
