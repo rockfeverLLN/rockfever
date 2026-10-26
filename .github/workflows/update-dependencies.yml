@@ -1,8 +1,9 @@
 name: Update dependencies
 on:
   schedule:
-    # Every day at 04:17 UTC, at night in Belgium and at a quiet minute: GitHub delays the runs planned on the hour
-    - cron: '17 4 * * *'
+    # Every other day (odd days of the month) at 04:17 UTC, at night in Belgium and at a quiet minute: GitHub delays
+    # the runs planned on the hour. A 31st is followed by the 1st, so those two runs come one day apart
+    - cron: '17 4 */2 * *'
   workflow_dispatch:
 
 concurrency:
@@ -14,8 +15,8 @@ permissions:
   actions: write   # start the deploy (pushes made with this job's token don't trigger it on their own)
   issues: write    # keep the "Automatic package update failed" issue current
 
-# Installs every new version of the PHP packages and JavaScript libraries, major ones included, within a day:
-# the check job looks for new versions every day in a few seconds, and only when there's one does the update job
+# Installs every new version of the PHP packages and JavaScript libraries, major ones included, within two days:
+# the check job looks for new versions every other day in a few seconds, and only when there's one does the update job
 # test it on a copy of the site (bin/auto-update.sh) and deploy it. An update whose tests fail isn't installed: it's
 # listed in an issue, and isn't tried again until a newer version comes out.
 # Same rule as deploy.yml: no marketplace actions, only plain git and official images.
@@ -49,7 +50,7 @@ jobs:
         id: check
         run: |
           bin/auto-update.sh candidates | sort -u > candidates.txt
-          # The updates that failed their tests are in the open issue: don't test them again every day
+          # The updates that failed their tests are in the open issue: don't test them again on every run
           gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$ISSUE_TITLE\" in:title" \
             --json body --jq '.[0].body // ""' | sed -n '/^<!-- failed$/,/^-->$/p' | grep '@' | sort -u > failed.txt || true
           comm -23 candidates.txt failed.txt > new.txt
