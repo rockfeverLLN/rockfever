@@ -817,3 +817,16 @@
         transition: none;
     }
 }
+
+/* Printing: the black page is not printed, so its light text turns dark (style.css does the rest of the page) */
+@media print {
+    .photos-dark > main {
+        background: none;
+        color: #1f2933;
+    }
+
+    .photos-dark > main * {
+        color: inherit !important;
+        border-color: #d9e2ec !important;
+    }
+}
