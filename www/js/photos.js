@@ -24,7 +24,8 @@
         var link = links[current];
         image.classList.add('is-loading');
         image.src = link.dataset.large;
-        image.alt = 'Photo ' + (current + 1) + ' sur ' + links.length;
+        // What the photo shows, when the team described it (admin > Photos), else where it is in the album
+        image.alt = link.dataset.description || 'Photo ' + (current + 1) + ' sur ' + links.length;
         count.textContent = (current + 1) + ' / ' + links.length;
         download.href = link.dataset.download;
         prev.disabled = current === 0;
