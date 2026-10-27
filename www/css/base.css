@@ -4,14 +4,16 @@
  * whose project stopped in 2018: only the rules the public pages and the admin use, without the vendor prefixes
  * browsers no longer need. It's ours to change now. style.css comes after it and holds the site's own design.
  * The widgets Materialize drew with its script are at the end, driven by www/js/script.js.
+ * Materialize's teal (#26a69a) is darkened to #00574b throughout, so it reaches 7:1 against white (WCAG AAA).
  */
 
 .red {
     background-color: #F44336 !important;
 }
 
+/* Darker than Materialize's #F44336, for error messages at 7:1 on white (WCAG AAA) */
 .red-text {
-    color: #F44336 !important;
+    color: #a00b0b !important;
 }
 
 .red-text.text-lighten-1 {
@@ -490,7 +492,7 @@ i.right {
     align-items: center;
     justify-content: space-between;
     padding: 10px 0px;
-    color: rgba(255, 255, 255, 0.8);
+    color: #e3e7ee;
     background-color: rgba(51, 51, 51, 0.08);
 }
 
@@ -592,7 +594,7 @@ th {
 }
 
 .collection .collection-item.active {
-    background-color: #26a69a;
+    background-color: #00574b;
     color: #eafaf9;
 }
 
@@ -603,7 +605,7 @@ th {
 .collection a.collection-item {
     display: block;
     transition: .25s;
-    color: #26a69a;
+    color: #00574b;
 }
 
 .collection a.collection-item:not(.active):hover {
@@ -626,7 +628,7 @@ th {
 
 .secondary-content {
     float: right;
-    color: #26a69a;
+    color: #00574b;
 }
 
 .collapsible .collection {
@@ -667,12 +669,12 @@ th {
     top: 0;
     left: 0;
     bottom: 0;
-    background-color: #26a69a;
+    background-color: #00574b;
     transition: width .3s linear;
 }
 
 .progress .indeterminate {
-    background-color: #26a69a;
+    background-color: #00574b;
 }
 
 .progress .indeterminate:before {
@@ -2466,14 +2468,14 @@ small {
 .btn:focus,
 .btn-large:focus,
 .btn-floating:focus {
-    background-color: #1d7d74;
+    background-color: #004d40;
 }
 
 .btn,
 .btn-large {
     text-decoration: none;
     color: #fff;
-    background-color: #26a69a;
+    background-color: #00574b;
     text-align: center;
     letter-spacing: .5px;
     transition: background-color .2s ease-out;
@@ -2495,7 +2497,7 @@ small {
     height: 40px;
     line-height: 40px;
     padding: 0;
-    background-color: #26a69a;
+    background-color: #00574b;
     border-radius: 50%;
     transition: background-color .3s;
     cursor: pointer;
@@ -2503,7 +2505,7 @@ small {
 }
 
 .btn-floating:hover {
-    background-color: #26a69a;
+    background-color: #00574b;
 }
 
 .btn-floating:before {
@@ -2864,7 +2866,7 @@ button.btn-floating {
 
 .chip:focus {
     outline: none;
-    background-color: #26a69a;
+    background-color: #00574b;
     color: #fff;
 }
 
@@ -2882,7 +2884,7 @@ select:focus {
 
 button:focus {
     outline: none;
-    background-color: #2ab7a9;
+    background-color: #004d40;
 }
 
 label {
@@ -2904,7 +2906,7 @@ input[type=datetime-local]:not(.browser-default),
 textarea.materialize-textarea {
     background-color: transparent;
     border: none;
-    border-bottom: 1px solid #9e9e9e;
+    border-bottom: 1px solid #757575;
     border-radius: 0;
     outline: none;
     height: 3rem;
@@ -2960,8 +2962,8 @@ input[type=time]:not(.browser-default):focus:not([readonly]),
 input[type=date]:not(.browser-default):focus:not([readonly]),
 input[type=datetime-local]:not(.browser-default):focus:not([readonly]),
 textarea.materialize-textarea:focus:not([readonly]) {
-    border-bottom: 1px solid #26a69a;
-    box-shadow: 0 1px 0 0 #26a69a;
+    border-bottom: 1px solid #00574b;
+    box-shadow: 0 1px 0 0 #00574b;
 }
 
 input:not([type]):focus:not([readonly]) + label,
@@ -2972,7 +2974,7 @@ input[type=time]:not(.browser-default):focus:not([readonly]) + label,
 input[type=date]:not(.browser-default):focus:not([readonly]) + label,
 input[type=datetime-local]:not(.browser-default):focus:not([readonly]) + label,
 textarea.materialize-textarea:focus:not([readonly]) + label {
-    color: #26a69a;
+    color: #00574b;
 }
 
 input:not([type]).validate + label,
@@ -3107,8 +3109,8 @@ textarea.materialize-textarea {
     height: 22px;
     border-top: 2px solid transparent;
     border-left: 2px solid transparent;
-    border-right: 2px solid #26a69a;
-    border-bottom: 2px solid #26a69a;
+    border-right: 2px solid #00574b;
+    border-bottom: 2px solid #00574b;
     transform: rotate(40deg);
     backface-visibility: hidden;
     transform-origin: 100% 100%;
@@ -3126,7 +3128,7 @@ textarea.materialize-textarea {
     height: 22px;
     border-top: none;
     border-left: none;
-    border-right: 2px solid #26a69a;
+    border-right: 2px solid #00574b;
     border-bottom: none;
     transform: rotate(90deg);
     backface-visibility: hidden;
@@ -3187,8 +3189,8 @@ textarea.materialize-textarea {
     top: 0;
     width: 20px;
     height: 20px;
-    border: 2px solid #26a69a;
-    background-color: #26a69a;
+    border: 2px solid #00574b;
+    background-color: #00574b;
     z-index: 0;
 }
 
@@ -3342,7 +3344,7 @@ select:disabled {
 }
 
 .sidenav li > a.btn-floating:hover {
-    background-color: #26a69a;
+    background-color: #00574b;
 }
 
 .sidenav li > a > i,
@@ -3579,7 +3581,7 @@ select:not(.browser-default) {
     margin: 0 0 8px 0;
     padding: 0 24px 0 0;
     border: none;
-    border-bottom: 1px solid #9e9e9e;
+    border-bottom: 1px solid #757575;
     border-radius: 0;
     outline: none;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='rgba(0,0,0,0.87)'/%3E%3C/svg%3E") no-repeat right center;
@@ -3592,8 +3594,8 @@ select:not(.browser-default) {
 
 select:not(.browser-default):focus {
     outline: none;
-    border-bottom: 1px solid #26a69a;
-    box-shadow: 0 1px 0 0 #26a69a;
+    border-bottom: 1px solid #00574b;
+    box-shadow: 0 1px 0 0 #00574b;
 }
 
 /* Labels sit above the fields that always show something: selects, and the browser's date and time fields */
@@ -3610,13 +3612,17 @@ textarea.materialize-textarea {
     height: auto;
 }
 
-/* Side menu: script.js adds .open, and the overlay behind it */
+/* Side menu: script.js adds .open, and the overlay behind it. Closed, it's hidden once it has slid out, so its
+   links aren't Tab stops nobody can see (WCAG 2.4.3) */
 .sidenav {
-    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s .25s;
 }
 
 .sidenav.open {
+    visibility: visible;
     transform: translateX(0);
+    transition: transform .25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidenav-overlay {

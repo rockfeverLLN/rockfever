@@ -1,6 +1,8 @@
 <form action="{{ path('music') }}" method="post">
-    <input type="text" name="title" placeholder="Titre de la musique" class="register-input">
-    <input type="text" name="artist" placeholder="Artiste" class="register-input">
+    <label for="music-title" class="sr-only">Titre de la musique</label>
+    <input type="text" id="music-title" name="title" placeholder="Titre de la musique" class="register-input" required>
+    <label for="music-artist" class="sr-only">Artiste</label>
+    <input type="text" id="music-artist" name="artist" placeholder="Artiste" class="register-input" required>
     <br>
     <button class="send-button disabled">
         Envoyer la musique

@@ -32,22 +32,25 @@ class FormExtension extends \Twig\Extension\AbstractExtension
     public function field(array $context, string $key, $value, string $label, array $options = []) : string
     {
         $type = $options['type'] ?? 'text';
-        $error = $this->getErrorHtml($context, $key);
         $class = 'input-field';
         $value = htmlspecialchars($this->convertValue($value));
 
         $id = isset($options['idSuffix']) ? $key.'-'.$options['idSuffix'] : $key;
+        $error = $this->getErrorHtml($context, $key, $id);
 
 
         $attributes = [
             'class' =>  trim($options['class'] ?? ''),
             'name'  =>  $key,
             'id'    =>  $id
-        ];
+        ] + ($options['attributes'] ?? []);
 
+        // The error is tied to its field, so a screen reader says it when the field gets focus
         if ($error) {
             $class .= ' has-danger';
             $attributes['class'] .= ' form-control-danger';
+            $attributes['aria-invalid'] = 'true';
+            $attributes['aria-describedby'] = "$id-error";
         }
 
         if ($type === 'textarea') {
@@ -62,6 +65,8 @@ class FormExtension extends \Twig\Extension\AbstractExtension
             $input = $this->checkbox($value, $attributes);
         } elseif ($type === 'select' && array_key_exists('options', $options)) {
             $input = $this->select($value, $options['options'], $attributes);
+        } elseif ($type === 'email') {
+            $input = $this->input($value, $attributes, 'email');
         } elseif ($type === 'password') {
             $input = $this->password($value, $attributes);
         } elseif ($type === 'date' || $type === 'time') {
@@ -145,11 +150,11 @@ class FormExtension extends \Twig\Extension\AbstractExtension
         return "<select ". $this->getHtmlFromArray($attributes) .">$htmlOptions</select>";
     }
 
-    private function getErrorHtml($context, $key) : string
+    private function getErrorHtml($context, $key, string $id) : string
     {
         $error = $context['errors'][$key] ?? false;
         if ($error) {
-            return "<span class=\"helper-text red-text\" data-error=\"Erreur\" data-success=\"OK\">$error</span>";
+            return "<span class=\"helper-text red-text\" id=\"$id-error\">$error</span>";
             //return "<small class=\"form-text text-muted\">$error</small>";
         }
         return "";
