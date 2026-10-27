@@ -12,6 +12,7 @@ use App\Photos\Actions\DeletionRequestAction;
 use App\Photos\Actions\DeletionRequestDismissAction;
 use App\Photos\Actions\PhotoAdminAction;
 use App\Photos\Actions\PhotoDeleteAction;
+use App\Photos\Actions\PhotoDescriptionAction;
 use App\Photos\Actions\PhotoFileAction;
 use App\Photos\Actions\PhotoIndexAction;
 use App\Photos\Actions\PhotoUploadAction;
@@ -58,6 +59,11 @@ class PhotosModule extends Module
                 $adminPrefix . '/photos/albums/{id:\d+}/cover',
                 AlbumCoverAction::class,
                 'admin.photos.album.cover'
+            );
+            $router->post(
+                $adminPrefix . '/photos/albums/{id:\d+}/descriptions',
+                PhotoDescriptionAction::class,
+                'admin.photos.descriptions'
             );
             $router->post(
                 $adminPrefix . '/photos/albums/{id:\d+}/upload',

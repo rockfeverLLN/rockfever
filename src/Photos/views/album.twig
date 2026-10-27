@@ -55,7 +55,9 @@
                            data-large="{{ path('photos.file', {id: photo.id, size: '1600'}) }}"
                            data-download="{{ path('photos.file', {id: photo.id, size: 'full'}) }}?download"
                            data-request="{{ path('photos.request', {id: photo.id}) }}"
-                           aria-label="Agrandir la photo {{ loop.index }}">
+                           {%- if photo.description %} data-description="{{ photo.description }}"{% endif %}
+                           {#- The link's name is what screen readers say for the photo: its description when it has one #}
+                           aria-label="Agrandir la photo {{ loop.index }}{{ photo.description ? ' : ' ~ photo.description }}">
                             <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}"
                                  srcset="{{ path('photos.file', {id: photo.id, size: '480'}) }} 480w, {{ path('photos.file', {id: photo.id, size: '960'}) }} 960w"
                                  sizes="(max-width: 600px) 50vw, (max-width: 1100px) 33vw, 25vw"
