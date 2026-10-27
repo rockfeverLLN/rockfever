@@ -1,10 +1,10 @@
 {% if flash('success') %}
-    <div class="card-panel green white-text">
+    <div class="card-panel green white-text" role="status">
         {{ flash('success') | raw }}
     </div>
 {% endif %}
 {% if flash('error') %}
-    <div class="card-panel red white-text">
+    <div class="card-panel red white-text" role="alert">
         {{ flash('error') | raw }}
     </div>
 {% endif %}

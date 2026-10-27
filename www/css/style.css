@@ -42,8 +42,39 @@
     font-feature-settings: 'calt' 0;
 }
 
+/* Keyboard focus: a 3px ring around what has focus, apart from it, dark blue on light backgrounds and white on the
+   dark ones (WCAG 2.4.7, and 2.4.13 at AAA). Inputs too, which base.css draws without an outline */
+.site :focus-visible,
+.site input:focus-visible,
+.site select:focus-visible,
+.site textarea:focus-visible {
+    outline: 3px solid #072d55;
+    outline-offset: 2px;
+}
+
+.site nav :focus-visible,
+.site .page-footer :focus-visible,
+.site .parallax-container :focus-visible,
+.site .koamaru :focus-visible,
+.site.photos-dark :focus-visible {
+    outline-color: #ffffff;
+}
+
+/* Visitors who asked their device for less motion: no sliding or fading (WCAG 2.3.3). script.js stops the parallax */
+@media (prefers-reduced-motion: reduce) {
+    .site *, .site *::before, .site *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 .site h1, .site h2, .site h3, .site h4, .site h5, .site h6 {
     letter-spacing: -0.02em;
+    /* A long word like "d'accessibilité" breaks with a hyphen rather than widening a 320px phone (WCAG 1.4.10) */
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .koamaru {
@@ -132,12 +163,12 @@ h6 {
 }
 
 .home-parallax-container {
-    height: 380px;
+    min-height: 380px;
 }
 
 /* No upcoming event, so no sign-up card over the bottom of the photo: a shorter header */
 .home-parallax-compact {
-    height: 280px;
+    min-height: 280px;
 }
 
 .home-parallax-compact .home-title {
@@ -161,6 +192,13 @@ h6 {
     z-index: 1;
 }
 
+/* The headers grow with their text instead of cutting it, e.g. with a reader's wider letter and line spacing
+   (WCAG 1.4.12): base.css's 500px height becomes the smallest they can be */
+.home-parallax-container,
+.error-parallax-container {
+    height: auto;
+}
+
 /* Keeps their white text readable while the photo loads or if it doesn't, and for contrast checkers, which don't
    see photos. isolation: the photo (z-index: -1) stays above this color */
 .home-parallax-container,
@@ -170,7 +208,7 @@ h6 {
 }
 
 .error-parallax-container {
-    height: 500px;
+    min-height: 500px;
 }
 
 .card-title h2{
@@ -298,7 +336,7 @@ h6 {
     margin-top: 12px;
     padding: 14px 40px;
     border-radius: 999px;
-    background-color: #00796b;
+    background-color: #00574b;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     font-size: 22px;
     font-weight: 800;
@@ -316,9 +354,14 @@ h6 {
 
 .soiree-registration {
     margin: -6px 0 12px 0;
-    color: #00796b;
+    color: #00574b;
     font-size: 15px;
     font-weight: 600;
+}
+
+/* Its link ("inscris-toi") is told apart from the text by more than its color (WCAG 1.4.1) */
+.soiree-registration a {
+    text-decoration: underline;
 }
 
 .soiree-registration:empty {
@@ -373,24 +416,29 @@ h6 {
 
 /* Materialize's light blue (#039be5) is too pale on white to read: this one has a 4.8:1 contrast */
 a {
-    color: #0277bd;
+    color: #01579b;
 }
 
 /* Darker shades of Materialize's defaults so text on them stays readable (at least 4.5:1) */
 .input-field > label {
-    color: #757575;
+    color: #575757;
 }
 
 .btn, .btn-large, .btn-small {
-    background-color: #00796b;
+    background-color: #00574b;
 }
 
 .btn:hover, .btn-large:hover, .btn-small:hover {
-    background-color: #00695c;
+    background-color: #004d40;
 }
 
+/* Messages after a form: white text at 7:1 or more (WCAG AAA) */
 .card-panel.red {
-    background-color: #c62828 !important;
+    background-color: #a00b0b !important;
+}
+
+.card-panel.green {
+    background-color: #1b5e20 !important;
 }
 
 /* Links inside text written in the admin are underlined so they don't rely on color alone */
@@ -427,7 +475,7 @@ a {
     width: 44px;
     height: 4px;
     border-radius: 2px;
-    background-color: #00796b;
+    background-color: #00574b;
     margin-top: 14px;
 }
 
@@ -469,7 +517,7 @@ a {
 }
 
 .press-list time {
-    color: #616161;
+    color: #4a4a4a;
     font-size: 15px;
     margin-left: 8px;
 }
@@ -604,7 +652,7 @@ main:focus {
 }
 
 .calendar-hint {
-    color: #616161;
+    color: #4a4a4a;
     font-size: 14px;
     margin: 6px 0 0 0;
 }
@@ -721,7 +769,7 @@ main:focus {
 }
 
 .soiree-meta {
-    color: #616161;
+    color: #4a4a4a;
     font-size: 15px;
     margin: 0 0 12px 0;
 }
@@ -730,7 +778,7 @@ main:focus {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 10px;
-    background-color: #00796b;
+    background-color: #00574b;
     color: #ffffff;
     font-size: 12px;
     font-weight: 700;
@@ -738,7 +786,7 @@ main:focus {
 }
 
 .soiree-badge-past {
-    background-color: #616161;
+    background-color: #4a4a4a;
 }
 
 .soiree-actions .btn, .soiree-actions .btn-flat {
@@ -746,8 +794,8 @@ main:focus {
 }
 
 .soiree-next {
-    border-color: #00796b;
-    box-shadow: 0 0 0 2px #00796b, 0 14px 32px rgba(0, 121, 107, 0.18);
+    border-color: #00574b;
+    box-shadow: 0 0 0 2px #00574b, 0 14px 32px rgba(0, 121, 107, 0.18);
 }
 
 /* Muted with a grey background, not opacity, so its text keeps a 4.5:1 contrast */
@@ -760,7 +808,7 @@ main:focus {
 }
 
 .soiree-past .soiree-date {
-    background-color: #616161 !important;
+    background-color: #424242 !important;
 }
 
 /* The next quadrimestre, before its dates are in src/Main/config.php */
@@ -772,7 +820,7 @@ main:focus {
     padding: 22px 24px;
     border: 2px dashed #c9d3df;
     border-radius: 14px;
-    color: #616161;
+    color: #4a4a4a;
 }
 
 .soirees-soon .mdi {
@@ -1090,7 +1138,7 @@ table tbody tr td .input-field {
 
 .site .sidenav li.active > a {
     background-color: #eef3f9;
-    border-left-color: #00796b;
+    border-left-color: #00574b;
     color: #072d55;
     font-weight: 700;
 }
@@ -1145,7 +1193,7 @@ table tbody tr td .input-field {
     }
 
     .home-parallax-container {
-        height: 280px;
+        min-height: 280px;
     }
 
     .home-title {
@@ -1154,7 +1202,7 @@ table tbody tr td .input-field {
     }
 
     .home-parallax-compact {
-        height: 190px;
+        min-height: 190px;
     }
 
     .home-parallax-compact .home-title {
@@ -1866,7 +1914,7 @@ input:not([type]).mce-textbox {
     }
 
     .site .soiree-past .soiree-date {
-        background-color: #616161 !important;
+        background-color: #4a4a4a !important;
     }
 
     .site .soiree-weekday, .site .soiree-month {
@@ -1899,7 +1947,7 @@ input:not([type]).mce-textbox {
     }
 
     .site .soiree-next {
-        border: 1.5px solid #00796b;
+        border: 1.5px solid #00574b;
     }
 
     /* Links in navy, followed by where they go in small grey, since they can't be clicked on paper. An inline-block,
@@ -1915,7 +1963,7 @@ input:not([type]).mce-textbox {
         display: inline-block;
         max-width: 100%;
         margin-left: .3em;
-        color: #616161;
+        color: #4a4a4a;
         font-size: .8em;
         font-weight: normal;
         text-decoration: none;
@@ -1944,7 +1992,7 @@ input:not([type]).mce-textbox {
         margin-top: 4mm;
         padding: 0;
         background: none !important;
-        color: #616161;
+        color: #4a4a4a;
         font-size: 7.5pt;
     }
 
