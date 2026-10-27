@@ -35,6 +35,12 @@
         overlay.addEventListener('click', function () {
             setOpen(false);
         });
+        // Tabbing out of the open menu closes it, rather than leaving focus on the page hidden behind the overlay
+        menu.addEventListener('focusout', function (event) {
+            if (menu.classList.contains('open') && event.relatedTarget && !menu.contains(event.relatedTarget)) {
+                setOpen(false);
+            }
+        });
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' && menu.classList.contains('open')) {
                 setOpen(false);
@@ -86,12 +92,18 @@
         });
     });
 
-    // Parallax headers: the image moves slower than the page, as Materialize's parallax did
+    // Parallax headers: the image moves slower than the page, as Materialize's parallax did. Not for visitors who
+    // asked their device for less motion (WCAG 2.3.3): the photo stays still, as base.css places it
     var parallaxImages = all('.parallax-container .parallax img');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (parallaxImages.length) {
         var updateParallax = function () {
             var windowHeight = window.innerHeight;
             parallaxImages.forEach(function (image) {
+                if (reducedMotion.matches) {
+                    image.style.transform = '';
+                    return;
+                }
                 var container = image.closest('.parallax-container');
                 var containerHeight = container.offsetHeight || 500;
                 var top = container.getBoundingClientRect().top;
@@ -112,6 +124,7 @@
         };
         window.addEventListener('scroll', requestParallax, {passive: true});
         window.addEventListener('resize', requestParallax);
+        reducedMotion.addEventListener('change', requestParallax);
         parallaxImages.forEach(function (image) {
             image.addEventListener('load', requestParallax);
         });
@@ -370,7 +383,7 @@
         license_key: 'gpl',
         content_css: '/css/base.css',
         language: 'fr_FR',
-        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.19/langs7/fr_FR.js',
+        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.26/langs7/fr_FR.js',
         branding: false,
         promotion: false,
         plugins: 'image link table lists code',

@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Response;
  */
 class SitemapAction
 {
-    private const PAGES = ['/', '/event', '/calendrier', '/contact', '/legal'];
+    private const PAGES = ['/', '/event', '/calendrier', '/contact', '/legal', '/accessibilite'];
 
     public function __construct(private Calendar $calendar)
     {

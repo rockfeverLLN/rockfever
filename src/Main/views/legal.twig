@@ -3,9 +3,13 @@
 {% block canonical_path %}/legal{% endblock %}
 {% block body %}
     <div class="container" style="text-align: justify">
+        <h1>R.O.I. & Conditions</h1>
         {#- The editor's Heading 6 comes right after the h2s: an h3 keeps the heading levels in order #}
         {{ roi | replace({'<h6>': '<h3 class="legal-subheading">', '</h6>': '</h3>'}) | raw }}
-        {{ terms | replace({'<h6>': '<h3 class="legal-subheading">', '</h6>': '</h3>'}) | raw }}
+        {#- The terms are in English: screen readers read them with an English voice. Remove the lang if they're translated #}
+        <div lang="en">
+            {{ terms | replace({'<h6>': '<h3 class="legal-subheading">', '</h6>': '</h3>'}) | raw }}
+        </div>
         {#- The texts before they were editable in the admin. A Twig comment: not sent to visitors
         <h2>Règlement d’ordre intérieur</h2>
         1. Rock Fever décline toute responsabilité en cas d&#39;accident pendant les activités.

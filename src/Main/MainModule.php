@@ -2,6 +2,7 @@
 namespace App\Main;
 
 use App\Main\Actions\AboutGalleryAction;
+use App\Main\Actions\AccessibilityAction;
 use App\Main\Actions\AboutUploadAction;
 use App\Main\Actions\HomeAction;
 use App\Main\Actions\AboutCrudAction;
@@ -53,6 +54,9 @@ class MainModule extends Module
 
         // CG + ROI
         $router->get('/legal', LegalAction::class, 'legal');
+
+        // Accessibility statement
+        $router->get('/accessibilite', AccessibilityAction::class, 'accessibility');
 
         // Dates of the soirées, and the same as .ics files for calendar apps
         $router->get('/calendrier', CalendarAction::class, 'calendar');
