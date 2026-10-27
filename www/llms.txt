@@ -24,6 +24,7 @@ Inscriptions : seule la prochaine soirée peut les avoir ouvertes. Elles ouvrent
 - [Proposer un rock](https://rockfever.be/music): proposer une musique pour les soirées
 - [Contact](https://rockfever.be/contact): formulaire pour écrire à l'équipe
 - [R.O.I. & Conditions](https://rockfever.be/legal): règlement d'ordre intérieur et conditions d'utilisation
+- [Accessibilité](https://rockfever.be/accessibilite): déclaration d'accessibilité du site et ses limites connues
 
 ## Réseaux sociaux
 
