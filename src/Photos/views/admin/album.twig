@@ -84,6 +84,16 @@
                 {#- The tiles' cover buttons submit this form (forms can't be nested in the delete form) #}
                 <form action="{{ path('admin.photos.album.cover', {id: album.id}) }}" method="post" id="photos-cover">
                 </form>
+                {#- The descriptions under the photos belong to this form: each is saved as it's written (script below) #}
+                <form action="{{ path('admin.photos.descriptions', {id: album.id}) }}" method="post" id="photos-descriptions">
+                </form>
+                {% set described = photos|filter(p => p.description)|length %}
+                <p class="photos-describe-intro">
+                    <b>Décris chaque photo</b> en une phrase : ce qu'elle montre, pour les personnes aveugles qui l'écoutent
+                    avec un lecteur d'écran (par ex. « Deux danseurs en plein porté, la salle applaudit »).
+                    Pas besoin de « Photo de… » ni des noms.
+                    <span id="photos-described">{{ described }} sur {{ photos|length }} décrite{{ described > 1 ? 's' }}.</span>
+                </p>
                 {% set cover = album.coverPhotoId in photos|map(p => p.id) ? album.coverPhotoId : photos[0].id %}
                 <form action="{{ path('admin.photos.delete') }}" method="post" id="photos-delete">
                     <input type="hidden" name="album" value="{{ album.id }}">
@@ -94,10 +104,11 @@
                     </div>
                     <div class="photos-admin-grid">
                         {% for photo in photos %}
+                            <div class="photos-admin-item">
                             <div class="photos-admin-tile">
                                 <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}" alt="" loading="lazy">
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}">
+                                    <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}" aria-label="Cocher la photo {{ loop.index }}">
                                     <span></span>
                                 </label>
                                 {% if photo.id == cover %}
@@ -112,9 +123,21 @@
                                     <span class="badge-bottom">{{ photo.section }}</span>
                                 {% endif %}
                             </div>
+                            <div class="photos-describe">
+                                <label for="photo-description-{{ photo.id }}">
+                                    Description
+                                    <a href="{{ path('photos.file', {id: photo.id, size: '1600'}) }}" target="_blank" rel="noopener" aria-label="voir en grand : photo {{ loop.index }}">voir en grand</a>
+                                </label>
+                                <textarea id="photo-description-{{ photo.id }}" name="descriptions[{{ photo.id }}]" form="photos-descriptions"
+                                          class="browser-default" rows="2" maxlength="300"
+                                          aria-describedby="photo-description-status-{{ photo.id }}">{{ photo.description }}</textarea>
+                                <span class="photos-describe-status" id="photo-description-status-{{ photo.id }}" aria-live="polite"></span>
+                            </div>
+                            </div>
                         {% endfor %}
                     </div>
                 </form>
+                <button type="submit" form="photos-descriptions" class="btn koamaru waves-effect waves-light photos-describe-save">Enregistrer les descriptions</button>
             {% else %}
                 <p class="grey-text">Pas encore de photo dans cet album.</p>
             {% endif %}
@@ -148,6 +171,50 @@
                     if (!confirm('Supprimer définitivement ' + checked + ' photo' + (checked > 1 ? 's' : '') + ' ?')) {
                         event.preventDefault();
                     }
+                });
+            }
+
+            // Descriptions: each one saved as soon as it's written (the button saves them all, without the script)
+            var describeForm = document.getElementById('photos-descriptions');
+            if (describeForm) {
+                var fields = document.querySelectorAll('textarea[form="photos-descriptions"]');
+                var described = document.getElementById('photos-described');
+                var countDescribed = function () {
+                    var n = Array.prototype.filter.call(fields, function (field) { return field.value.trim() !== ''; }).length;
+                    described.textContent = n + ' sur ' + fields.length + ' décrite' + (n > 1 ? 's' : '') + '.';
+                };
+                fields.forEach(function (field) {
+                    var status = document.getElementById(field.getAttribute('aria-describedby'));
+                    field.addEventListener('change', function () {
+                        var data = new FormData();
+                        data.append(field.name, field.value);
+                        status.className = 'photos-describe-status';
+                        status.textContent = 'Enregistrement…';
+                        fetch(describeForm.action, {method: 'POST', body: data, headers: {'Accept': 'application/json'}, credentials: 'same-origin'})
+                            .then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error(response.status);
+                                }
+                                status.textContent = 'Enregistrée';
+                                countDescribed();
+                            })
+                            .catch(function () {
+                                status.className = 'photos-describe-status is-error';
+                                status.textContent = 'Pas enregistrée : réessaie avec le bouton en bas';
+                            });
+                    });
+                    // Enter saves and goes to the next photo's description, rather than starting a new line
+                    field.addEventListener('keydown', function (event) {
+                        if (event.key === 'Enter' && !event.shiftKey) {
+                            event.preventDefault();
+                            var next = fields[Array.prototype.indexOf.call(fields, field) + 1];
+                            if (next) {
+                                next.focus();
+                            } else {
+                                field.blur();
+                            }
+                        }
+                    });
                 });
             }
 

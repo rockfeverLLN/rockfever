@@ -24,6 +24,16 @@ class PhotoTable extends Table
     }
 
     /**
+     * Sets what a photo shows (null: not described), only if it's in that album
+     */
+    public function describe(int $albumId, int $photoId, ?string $description) : void
+    {
+        $this->getPdo()
+            ->prepare('UPDATE photos SET description = ? WHERE id = ? AND album_id = ?')
+            ->execute([$description, $photoId, $albumId]);
+    }
+
+    /**
      * The tabs of an album, in the order their first photo was added
      */
     public function findSections(int $albumId) : array

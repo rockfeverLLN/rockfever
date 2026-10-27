@@ -39,6 +39,15 @@
     .photos-admin-tile:hover .cover, .photos-admin-tile .cover:focus-visible { opacity: 1; }
     .photos-admin-tile .cover:hover { background: #f0b429; color: #000; }
     .photos-admin-tile .cover.is-cover { opacity: 1; background: #f0b429; color: #000; cursor: default; }
+    .photos-admin-grid:has(.photos-admin-item) { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .photos-describe-intro { color: #3e4c59; }
+    .photos-describe label { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: .85rem; color: #3e4c59; }
+    .photos-describe label a { display: inline-flex; align-items: center; min-height: 24px; padding: 0 4px; }
+    .photos-describe textarea { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #757575; border-radius: 6px; font: inherit; font-size: .9rem; resize: vertical; }
+    .photos-describe textarea:focus { outline: 3px solid #072d55; outline-offset: 1px; }
+    .photos-describe-status { display: block; min-height: 1.2em; font-size: .8rem; color: #1b5e20; }
+    .photos-describe-status.is-error { color: #a00b0b; }
+    .photos-describe-save { margin-top: 16px; }
     .photos-toolbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 0; margin-bottom: 8px; background: #fff; }
     .photos-toolbar .count { margin-right: auto; color: #52606d; }
 </style>
