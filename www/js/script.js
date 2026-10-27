@@ -370,7 +370,7 @@
         license_key: 'gpl',
         content_css: '/css/base.css',
         language: 'fr_FR',
-        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.19/langs7/fr_FR.js',
+        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.26/langs7/fr_FR.js',
         branding: false,
         promotion: false,
         plugins: 'image link table lists code',
