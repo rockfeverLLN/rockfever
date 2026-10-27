@@ -1,0 +1,45 @@
+{% extends 'layout.twig' %}
+{% block title %}Accessibilité - Rock Fever{% endblock %}
+{% block canonical_path %}/accessibilite{% endblock %}
+{% block body %}
+    {#- Made with the W3C Accessibility Statement Generator, then translated #}
+    <div class="container">
+        <h1>Déclaration d’accessibilité de rockfever.be</h1>
+        <p>Rock Fever ASBL veut que son site soit utilisable par tout le monde, y compris les personnes en situation de handicap.</p>
+
+        <h2>État de conformité</h2>
+        <p>
+            Les <a href="https://www.w3.org/WAI/standards-guidelines/wcag/fr" class="underlined-link">Règles pour l’accessibilité des contenus Web (WCAG)</a>
+            définissent ce que les concepteurs et développeurs doivent faire pour rendre un site accessible aux personnes en situation de handicap,
+            selon trois niveaux de conformité : A, AA et AAA.
+            rockfever.be est <strong>partiellement conforme</strong> aux WCAG 2.2 niveau AA :
+            certaines parties du contenu ne respectent pas encore entièrement ces règles.
+        </p>
+
+        <h2>Limites connues</h2>
+        <p>Malgré nos efforts, certaines parties du site restent moins accessibles :</p>
+        <ul class="browser-default">
+            <li>
+                <strong>Albums photos (<a href="{{ path('photos') }}" class="underlined-link">/photos</a>)</strong> :
+                les photos des soirées n’ont pas de description textuelle de ce qu’elles montrent.
+                Chaque album compte des centaines de photos, trop pour que notre équipe de bénévoles les décrive une à une.
+                Nous décrivons volontiers une photo sur demande : écris-nous via le <a href="{{ path('contact') }}" class="underlined-link">formulaire de contact</a>.
+            </li>
+        </ul>
+        <p>Si tu rencontres un problème qui n’est pas dans cette liste, dis-le-nous.</p>
+
+        <h2>Ton avis</h2>
+        <p>
+            Si un obstacle t’empêche d’utiliser rockfever.be, écris-nous via le <a href="{{ path('contact') }}" class="underlined-link">formulaire de contact</a>.
+            Nous essayons de répondre dans la semaine.
+        </p>
+
+        <h2>Technologies utilisées</h2>
+        <p>L’accessibilité de rockfever.be repose sur HTML, WAI-ARIA, CSS et JavaScript, avec ton navigateur et tes technologies d’assistance.</p>
+
+        <h2>Évaluation</h2>
+        <p>Rock Fever ASBL a évalué l’accessibilité de rockfever.be elle-même (auto-évaluation).</p>
+
+        <p>Cette déclaration a été établie le 27 octobre 2026 avec l’outil de génération de déclarations d’accessibilité du W3C.</p>
+    </div>
+{% endblock %}
