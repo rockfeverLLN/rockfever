@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Brussels
+    # Routine version updates are tested and installed by update-dependencies.yml.
+    # A zero limit disables Dependabot version-update PRs while security updates remain enabled.
+    open-pull-requests-limit: 0
+    commit-message:
+      prefix: "deps"
+      include: "scope"
