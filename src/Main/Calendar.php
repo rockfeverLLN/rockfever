@@ -263,7 +263,8 @@ class Calendar
             // No band or DJ: the team plays the music, from the songs proposed on /music
             'performer' => $rockFever,
         ];
-        if ($soiree['prices'] && !$soiree['past']) {
+        // A past soirée keeps its offers, sold out: Google flags events without them, past pages included
+        if ($soiree['prices']) {
             $schema['offers'] = [
                 [
                     '@type' => 'Offer',
@@ -281,7 +282,7 @@ class Calendar
                     'price' => $soiree['prices']['door'],
                     'priceCurrency' => 'EUR',
                     'url' => $soiree['url'],
-                    'availability' => 'https://schema.org/' . ($soiree['cancelled'] ? 'OutOfStock' : 'InStock'),
+                    'availability' => 'https://schema.org/' . ($soiree['cancelled'] || $soiree['past'] ? 'OutOfStock' : 'InStock'),
                     // Paid at the door: from the start of the soirée to its end
                     'validFrom' => $soiree['start']->format('c'),
                     'validThrough' => $soiree['end']->format('c'),
