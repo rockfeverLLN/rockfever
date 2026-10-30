@@ -5,15 +5,10 @@
 {% block bodyColor %}grey lighten-2{% endblock %}
 
 {% block body %}
-    <div class="container">
-        {% if flash('error') %}
-            <div class="card-panel red white-text">
-                {{ flash('error') }}
-            </div>
-        {% endif %}
+    <div class="container login-page">
         <div class="row">
             <div class="col s12 m6 l4 offset-m3 offset-l4">
-                <div class="card" style="margin-top: 50px">
+                <div class="card login-card">
                     <div class="card-content">
                         <h1 class="center" style="font-size: 2rem; margin-top: 0">Connexion</h1>
                         <div class="center">
