@@ -1,5 +1,5 @@
 <?php
-// Makes the smaller WebP copies (www/images/about/sizes/) of the images uploaded before they were made at upload.
+// Makes the smaller JPEG copies (www/images/about/sizes/) of the images uploaded before they were made at upload.
 // The home page offers them in a srcset so phones don't download 1600px photos. Copies that exist are kept.
 //
 //   php bin/resize-images.php
