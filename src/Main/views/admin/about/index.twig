@@ -37,7 +37,7 @@
                         <a href="{{ path(routePrefix ~ '.edit', {id: section.id}) }}" class="green-text text-lighten-1 tooltipped about-button" data-position="top" data-tooltip="Modifier la section">
                             <i class="mdi mdi-pencil"></i>
                         </a>
-                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: section.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette section ?");'>
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: section.id}) }}" method="post" data-confirm="Etes-vous sûr de vouloir supprimer cette section ?">
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="submit" class="red-text text-lighten-1 tooltipped about-button" data-position="top" data-tooltip="Supprimer la section">
                                 <i class="mdi mdi-delete"></i>

@@ -9,8 +9,9 @@ use Psr\Http\Message\ServerRequestInterface;
  * Lets a page run only the scripts it carries itself. Every request gets a random nonce ({{ csp_nonce }} in the
  * templates); a page whose HTML uses it gets a Content-Security-Policy that blocks every other script, so a script
  * slipped into a page can't run. The scripts those scripts add (Google's tag, script.js) are allowed by
- * 'strict-dynamic'. The admin doesn't use the nonce (TinyMCE, onsubmit attributes): it only has www/.htaccess's policy,
- * which browsers apply together with this one
+ * 'strict-dynamic', which is how TinyMCE loads its plugins and language in the admin. So no onclick or onsubmit
+ * attributes: those are blocked too (forms ask with data-confirm, script.js). Browsers apply this policy together with
+ * www/.htaccess's
  */
 class ContentSecurityPolicyMiddleware
 {

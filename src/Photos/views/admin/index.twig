@@ -29,11 +29,11 @@
                                 · <span class="grey-text">{{ request.createdAt|date('d/m/Y H:i') }}</span>
                                 {% if request.reason %}<p>{{ request.reason }}</p>{% endif %}
                                 <div class="actions">
-                                    <form action="{{ path('admin.photos.delete') }}" method="post" onsubmit="return confirm('Supprimer définitivement cette photo ?')">
+                                    <form action="{{ path('admin.photos.delete') }}" method="post" data-confirm="Supprimer définitivement cette photo ?">
                                         <input type="hidden" name="ids[]" value="{{ request.photoId }}">
                                         <button class="btn red waves-effect waves-light"><i class="mdi mdi-delete left"></i>Supprimer la photo</button>
                                     </form>
-                                    <form action="{{ path('admin.photos.request.dismiss', {id: request.id}) }}" method="post" onsubmit="return confirm('Garder la photo et ignorer cette demande ?')">
+                                    <form action="{{ path('admin.photos.request.dismiss', {id: request.id}) }}" method="post" data-confirm="Garder la photo et ignorer cette demande ?">
                                         <button class="btn-flat waves-effect">Ignorer la demande</button>
                                     </form>
                                 </div>

@@ -64,15 +64,20 @@
             {% if nextEvent.id is not defined %}
                 <span class="dashboard-pill dashboard-pill-outline disabled"><i class="mdi mdi-lock-open" aria-hidden="true"></i>Inscriptions</span>
             {% elseif nextEvent.closed == 1 %}
-                <a href="{{ path('admin.events.open', {id:nextEvent.id}) }}" class="dashboard-pill dashboard-pill-outline tooltipped"
-                   data-tooltip="Réouvrir les inscriptions" data-position="top">
-                    <i class="mdi mdi-lock" aria-hidden="true"></i>Fermées
-                </a>
+                {#- Forms, not links: a link from another site could change them (CsrfMiddleware only checks POST) #}
+                <form action="{{ path('admin.events.open', {id:nextEvent.id}) }}" method="post" class="dashboard-pill-form">
+                    <button type="submit" class="dashboard-pill dashboard-pill-outline tooltipped"
+                       data-tooltip="Réouvrir les inscriptions" data-position="top">
+                        <i class="mdi mdi-lock" aria-hidden="true"></i>Fermées
+                    </button>
+                </form>
             {% else %}
-                <a href="{{ path('admin.events.close', {id:nextEvent.id}) }}" class="dashboard-pill dashboard-pill-outline tooltipped"
-                   data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)" data-position="top">
-                    <i class="mdi mdi-lock-open" aria-hidden="true"></i>Ouvertes
-                </a>
+                <form action="{{ path('admin.events.close', {id:nextEvent.id}) }}" method="post" class="dashboard-pill-form">
+                    <button type="submit" class="dashboard-pill dashboard-pill-outline tooltipped"
+                       data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)" data-position="top">
+                        <i class="mdi mdi-lock-open" aria-hidden="true"></i>Ouvertes
+                    </button>
+                </form>
             {% endif %}
             <a class="dashboard-pill{{ nextEvent.id is defined ? '' : ' disabled' }}"
                {% if nextEvent.id is defined %}
@@ -85,8 +90,8 @@
     </section>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
-<script>
+<script nonce="{{ csp_nonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<script nonce="{{ csp_nonce }}">
     // Text and grid in the colors of the admin's theme (admin-dark.css), and again when its button switches it
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     Chart.defaults.global.defaultFontColor = dark ? "#9aa7b4" : "#52606d";

@@ -1078,6 +1078,17 @@ ul.next-event-infos:last-child {
     transition: background-color .15s, border-color .15s;
 }
 
+/* The sign-up pill is a form's button: looks like the links next to it */
+.dashboard-pill-form {
+    display: contents;
+}
+
+button.dashboard-pill {
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 .dashboard-pill .mdi {
     font-size: 18px;
     line-height: 1;

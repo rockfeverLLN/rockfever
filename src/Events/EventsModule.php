@@ -47,13 +47,14 @@ class EventsModule extends Module
                 'admin.events.participants.print'
             );
 
-            $router->get(
+            // POST, so CsrfMiddleware checks them: a link from another site can't close or reopen the sign-ups
+            $router->post(
                 $adminPrefix . '/events/close/{id:[0-9]+}',
                 EventCloseAction::class,
                 'admin.events.close'
             );
 
-            $router->get(
+            $router->post(
                 $adminPrefix . '/events/open/{id:[0-9]+}',
                 EventOpenAction::class,
                 'admin.events.open'
