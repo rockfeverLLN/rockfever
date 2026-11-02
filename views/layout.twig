@@ -61,6 +61,44 @@
     {%- endif %}
     <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt"/>
     <link rel="alternate" type="application/json" href="/api/events" title="Les soirées (JSON)"/>
+    {#- A WebMCP tool, for the AI agents a browser lets act on the page: the next soirée, read from /api/events.
+        Registered right away, not in script.js, so an agent (or Lighthouse) that looks as soon as the page loads finds it.
+        The forms that act (sign-up, contact, music) are tools of their own, through their toolname attributes #}
+    <script nonce="{{ csp_nonce }}">
+        (function () {
+            var modelContext = document.modelContext || navigator.modelContext;
+            if (!modelContext || !modelContext.registerTool) {
+                return;
+            }
+            modelContext.registerTool({
+                name: 'get_next_soiree',
+                description: "Donne la prochaine soirée du Rock Fever (date, heures, lieu, prix, thème) et l'état de ses inscriptions "
+                    + "(soiree.registration.status : open, upcoming, pending, closed ou cancelled), avec des suites à proposer "
+                    + "(l'ajouter à son calendrier, un rappel). Les mêmes données que https://rockfever.be/api/events.",
+                inputSchema: {type: 'object', properties: {}},
+                annotations: {readOnlyHint: true},
+                execute: function () {
+                    return fetch('/api/events', {headers: {Accept: 'application/json'}})
+                        .then(function (response) {
+                            return response.json();
+                        })
+                        .then(function (data) {
+                            // The soirée itself carries its sign-up's state; data.registration explains the states
+                            var soiree = (data.events || []).filter(function (event) {
+                                return event.id === data.next;
+                            })[0] || null;
+                            var next = {
+                                nextSummary: data.nextSummary,
+                                soiree: soiree,
+                                registrationStatuses: data.registration && data.registration.statuses,
+                                suggestions: data.suggestions
+                            };
+                            return {content: [{type: 'text', text: JSON.stringify(next)}]};
+                        });
+                }
+            });
+        })();
+    </script>
     {#- Who runs the site, for search engines and AI assistants. The events on each page name it as organizer by its @id #}
     <script type="application/ld+json">{{ {
         '@context': 'https://schema.org',
