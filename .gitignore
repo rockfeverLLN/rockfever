@@ -27,6 +27,7 @@ Thumbs.db
 
 # Built by bin/critical-css.php at every deploy (deploy.yml)
 /views/critical.css
+/views/critical/
 /www/css/site.css
 
 # Images pasted into the About sections, saved as files when a page shows them (TextExtension::pastedToFile)

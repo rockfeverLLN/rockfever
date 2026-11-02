@@ -69,6 +69,11 @@ for built in views/critical.css www/css/site.css; do
         COMMANDS+=" put $(quote "$built") -o $(quote "$built");"
     fi
 done
+# The first-paint CSS of each page, without the files of pages that are gone
+if [ -d views/critical ]; then
+    echo "  upload views/critical/ (built)"
+    COMMANDS+=" mkdir -p -f views/critical; mirror --reverse --delete views/critical/ views/critical/;"
+fi
 # Built by earlier deploys and no longer used (merged into site.css)
 COMMANDS+=" rm -f www/css/materialize.site.css;"
 
