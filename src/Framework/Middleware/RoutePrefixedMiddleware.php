@@ -40,7 +40,9 @@ class RoutePrefixedMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $path = $request->getUri()->getPath();
+        // Decoded like the router does (Mezzio's FastRouteRouter): /%61dmin is routed to /admin, so it must get
+        // the /admin middlewares too
+        $path = rawurldecode($request->getUri()->getPath());
         if (strpos($path, $this->prefix) === 0) {
             return $this->container->get($this->middleware)->process($request, $handler);
         }
