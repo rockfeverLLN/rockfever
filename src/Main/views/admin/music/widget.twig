@@ -18,7 +18,7 @@
                         <td>{{ music.title | excerpt(50) }}</td>
                         <td>{{ music.artist | excerpt(50) }}</td>
                         <td>
-                            <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}" class="dashboard-play tooltipped" data-position="top" data-tooltip="Voir sur youtube" target="_blank" aria-label="Voir sur youtube">
+                            <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}" class="dashboard-play tooltipped" data-position="top" data-tooltip="Voir sur youtube" target="_blank" aria-label="Voir {{ music.title }} sur YouTube (nouvel onglet)">
                                 <i class="mdi mdi-play" aria-hidden="true"></i>
                             </a>
                         </td>

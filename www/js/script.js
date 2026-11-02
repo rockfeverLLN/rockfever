@@ -8,6 +8,15 @@
 
     // Admin dark mode (admin-dark.css): the top bar's button switches it and remembers the choice on this device. The
     // layout's head sets the theme on load; the chart listens to admin-theme to redraw in the new colors
+    // The top bar's button is a toggle ("Mode sombre", pressed or not) for screen readers
+    function updateThemeToggles() {
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        all('.theme-toggle[aria-pressed]').forEach(function (button) {
+            button.setAttribute('aria-pressed', String(dark));
+        });
+    }
+
+    updateThemeToggles();
     all('.theme-toggle').forEach(function (button) {
         button.addEventListener('click', function () {
             var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -16,8 +25,26 @@
                 localStorage.setItem('admin-theme', theme);
             } catch (e) {
             }
+            updateThemeToggles();
             document.dispatchEvent(new CustomEvent('admin-theme', {detail: theme}));
         });
+    });
+
+    // The menus' link to the page we're on says so to screen readers, as its highlight does on screen
+    all('nav li.active > a, .sidenav li.active > a').forEach(function (link) {
+        if (!link.hasAttribute('aria-current') && !link.classList.contains('dropdown-trigger')) {
+            link.setAttribute('aria-current', 'page');
+        }
+    });
+
+    // Elements made into buttons with role="button" (collapsible headers, card reveals) work with Enter and Space
+    document.addEventListener('keydown', function (event) {
+        var target = event.target;
+        if ((event.key === 'Enter' || event.key === ' ') && target.getAttribute && target.getAttribute('role') === 'button'
+            && !/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) {
+            event.preventDefault();
+            target.click();
+        }
     });
 
     // Side menu on phones and tablets: the menu button opens it, a click beside it or Escape closes it
@@ -190,6 +217,12 @@
         element.addEventListener('mouseleave', hideTooltip);
         element.addEventListener('blur', hideTooltip);
     });
+    // Escape hides it without moving the mouse or the focus (WCAG 1.4.13)
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            hideTooltip();
+        }
+    });
 
     // Forms that delete something ask first: <form data-confirm="question">. Not an onsubmit attribute, which the
     // Content-Security-Policy blocks (ContentSecurityPolicyMiddleware)
@@ -203,8 +236,19 @@
     // Modals: <dialog class="modal">, opened by the links to them (.modal-trigger), closed by .modal-close, Escape
     // or a click beside them. Opened as plain dialogs, not modal ones: TinyMCE's menus and windows, in some of
     // them, must be able to show above
+    // The focus goes into the dialog when it opens, and back to the link that opened it when it closes. Its title
+    // (its first heading) names it for screen readers
     var modalOverlay = null;
     var openModal = null;
+    var modalTrigger = null;
+
+    all('dialog.modal').forEach(function (modal, index) {
+        var heading = modal.querySelector('h1, h2, h3, h4, h5, h6');
+        if (heading && !modal.hasAttribute('aria-labelledby') && !modal.hasAttribute('aria-label')) {
+            heading.id = heading.id || 'modal-title-' + index;
+            modal.setAttribute('aria-labelledby', heading.id);
+        }
+    });
 
     function closeModal() {
         if (openModal) {
@@ -212,6 +256,10 @@
             openModal = null;
             modalOverlay.classList.remove('open');
             document.body.style.overflow = '';
+            if (modalTrigger && document.contains(modalTrigger)) {
+                modalTrigger.focus();
+            }
+            modalTrigger = null;
         }
     }
 
@@ -231,12 +279,24 @@
             document.body.style.overflow = 'hidden';
             modal.show();
             openModal = modal;
+            modalTrigger = trigger;
+            var field = modal.querySelector('input:not([type=hidden]):not([tabindex="-1"]), textarea:not(.tinymce), select, button');
+            (field || modal).focus();
             return;
         }
         var close = event.target.closest('dialog.modal .modal-close');
         if (close && close.type !== 'submit') {
             event.preventDefault();
             closeModal();
+        }
+    });
+
+    // Tab stays in the open dialog, as in a modal one: leaving it goes back to its first field. TinyMCE's menus and
+    // windows, outside of it, keep the focus
+    document.addEventListener('focusin', function (event) {
+        if (openModal && !openModal.contains(event.target) && !event.target.closest('.tox, .tox-tinymce-aux')) {
+            var first = openModal.querySelector('input:not([type=hidden]):not([tabindex="-1"]), textarea:not(.tinymce), select, button, a[href], iframe');
+            (first || openModal).focus();
         }
     });
 
@@ -247,8 +307,29 @@
         }
     });
 
-    // Collapsibles: a click on an item's header opens it and closes the others
+    // Collapsibles: a click on an item's header opens it and closes the others. The headers are buttons for the
+    // keyboard and screen readers, which hear whether their item is open
     all('.collapsible').forEach(function (collapsible) {
+        function headers() {
+            return all(':scope > li > .collapsible-header', collapsible);
+        }
+
+        function update() {
+            headers().forEach(function (header) {
+                header.setAttribute('aria-expanded', String(header.parentElement.classList.contains('active')));
+            });
+        }
+
+        headers().forEach(function (header, index) {
+            var body = header.parentElement.querySelector(':scope > .collapsible-body');
+            header.setAttribute('role', 'button');
+            header.tabIndex = 0;
+            if (body) {
+                body.id = body.id || 'collapsible-body-' + index;
+                header.setAttribute('aria-controls', body.id);
+            }
+        });
+        update();
         collapsible.addEventListener('click', function (event) {
             var header = event.target.closest('.collapsible-header');
             if (!header || header.parentElement.parentElement !== collapsible) {
@@ -260,22 +341,54 @@
                 other.classList.remove('active');
             });
             item.classList.toggle('active', open);
+            update();
         });
     });
 
-    // Cards whose .activator shows their .card-reveal, closed by its title
+    // Cards whose .activator shows their .card-reveal, closed by its title. The card's last .activator (its label)
+    // and the title are the buttons for the keyboard; the focus moves between them
+    all('.card').forEach(function (card) {
+        var reveal = card.querySelector('.card-reveal');
+        var activators = all('.activator', card);
+        var title = reveal && reveal.querySelector('.card-title');
+        if (!reveal || !activators.length) {
+            return;
+        }
+        var opener = activators[activators.length - 1];
+        opener.setAttribute('role', 'button');
+        opener.setAttribute('aria-expanded', 'false');
+        opener.tabIndex = 0;
+        if (title) {
+            title.setAttribute('role', 'button');
+            title.tabIndex = 0;
+        }
+    });
     document.addEventListener('click', function (event) {
         var card = event.target.closest('.card');
         var reveal = card && card.querySelector('.card-reveal');
         if (!reveal) {
             return;
         }
+        var opener = card.querySelector('.activator[role=button]');
         if (event.target.closest('.activator')) {
             card.style.overflow = 'hidden';
             reveal.classList.add('open');
+            if (opener) {
+                opener.setAttribute('aria-expanded', 'true');
+            }
+            var title = reveal.querySelector('.card-title[role=button]');
+            if (title && event.detail === 0) {
+                title.focus();
+            }
         } else if (event.target.closest('.card-reveal .card-title')) {
             reveal.classList.remove('open');
             card.style.overflow = '';
+            if (opener) {
+                opener.setAttribute('aria-expanded', 'false');
+                if (event.detail === 0) {
+                    opener.focus();
+                }
+            }
         }
     });
 
@@ -421,6 +534,18 @@
         toolbar: 'undo redo | styles bold italic forecolor numlist | alignleft aligncenter alignright | link imageUploader image code',
         height: 300,
         setup: function (editor) {
+            // The editing area is named after the field's label, else the title of the dialog it's in
+            editor.on('init', function () {
+                var textarea = editor.getElement();
+                var label = document.querySelector('label[for="' + textarea.id + '"]');
+                var dialog = textarea.closest('dialog');
+                var heading = dialog && dialog.querySelector('h1, h2, h3, h4, h5, h6');
+                var name = (label && label.textContent.trim()) || (heading && heading.textContent.trim());
+                if (name) {
+                    editor.getBody().setAttribute('aria-label', name);
+                    editor.getContentAreaContainer().querySelector('iframe').title = name;
+                }
+            });
             editor.ui.registry.addButton('imageUploader', {
                 icon: 'upload',
                 tooltip: "Télécharger une image sur le serveur",

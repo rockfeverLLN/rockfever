@@ -1,8 +1,8 @@
 <nav class="koamaru admin-nav" aria-label="Menu principal">
     <div class="nav-wrapper container">
         <a href="{{ path(isPhotographer() ? 'admin.photos.index' : 'admin.dashboard') }}" class="brand-logo">Administration</a>
-        <a href="#" data-target="sidenav" class="sidenav-trigger">
-            <i class="material-icons">menu</i>
+        <a href="#" data-target="sidenav" class="sidenav-trigger" aria-label="Menu" aria-controls="sidenav">
+            <i class="material-icons" aria-hidden="true">menu</i>
         </a>
         <ul class="right hide-on-med-and-down">
             {#- The photographers' login only opens the photos (App\Photos\PhotographerMiddleware) #}
@@ -10,19 +10,20 @@
                 {% include '@photos/admin/menu.twig' %}
             {% else %}
                 <li class="{{ isSubPath('admin.dashboard') ? 'active' }}">
-                    <a href="{{ path('admin.dashboard') }}"><i class="mdi mdi-view-dashboard"></i></a>
+                    <a href="{{ path('admin.dashboard') }}" aria-label="Tableau de bord" title="Tableau de bord"
+                       {% if isSubPath('admin.dashboard') %}aria-current="page"{% endif %}><i class="mdi mdi-view-dashboard" aria-hidden="true"></i></a>
                 </li>
                 {{ renderMenu() }}
             {% endif %}
             <li>
-                <button type="button" class="theme-toggle" aria-label="Changer de thème">
+                <button type="button" class="theme-toggle" aria-label="Mode sombre" aria-pressed="false" title="Mode sombre">
                     <i class="mdi mdi-weather-night when-light" aria-hidden="true" title="Mode sombre"></i>
                     <i class="mdi mdi-white-balance-sunny when-dark" aria-hidden="true" title="Mode clair"></i>
                 </button>
             </li>
             <li>
                 <form action="{{ path('auth.logout') }}" method="post" class="logout-form">
-                    <button type="submit" aria-label="Se déconnecter"><i class="mdi mdi-logout"></i></button>
+                    <button type="submit" aria-label="Se déconnecter" title="Se déconnecter"><i class="mdi mdi-logout" aria-hidden="true"></i></button>
                 </form>
             </li>
         </ul>
@@ -33,7 +34,7 @@
 <div role="navigation" aria-label="Menu mobile">
     <ul class="sidenav" id="sidenav">
         {% if not isPhotographer() %}
-        <li><a href="{{ path('admin.dashboard') }}">Tableau de bord</a></li>
+        <li class="{{ isSubPath('admin.dashboard') ? 'active' }}"><a href="{{ path('admin.dashboard') }}">Tableau de bord</a></li>
         {% if isAdmin() %}
             <li class="{{ isSubPath('admin.about.index') ? 'active' }}">
                 <a href="{{ path('admin.about.index') }}">A propos</a>

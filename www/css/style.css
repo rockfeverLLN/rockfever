@@ -47,7 +47,11 @@
 .site :focus-visible,
 .site input:focus-visible,
 .site select:focus-visible,
-.site textarea:focus-visible {
+.site textarea:focus-visible,
+.admin :focus-visible,
+.admin input:focus-visible,
+.admin select:focus-visible,
+.admin textarea:focus-visible {
     outline: 3px solid #072d55;
     outline-offset: 2px;
 }
@@ -56,13 +60,18 @@
 .site .page-footer :focus-visible,
 .site .parallax-container :focus-visible,
 .site .koamaru :focus-visible,
-.site.photos-dark :focus-visible {
+.site.photos-dark :focus-visible,
+.admin nav :focus-visible,
+.admin .koamaru :focus-visible,
+.admin .dancers-list-background :focus-visible,
+.admin .card-statistics :focus-visible {
     outline-color: #ffffff;
 }
 
 /* Visitors who asked their device for less motion: no sliding or fading (WCAG 2.3.3). script.js stops the parallax */
 @media (prefers-reduced-motion: reduce) {
-    .site *, .site *::before, .site *::after {
+    .site *, .site *::before, .site *::after,
+    .admin *, .admin *::before, .admin *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -216,6 +225,13 @@ h4 {
     font-size: 2.28rem;
     line-height: 110%;
     margin: 1.52rem 0 0.912rem 0;
+}
+
+/* Headings at the right level for screen readers, at the size of the h4 they were */
+.modal-title,
+.h4-size {
+    font-size: 2.28rem;
+    line-height: 110%;
 }
 
 h5 {
@@ -481,8 +497,10 @@ h6 {
     text-decoration: none;
 }
 
-/* Hidden on screen, still read by screen readers */
-.sr-only {
+/* Hidden on screen, still read by screen readers. The label of a field TinyMCE replaced names its editing area
+   (script.js) */
+.sr-only,
+.input-field > .tox-tinymce ~ label {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -500,8 +518,14 @@ a {
 }
 
 /* Darker shades of Materialize's defaults so text on them stays readable (at least 4.5:1) */
-.input-field > label {
+.input-field > label,
+html:not([data-theme="dark"]) .admin label {
     color: #575757;
+}
+
+/* In the admin, Materialize's grey text too (admin-dark.css has its own) */
+html:not([data-theme="dark"]) .admin .grey-text:not(.text-darken-1):not(.text-darken-2):not(.text-darken-3):not(.text-darken-4) {
+    color: #616161 !important;
 }
 
 .btn, .btn-large, .btn-small {
@@ -1805,6 +1829,19 @@ table tbody tr td .input-field {
     margin-top: -2px;
 }
 
+/* The dancers' buttons, darker than Materialize's colors to be read on white (WCAG 1.4.3). admin-dark.css has its own */
+html:not([data-theme="dark"]) .guests-list .collection-item .green-text {
+    color: #2e7d32 !important;
+}
+
+html:not([data-theme="dark"]) .guests-list .collection-item .amber-text {
+    color: #8d6200 !important;
+}
+
+html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
+    color: #c62828 !important;
+}
+
 /* The letters the search matched (www/js/guests.js) */
 .guests-list .collection .collection-item mark {
     background: #ffe082;
@@ -1927,6 +1964,17 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 
 .tab-highlighted:focus, .tab-highlighted:hover {
     background-color: #e0e0e0 !important;
+}
+
+/* Links in the admin's sentences are underlined, not told apart by their color alone (WCAG 1.4.1) */
+.admin main p a:not([class]) {
+    text-decoration: underline;
+}
+
+/* The search's label is the page's title */
+.admin .dancers-list .guest-search-label {
+    font-size: inherit;
+    color: inherit;
 }
 
 #guest-search:focus {

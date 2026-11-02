@@ -6,11 +6,12 @@
         <div class="col s12 m7 l8 dancers-list dancers-list-background white-text">
             <div class="container">
                 <div class="row">
-                    <h1 style="margin-top: 80px">Recherchez un danseur :</h1>
+                    <h1 style="margin-top: 80px"><label for="guest-search" class="guest-search-label">Recherchez un danseur :</label></h1>
                     <div class="col s12 m10 offset-m1">
-                        <input type="text" name="dancers-search" autocomplete="off" placeholder="Nom du danseur" id="guest-search">
+                        <input type="text" name="dancers-search" autocomplete="off" placeholder="Nom du danseur" id="guest-search"
+                               aria-controls="guests-list">
                     </div>
-                    <a href="{{ path('admin.events.statistics', {id: id}) }}" class="col s12 m4 offset-m1 center-align event-list-stat white-text">
+                    <a href="{{ path('admin.events.statistics', {id: id}) }}" class="col s12 m4 offset-m1 center-align event-list-stat white-text" aria-live="polite">
                         <strong id="attendees">-</strong>
                         <br>
                         personnes au total
@@ -18,7 +19,7 @@
                         <br>
                         <span id="venue-stats">- % des pré-inscrits</span>
                     </a>
-                    <div class="col hide-on-small-only m4 offset-m2 center-align event-list-stat">
+                    <div class="col hide-on-small-only m4 offset-m2 center-align event-list-stat" aria-live="polite">
                         <strong id="improvised">-</strong>
                         <br>
                         venues improvisées
@@ -27,7 +28,7 @@
             </div>
         </div>
         <div class="col s12 m5 l4 guests-list">
-            <ul class="collection" id="guests-list" style="margin: 0;"
+            <ul class="collection" id="guests-list" style="margin: 0;" aria-label="Danseurs"
                 data-event="{{ id }}"
                 data-list-url="{{ path('admin.ajax.dancers.load-list', {id: id}) }}"
                 data-stats-url="{{ path('admin.ajax.dancers.get-stats', {id: id}) }}"
@@ -35,9 +36,9 @@
                 data-add-url="{{ path('admin.ajax.dancer.add-improvised') }}">
 
             </ul>
-            <div class="grey lighten-1 white-text guests-list-nothing" style="width: 100%; height: 100%;">
+            <div class="grey lighten-1 white-text guests-list-nothing" style="width: 100%; height: 100%;" role="status">
                 <div>
-                    <i class="material-icons" style="font-size:100px; display: block;">search</i>
+                    <i class="material-icons" style="font-size:100px; display: block;" aria-hidden="true">search</i>
                     Aucun élément à afficher
                 </div>
             </div>
@@ -48,16 +49,18 @@
         <div class="container">
             <div class="row">
                 <div class="col s12" style="margin-top: 8px; margin-bottom: 3px">
-                    <span style="font-size: 20px; font-weight: 400; margin-top: 0;">Ajouter un participant :</span>
+                    <h2 id="improvised-title" style="font-size: 20px; font-weight: 400; margin: 0;">Ajouter un participant :</h2>
                 </div>
                 <div class="col s12 m5">
-                    <input type="text" id="improvised-firstname" name="firstname" autocomplete="off" placeholder="Prénom">
+                    <input type="text" id="improvised-firstname" name="firstname" autocomplete="off" placeholder="Prénom"
+                           aria-label="Prénom du participant à ajouter">
                 </div>
                 <div class="col s12 m5">
-                    <input type="text" id="improvised-lastname" name="lastname" autocomplete="off" placeholder="Nom">
+                    <input type="text" id="improvised-lastname" name="lastname" autocomplete="off" placeholder="Nom"
+                           aria-label="Nom du participant à ajouter">
                 </div>
                 <div class="col s12 m2">
-                    <button id="improvised-button">Ajouter</button>
+                    <button type="button" id="improvised-button" aria-describedby="improvised-title">Ajouter</button>
                 </div>
             </div>
         </div>

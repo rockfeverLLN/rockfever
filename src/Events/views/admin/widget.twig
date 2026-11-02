@@ -3,8 +3,30 @@
         <h2>Participants</h2>
         {#- The chart fills the rest of the card, as tall as the next event's beside it #}
         <div class="dashboard-chart-canvas">
-            <canvas id="dancersChart"></canvas>
+            <canvas id="dancersChart" aria-hidden="true"></canvas>
         </div>
+        {#- The chart's numbers, for screen readers #}
+        <table class="sr-only">
+            <caption>Participants des dernières soirées</caption>
+            <thead>
+            <tr>
+                <th scope="col">Soirée</th>
+                <th scope="col">Pré-inscrits venus</th>
+                <th scope="col">Sans inscription</th>
+                <th scope="col">Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for event in countForChart %}
+                <tr>
+                    <th scope="row">{{ event.title }}</th>
+                    <td>{{ event.count - event.improvised }}</td>
+                    <td>{{ event.improvised }}</td>
+                    <td>{{ event.count }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </section>
 </div>
 
@@ -50,31 +72,33 @@
             {% endif %}
             {% if nextEvent.facebookLink %}
             <li>
-                <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook</a></b>
+                <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook<span class="sr-only"> (nouvel onglet)</span></a></b>
             </li>
             {% endif %}
             {% if nextEvent.coveventLink %}
             <li>
-                <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent</a></b>
+                <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent<span class="sr-only"> (nouvel onglet)</span></a></b>
             </li>
             {% endif %}
         </ul>
         <div class="dashboard-next-actions">
             <span class="dashboard-next-count"><b>{{ nextEvent.participantsCount | default(0) }}</b> participants</span>
             {% if nextEvent.id is not defined %}
-                <span class="dashboard-pill dashboard-pill-outline disabled"><i class="mdi mdi-lock-open" aria-hidden="true"></i>Inscriptions</span>
+                <span class="dashboard-pill dashboard-pill-outline disabled" aria-disabled="true"><i class="mdi mdi-lock-open" aria-hidden="true"></i>Inscriptions</span>
             {% elseif nextEvent.closed == 1 %}
                 {#- Forms, not links: a link from another site could change them (CsrfMiddleware only checks POST) #}
                 <form action="{{ path('admin.events.open', {id:nextEvent.id}) }}" method="post" class="dashboard-pill-form">
                     <button type="submit" class="dashboard-pill dashboard-pill-outline tooltipped"
-                       data-tooltip="Réouvrir les inscriptions" data-position="top">
+                       data-tooltip="Réouvrir les inscriptions" data-position="top"
+                       aria-label="Inscriptions fermées : les réouvrir">
                         <i class="mdi mdi-lock" aria-hidden="true"></i>Fermées
                     </button>
                 </form>
             {% else %}
                 <form action="{{ path('admin.events.close', {id:nextEvent.id}) }}" method="post" class="dashboard-pill-form">
                     <button type="submit" class="dashboard-pill dashboard-pill-outline tooltipped"
-                       data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)" data-position="top">
+                       data-tooltip="Clôturer les inscriptions<br>(vous serez redirigé vers la liste)" data-position="top"
+                       aria-label="Inscriptions ouvertes : les clôturer (vous serez redirigé vers la liste)">
                         <i class="mdi mdi-lock-open" aria-hidden="true"></i>Ouvertes
                     </button>
                 </form>
@@ -82,6 +106,8 @@
             <a class="dashboard-pill{{ nextEvent.id is defined ? '' : ' disabled' }}"
                {% if nextEvent.id is defined %}
                href="{{ path('admin.events.participants', {id:nextEvent.id}) }}"
+               {% else %}
+               role="link" aria-disabled="true"
                {% endif %}
             >
                 <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Liste

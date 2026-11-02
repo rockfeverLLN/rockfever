@@ -32,6 +32,7 @@
         if (!container) {
             container = document.createElement('div');
             container.id = 'toast-container';
+            container.setAttribute('role', 'status');
             document.body.appendChild(container);
         }
         var element = document.createElement('div');
@@ -258,7 +259,7 @@
             event_id: list.dataset.event
         }).then(function (data) {
             if (data === 'OK') {
-                toast('<i class="material-icons left">check</i> ' + escapeHtml(firstname + ' ' + lastname) + ' ajouté !');
+                toast('<i class="material-icons left" aria-hidden="true">check</i> ' + escapeHtml(firstname + ' ' + lastname) + ' ajouté !');
                 loadList();
             } else if (data === 'ALREADY') {
                 alert(firstname + ' ' + lastname + ' figurait déjà dans la liste');

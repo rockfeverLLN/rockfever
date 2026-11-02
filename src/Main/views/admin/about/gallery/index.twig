@@ -2,18 +2,21 @@
 
 {% block body %}
     <div class="container">
+        <h1 class="sr-only">Images des sections « À propos »</h1>
         <div class="row grid">
             {% for image in images %}
                 <div class="col s6">
                     <div class="card">
                         <div class="card-image">
-                            <img src="{{ __DIR__ }}/images/about/{{ image }}">
-                            <a class="btn-floating halfway-fab waves-effect waves-light red to-clipboard" data-clipboard-text="{{ __DIR__ }}/images/about/{{ image }}">
-                                <i class="material-icons">content_copy</i>
-                            </a>
+                            <img src="{{ __DIR__ }}/images/about/{{ image }}" alt="{{ image }}">
+                            <button type="button" class="btn-floating halfway-fab waves-effect waves-light red to-clipboard"
+                                    data-clipboard-text="{{ __DIR__ }}/images/about/{{ image }}"
+                                    aria-label="Copier l'adresse de {{ image }}" title="Copier l'adresse">
+                                <i class="material-icons" aria-hidden="true">content_copy</i>
+                            </button>
                         </div>
                         <div class="card-content">
-                            <input type="text" value="{{ __DIR__ }}/images/about/{{ image }}">
+                            <input type="text" value="{{ __DIR__ }}/images/about/{{ image }}" readonly aria-label="Adresse de {{ image }}">
                         </div>
                     </div>
                 </div>
@@ -21,8 +24,8 @@
         </div>
     </div>
     <div class="fixed-action-btn">
-        <a href="#upload-modal" class="btn-floating btn-large koamaru modal-trigger">
-            <i class="mdi mdi-plus"></i>
+        <a href="#upload-modal" class="btn-floating btn-large koamaru modal-trigger" aria-label="Ajouter une image" title="Ajouter une image">
+            <i class="mdi mdi-plus" aria-hidden="true"></i>
         </a>
     </div>
 
@@ -32,16 +35,17 @@
                 <h4>Ajouter une image</h4>
                 <div class="file-field input-field">
                     <div class="btn">
-                        <span>Image</span>
-                        <input type="file" name="image">
+                        <span aria-hidden="true">Image</span>
+                        <input type="file" name="image" aria-label="Image à ajouter">
                     </div>
                     <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text">
+                        {#- Shows the chosen file's name: the file field above already says it #}
+                        <input class="file-path validate" type="text" tabindex="-1" aria-hidden="true" readonly>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="modal-close waves-effect waves-red red-text btn-flat">Annuler</a>
+                <button type="button" class="modal-close waves-effect waves-red red-text btn-flat">Annuler</button>
                 <button type="submit" class="modal-close waves-effect waves-green btn green">Uploader</button>
             </div>
         </form>

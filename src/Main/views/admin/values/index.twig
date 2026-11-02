@@ -9,7 +9,7 @@
                 <th>Label</th>
                 <th>Nom</th>
                 <th>Valeur</th>
-                <th style="width: 150px"></th>
+                <th style="width: 150px"><span class="sr-only">Actions</span></th>
             </tr>
             </thead>
             <tbody>
@@ -19,30 +19,28 @@
                     <td>{{ value.name }}</td>
                     <td>{{ value.value | excerpt(40) | raw }}</td>
                     <td>
-                        <a class="waves-effect waves-koamaru btn-flat modal-trigger koamaru-text" href="#modal_{{ value.id }}"><i class="material-icons left">edit</i> Modifier</a>
+                        <a class="waves-effect waves-koamaru btn-flat modal-trigger koamaru-text" href="#modal_{{ value.id }}" aria-haspopup="dialog"><i class="material-icons left" aria-hidden="true">edit</i> Modifier<span class="sr-only"> {{ value.label }}</span></a>
                     </td>
 
-                    <dialog id="modal_{{ value.id }}" class="modal modal-fixed-footer">
+                    <dialog id="modal_{{ value.id }}" class="modal modal-fixed-footer" aria-labelledby="modal_{{ value.id }}-title">
                         <form method="post">
                             <div class="modal-content">
-                                <h4>
-                                    {{ value.label }}
-                                    <div class="chip right" style="margin-top: 8px">
-                                        <img src="{{ __DIR__ }}/images/body/text.png" alt="Contact Person">
-                                        Valeur : <strong>{{ value.value | excerpt(30) | raw }}</strong>
-                                    </div>
-                                </h4>
+                                <div class="chip right" style="margin-top: 8px">
+                                    <img src="{{ __DIR__ }}/images/body/text.png" alt="">
+                                    Valeur : <strong>{{ value.value | excerpt(30) | raw }}</strong>
+                                </div>
+                                <h2 class="modal-title" id="modal_{{ value.id }}-title">{{ value.label }}</h2>
                                 <br>
                                 {% if value.type == 'string' %}
                                     {{ field('value', value.value, 'Nouvelle valeur', {idSuffix:value.id}) }}
                                 {% elseif value.type == 'text' %}
-                                    {{ field('value', value.value, '', {idSuffix:value.id, type:'textarea'}) }}
+                                    {{ field('value', value.value, 'Nouvelle valeur', {idSuffix:value.id, type:'textarea'}) }}
                                 {% elseif value.type == 'html' %}
-                                    {{ field('value', value.value, '', {idSuffix:value.id, type:'tinymce'}) }}
+                                    {{ field('value', value.value, 'Nouvelle valeur de « ' ~ value.label ~ ' »', {idSuffix:value.id, type:'tinymce'}) }}
                                 {% endif %}
                             </div>
                             <div class="modal-footer">
-                                <a href="#!" class="modal-close waves-effect waves-red btn-flat red-text">Annuler</a>
+                                <button type="button" class="modal-close waves-effect waves-red btn-flat red-text">Annuler</button>
                                 <button type="submit" class="modal-close waves-effect waves-green green-text btn-flat">Modifier</button>
                                 <input type="hidden" name="id" value="{{ value.id }}">
                             </div>

@@ -10,16 +10,16 @@
                 <div class="card" style="border: none; box-shadow: none">
                     <div class="card-content">
                         <div class="center">
-                            <img src="{{ __DIR__ }}/images/body/{{ role.role }}.svg" alt="{{ role.label }}">
+                            <img src="{{ __DIR__ }}/images/body/{{ role.role }}.svg" alt="">
                         </div>
-                        <h1 class="center" style="font-size: 2rem; margin-top: 0">{{ role.label }}</h1>
+                        <h2 class="center" style="font-size: 2rem; margin-top: 0">{{ role.label }}</h2>
                         <form action="{{ path('admin.roles.index') }}" method="post">
                             <input type="hidden" name="id" value="{{ role.id }}">
                             {{ field('label', role.label, 'Label', {idSuffix:role.id}) }}
-                            {{ field('password', null, 'Nouveau mot de passe', {type:'password', idSuffix:role.id}) }}
-                            <center>
-                                <button class="btn koamaru waves-effect waves-light">Modifier</button>
-                            </center>
+                            {{ field('password', null, 'Nouveau mot de passe', {type:'password', idSuffix:role.id, attributes: {autocomplete: 'new-password'}}) }}
+                            <div class="center-align">
+                                <button class="btn koamaru waves-effect waves-light">Modifier<span class="sr-only"> {{ role.label }}</span></button>
+                            </div>
                         </form>
                     </div>
                 </div>

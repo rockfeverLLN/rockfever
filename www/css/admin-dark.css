@@ -373,3 +373,13 @@ html[data-theme="dark"] .theme-toggle .when-light {
         color: #000000;
     }
 }
+
+/* Keyboard focus: the ring of style.css, light on the dark backgrounds */
+html[data-theme="dark"] .admin :focus-visible {
+    outline-color: var(--admin-accent);
+}
+
+/* The blue of the events' Facebook icon, too dark to be seen on the dark surfaces (WCAG 1.4.11) */
+html[data-theme="dark"] .event-button.blue-text {
+    color: var(--admin-accent) !important;
+}
