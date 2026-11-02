@@ -60,8 +60,11 @@ async function capture(url, width, height, format, quality, deviceScaleFactor = 
     await send('Page.navigate', {url});
     for (let waited = 0; waited < 20000; waited += 250) {
         await sleep(250);
+        // Not the lazy images below the screenshot: they never load, and the home page's made each capture of it
+        // wait the whole 20 seconds
         const {result} = await send('Runtime.evaluate', {
-            expression: "document.readyState === 'complete' && [...document.images].every(i => i.complete)",
+            expression: "document.readyState === 'complete' && [...document.images].every(i => i.complete"
+                + " || (i.loading === 'lazy' && i.getBoundingClientRect().top >= innerHeight))",
             returnByValue: true,
         });
         if (result.value) break;

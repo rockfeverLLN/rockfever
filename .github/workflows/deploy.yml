@@ -25,20 +25,6 @@ jobs:
     runs-on: ubuntu-26.04
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
-    # Test database for the copy of the site that the checks and bin/critical-css.php read
-    services:
-      mariadb:
-        image: mariadb:11
-        env:
-          MARIADB_DATABASE: rockfever
-          MARIADB_USER: rockfever
-          MARIADB_PASSWORD: ci
-          MARIADB_ROOT_PASSWORD: ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_initialized"
-          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - name: Checkout
         env:
@@ -50,19 +36,66 @@ jobs:
       # Same PHP version as the server, read from .ovhconfig
       - name: Read PHP version
         run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
-      # With the dev packages first: Phinx sets up the test database below
+      # Things that only need time, started first so they run during the steps below rather than one after the other:
+      # for the copy of the site that the checks and bin/critical-css.php read, the test database (rather than a
+      # service container, which the job waits for before its first step) and the site's PHP image (pdo_mysql is
+      # compiled: about 15 seconds); for the upload, lftp and removing the caches the previous deploy set aside
+      # (bin/deploy.sh clean, 30 to 40 seconds of SFTP requests). Each writes its exit status for the step that needs it
+      - name: Start the test database and prepare the upload
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          docker run -d --name mariadb -p 3306:3306 \
+            -e MARIADB_DATABASE=rockfever -e MARIADB_USER=rockfever -e MARIADB_PASSWORD=ci -e MARIADB_ROOT_PASSWORD=ci \
+            --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 1s mariadb:11 \
+            > "$RUNNER_TEMP/mariadb.log" 2>&1 &
+          (
+            set +e
+            printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+            echo $? > "$RUNNER_TEMP/site-php-status.tmp" && mv "$RUNNER_TEMP/site-php-status.tmp" "$RUNNER_TEMP/site-php-status"
+          ) > "$RUNNER_TEMP/site-php.log" 2>&1 &
+          # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
+          (
+            set +e
+            APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
+            timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lftp
+            status=$?
+            # Written whole in one go, for the "Wait for lftp" step below
+            echo $status > "$RUNNER_TEMP/upload-status.tmp" && mv "$RUNNER_TEMP/upload-status.tmp" "$RUNNER_TEMP/upload-status"
+            # The upload doesn't wait for this (removing what a busy day of visits cached took 45 seconds): only the
+            # last step does, so the runner doesn't stop it halfway. If it also removes the folder the upload sets the
+            # caches aside in, no harm: it only holds old caches
+            [ $status -eq 0 ] && { timeout 300 bin/deploy.sh clean || echo "Could not remove the old caches: the next deploy will"; }
+            touch "$RUNNER_TEMP/clean-done"
+          ) > "$RUNNER_TEMP/upload-prepare.log" 2>&1 &
+      # With the dev packages first: PHPStan and Phinx below
       - name: Install dependencies
         run: |
           docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
             composer:2 install --no-interaction --ignore-platform-req=php
+      # This check and PHPStan don't need the database: on the plain PHP image, while the site's is still being built
       - name: Check PHP syntax
         run: |
           docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
-            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
-      # A copy of the site on the test database, for the checks and the trimmed CSS below
+            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 -P$(nproc) php -l > /dev/null"
+      # The same checks as before a package update goes live (bin/auto-update.sh): a push that calls a method that
+      # doesn't exist or breaks a page stops here instead of going live
+      - name: PHPStan
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
+            vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+      # A copy of the site on the test database, for the smoke test and the trimmed CSS below
       - name: Start the test site
         run: |
-          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+          until [ -f "$RUNNER_TEMP/site-php-status" ]; do sleep 1; done
+          cat "$RUNNER_TEMP/site-php.log"
+          [ "$(cat "$RUNNER_TEMP/site-php-status")" = 0 ]
+          for i in $(seq 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' mariadb 2> /dev/null)" = healthy ] && break
+            [ "$i" = 60 ] && { echo "The test database didn't start"; cat "$RUNNER_TEMP/mariadb.log"; exit 1; }
+            sleep 1
+          done
           cat > config/database.php <<'EOF'
           <?php
           return [
@@ -77,16 +110,11 @@ jobs:
           }
           site vendor/bin/phinx migrate
           site vendor/bin/phinx seed:run
-          docker run -d --name site --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php \
-            php -S 127.0.0.1:8000 -t www bin/router.php
+          # Several workers, for bin/critical-css.php which reads the pages all at once
+          docker run -d --name site --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app \
+            -e PHP_CLI_SERVER_WORKERS=8 site-php php -S 127.0.0.1:8000 -t www bin/router.php
           # Until the server answers, rather than a fixed time a slow runner can exceed
           for i in $(seq 30); do curl -s -o /dev/null http://127.0.0.1:8000/ && break; sleep 1; done
-      # The same checks as before a package update goes live (bin/auto-update.sh): a push that calls a method that
-      # doesn't exist or breaks a page stops here instead of going live
-      - name: PHPStan
-        run: |
-          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php \
-            vendor/bin/phpstan analyse --no-progress --memory-limit=1G
       - name: Smoke test
         run: bin/smoke-test.sh http://127.0.0.1:8000
       # views/critical.css and www/css/site.css aren't in git: they're built here from the pages of this
@@ -99,12 +127,13 @@ jobs:
           # The seeded events are past: save the home page like this (shorter header), then add an upcoming event
           # so the sign-up link and the event page are read too
           curl -sf http://127.0.0.1:8000/ > home-no-event.html
-          docker run --rm --network host mariadb:11 mariadb -h 127.0.0.1 -u rockfever -pci rockfever -e "
+          docker exec mariadb mariadb -u rockfever -pci rockfever -e "
             INSERT INTO events (title, description, date, waltz_time, rock_time, place, price, facebook_link, covevent_link, closed)
             VALUES ('Soirée', 'Description', CURDATE() + INTERVAL 7 DAY, '20:00', '21:00', 'Hall Sainte-Barbe', '3 €',
                     'https://www.facebook.com/rockfeverlln', '', 0)"
           # The live pages add the real content written in the admin; build without them if the site doesn't answer
-          site php bin/critical-css.php https://www.rockfever.be http://127.0.0.1:8000 home-no-event.html \
+          # (rockfever.be rather than www, which only redirects there: half the requests)
+          site php bin/critical-css.php https://rockfever.be http://127.0.0.1:8000 home-no-event.html \
             || site php bin/critical-css.php http://127.0.0.1:8000 home-no-event.html
           docker rm -f site
           rm config/database.php home-no-event.html
@@ -112,15 +141,20 @@ jobs:
         run: |
           docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
             composer:2 install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
-      # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
-      - name: Install lftp
-        timeout-minutes: 5
+      - name: Wait for lftp
+        timeout-minutes: 10
         run: |
-          APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
-          $APT update
-          $APT install -y --no-install-recommends lftp
+          until [ -f "$RUNNER_TEMP/upload-status" ]; do sleep 1; done
+          [ "$(cat "$RUNNER_TEMP/upload-status")" = 0 ] || { cat "$RUNNER_TEMP/upload-prepare.log"; exit 1; }
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: bin/deploy.sh
+      # The site is live by now: this only lets bin/deploy.sh clean finish, and never fails the deploy
+      - name: Wait for the old caches to be removed
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          until [ -f "$RUNNER_TEMP/clean-done" ]; do sleep 1; done
+          cat "$RUNNER_TEMP/upload-prepare.log"

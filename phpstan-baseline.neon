@@ -13,24 +13,6 @@ parameters:
 			path: bin/fix-double-utf8.php
 
 		-
-			message: '#^Property App\\Auth\\Actions\\LoginAttemptAction\:\:\$renderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Auth/Actions/LoginAttemptAction.php
-
-		-
-			message: '#^Property App\\Events\\Actions\\EventCloseAction\:\:\$renderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Events/Actions/EventCloseAction.php
-
-		-
-			message: '#^Property App\\Events\\Actions\\EventOpenAction\:\:\$renderer is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Events/Actions/EventOpenAction.php
-
-		-
 			message: '#^Access to an undefined property Framework\\Actions\\AjaxAction\:\:\$router\.$#'
 			identifier: property.notFound
 			count: 1
@@ -67,22 +49,10 @@ parameters:
 			path: src/Framework/Validator.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between Psr\\Http\\Message\\UploadedFileInterface and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Framework/Validator.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between Psr\\Http\\Message\\UploadedFileInterface and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
 			path: src/Framework/Validator.php
-
-		-
-			message: '#^Property Framework\\Validator\\ValidationError\:\:\$key is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Framework/Validator/ValidationError.php
 
 		-
 			message: '#^Call to an undefined method Framework\\Database\\Table\:\:findHigherPositions\(\)\.$#'

@@ -6,6 +6,8 @@
 #   can't detect changes by itself.
 # - vendor/: only re-synced when composer.lock changed since the last deploy.
 # - config/database.php and storage/ (the gallery's photos) are not in git and stay on the server untouched.
+# - The caches under tmp/ are emptied by renaming them to tmp/old-cache-*: one request, where removing them takes one
+#   per file (30 to 40 seconds). `bin/deploy.sh clean` removes those, during the checks of the next deploy.
 #
 # The SFTP host comes from FTP_HOST (the repository's FTP_HOST secret), so it isn't in the public code.
 set -euo pipefail
@@ -16,13 +18,24 @@ SETTINGS="set sftp:auto-confirm yes; set cmd:fail-exit yes; set mirror:parallel-
 # Repo files that never go to the server
 EXCLUDE=(':!.github' ':!.gitignore' ':!.editorconfig' ':!README.md')
 
+# A file that the last deploy recorded on the server, read with the others below
 remote_cat() {
-    "${SERVER[@]}" -e "set sftp:auto-confirm yes; cat $1; quit" 2>/dev/null || true
+    cat "$REMOTE/$(basename "$1")" 2>/dev/null || true
 }
 
 quote() {
     printf '"%s"' "${1//\"/\\\"}"
 }
+
+if [ "${1:-}" = clean ]; then
+    "${SERVER[@]}" -e "set sftp:auto-confirm yes; glob -a rm -r -f tmp/old-cache-* || echo 'No old caches to remove'; quit"
+    exit
+fi
+
+# In one connection rather than one per file, which took 2 to 3 seconds each
+REMOTE=$(mktemp -d)
+"${SERVER[@]}" -e "set sftp:auto-confirm yes; lcd $REMOTE; get .deployed-sha; get vendor/.lock-hash; quit" \
+    > /dev/null 2>&1 || true
 
 COMMANDS="$SETTINGS"
 
@@ -68,9 +81,16 @@ else
     echo "composer.lock unchanged, skipping vendor/"
 fi
 
+# Empty the caches once the new files are up
+OLD_CACHE="tmp/old-cache-$(date +%s)"
+COMMANDS+=" mkdir -f $OLD_CACHE;"
+for cache in views routes di proxies; do
+    COMMANDS+=" mv tmp/$cache $OLD_CACHE/$cache || echo 'No tmp/$cache cache';"
+done
+
 # Record the deployed commit last, so a failed upload is retried in full next time
 git rev-parse HEAD > .deployed-sha
-COMMANDS+=" rm -r -f tmp/views tmp/routes tmp/di tmp/proxies; put .deployed-sha; quit"
+COMMANDS+=" put .deployed-sha; quit"
 
 if [ "${DRY_RUN:-}" = 1 ]; then
     echo "$COMMANDS" | tr ';' '\n'

@@ -3,7 +3,6 @@ namespace App\Main;
 
 use App\Main\Actions\AboutGalleryAction;
 use App\Main\Actions\AccessibilityAction;
-use App\Main\Actions\AboutUploadAction;
 use App\Main\Actions\HomeAction;
 use App\Main\Actions\AboutCrudAction;
 use App\Main\Actions\AboutSectionMoveAction;

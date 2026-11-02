@@ -2,11 +2,12 @@
     {{ field('title', item.title, 'Titre de la section') }}
 </div>
 <div class="col s12">
-<div class="card-panel blue white-text">
-    <i class="material-icons left">info</i>
-    Pour ajouter des images, ajoutez-les d'abord à votre galerie en cliquant sur l'icône <i class="mdi mdi-cloud-upload"></i> puis utilisez l'outils image pour l'insérer
+<div class="card-panel koamaru white-text">
+    <i class="material-icons left" aria-hidden="true">info</i>
+    Pour ajouter des images, ajoutez-les d'abord à votre galerie en cliquant sur l'icône <i class="mdi mdi-cloud-upload" aria-hidden="true"></i>
+    « Télécharger une image sur le serveur » puis utilisez l'outil image pour l'insérer
 </div>
 </div>
 <div class="col s12">
-    {{ field('content', item.content, '', {type: 'tinymce'}) }}
+    {{ field('content', item.content, 'Contenu de la section', {type: 'tinymce'}) }}
 </div>

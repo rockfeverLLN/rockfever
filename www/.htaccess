@@ -29,8 +29,8 @@ AddType "text/markdown; charset=utf-8" .md
 AddType "text/plain; charset=utf-8" .txt
 
 # Security headers, on every response (pages, files and errors). The CSP doesn't list script or image sources:
-# the admin loads TinyMCE and fonts from CDNs, and the About sections can embed videos. The public pages add a
-# second policy for their scripts (ContentSecurityPolicyMiddleware), which browsers apply together with this one
+# the admin loads TinyMCE and fonts from CDNs, and the About sections can embed videos. The pages, admin included,
+# add a second policy for their scripts (ContentSecurityPolicyMiddleware), which browsers apply together with this one
 <IfModule mod_headers.c>
     Header always set Strict-Transport-Security "max-age=31536000"
     Header always set X-Content-Type-Options "nosniff"
@@ -46,8 +46,8 @@ AddType "text/plain; charset=utf-8" .txt
 # Let browsers cache static files. Images are replaced under a new name; CSS/JS without a ?v= version get less.
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType image/webp "access plus 1 year"
     ExpiresByType image/jxl "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"

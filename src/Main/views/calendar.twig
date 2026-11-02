@@ -7,7 +7,7 @@
 {% block canonical_path %}/calendrier{% endblock %}
 
 {% block head %}
-    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
+    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl" fetchpriority="high"/>
     {% include '@main/soireesJsonLd.twig' with {soirees: semesters|reduce((all, soirees) => all|merge(soirees), [])} %}
 {% endblock %}
 
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="parallax">
-            <img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high">
+            <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high"></picture>
         </div>
     </div>
     {{ nextSoiree }}

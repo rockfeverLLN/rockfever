@@ -1,0 +1,385 @@
+/* Admin dark mode (src/Admin/views/layout.twig): on when <html> has data-theme="dark", set in the layout's head from
+   the moon button in the top bar, or from the device's setting until that button is used. Only the admin pages load
+   this file: the public site stays as it is. */
+html[data-theme="dark"] {
+    --admin-bg: #0d1117;
+    --admin-surface: #161b22;
+    --admin-surface-2: #1f2630;
+    --admin-line: #2d3640;
+    --admin-text: #e6edf3;
+    --admin-muted: #9aa7b4;
+    --admin-accent: #7fc4ff;
+    --admin-teal: #4db6ac;
+    color-scheme: dark;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+    background-color: var(--admin-bg);
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 {
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] a:not(.btn):not(.btn-large):not(.btn-floating):not(.dashboard-pill):not(.dashboard-play) {
+    color: var(--admin-accent);
+}
+
+/* The navy of the site, a little deeper, for the top bar and the next event's card */
+html[data-theme="dark"] .koamaru {
+    background-color: #0b2340 !important;
+}
+
+html[data-theme="dark"] .koamaru-text,
+html[data-theme="dark"] .black-text,
+html[data-theme="dark"] .grey-text.text-darken-4,
+html[data-theme="dark"] .grey-text.text-darken-2 {
+    color: var(--admin-text) !important;
+}
+
+html[data-theme="dark"] .grey-text {
+    color: var(--admin-muted) !important;
+}
+
+html[data-theme="dark"] nav.koamaru a,
+html[data-theme="dark"] nav.koamaru i,
+html[data-theme="dark"] .koamaru a.underlined-link {
+    color: #ffffff !important;
+}
+
+/* Surfaces: cards, panels, lists, menus, dialogs */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-panel,
+html[data-theme="dark"] .collection,
+html[data-theme="dark"] .collection .collection-item,
+html[data-theme="dark"] .collapsible,
+html[data-theme="dark"] .collapsible-header,
+html[data-theme="dark"] .dropdown-content,
+html[data-theme="dark"] .sidenav,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .modal .modal-footer,
+html[data-theme="dark"] .dashboard-card:not(.dashboard-next) {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] .card .card-action,
+html[data-theme="dark"] .collection .collection-item,
+html[data-theme="dark"] .collapsible-header,
+html[data-theme="dark"] .collapsible-body {
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] .card .card-reveal {
+    background-color: var(--admin-surface-2);
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .collection a.collection-item:not(.active):hover,
+html[data-theme="dark"] .dropdown-content li:hover,
+html[data-theme="dark"] .sidenav li > a:hover {
+    background-color: var(--admin-surface-2);
+}
+
+html[data-theme="dark"] .sidenav li > a,
+html[data-theme="dark"] .dropdown-content li > a,
+html[data-theme="dark"] .dropdown-content li > span,
+html[data-theme="dark"] .sidenav .logout-form button,
+html[data-theme="dark"] .sidenav .theme-toggle {
+    color: var(--admin-text) !important;
+}
+
+html[data-theme="dark"] .sidenav li.active {
+    background-color: var(--admin-surface-2);
+}
+
+/* Colored panels (flash messages, alerts): darker tints of the same color */
+html[data-theme="dark"] .card-panel.green,
+html[data-theme="dark"] .green.lighten-5 {
+    background-color: #12332a !important;
+    color: #b9f6ca !important;
+}
+
+html[data-theme="dark"] .card-panel.red,
+html[data-theme="dark"] .red.lighten-5 {
+    background-color: #3b1618 !important;
+    color: #ffcdd2 !important;
+}
+
+html[data-theme="dark"] .orange.lighten-5 {
+    background-color: #3a2a12 !important;
+}
+
+html[data-theme="dark"] .card-panel.green *,
+html[data-theme="dark"] .card-panel.red * {
+    color: inherit;
+}
+
+html[data-theme="dark"] .red-text:not(i):not(.mdi) {
+    color: #ff8a80 !important;
+}
+
+html[data-theme="dark"] .green-text:not(i):not(.mdi) {
+    color: #69f0ae !important;
+}
+
+/* Tables */
+html[data-theme="dark"] table.striped > tbody > tr:nth-child(odd) {
+    background-color: var(--admin-surface-2);
+}
+
+html[data-theme="dark"] tr,
+html[data-theme="dark"] .dashboard-table tr {
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] table.highlight > tbody > tr:hover,
+html[data-theme="dark"] .dashboard-table tbody tr:hover {
+    background-color: var(--admin-surface-2);
+}
+
+/* Forms */
+html[data-theme="dark"] input:not([type]),
+html[data-theme="dark"] input[type=text]:not(.browser-default),
+html[data-theme="dark"] input[type=password]:not(.browser-default),
+html[data-theme="dark"] input[type=email]:not(.browser-default),
+html[data-theme="dark"] input[type=url]:not(.browser-default),
+html[data-theme="dark"] input[type=time]:not(.browser-default),
+html[data-theme="dark"] input[type=date]:not(.browser-default),
+html[data-theme="dark"] input[type=datetime-local]:not(.browser-default),
+html[data-theme="dark"] input[type=tel]:not(.browser-default),
+html[data-theme="dark"] input[type=number]:not(.browser-default),
+html[data-theme="dark"] input[type=search]:not(.browser-default),
+html[data-theme="dark"] textarea.materialize-textarea {
+    color: var(--admin-text);
+    border-bottom-color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .input-field > label,
+html[data-theme="dark"] .helper-text,
+html[data-theme="dark"] .input-field .prefix,
+html[data-theme="dark"] [type="checkbox"] + span:not(.lever),
+html[data-theme="dark"] [type="radio"]:not(:checked) + span,
+html[data-theme="dark"] [type="radio"]:checked + span {
+    color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .input-field > label.active,
+html[data-theme="dark"] .input-field .prefix.active {
+    color: var(--admin-accent);
+}
+
+html[data-theme="dark"] select.browser-default,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea:not(.materialize-textarea) {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] .select-wrapper input.select-dropdown,
+html[data-theme="dark"] .select-wrapper .caret {
+    color: var(--admin-text);
+    fill: var(--admin-text);
+}
+
+html[data-theme="dark"] .datepicker-modal,
+html[data-theme="dark"] .timepicker-modal,
+html[data-theme="dark"] .datepicker-calendar-container,
+html[data-theme="dark"] .datepicker-table td,
+html[data-theme="dark"] .timepicker-container {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .datepicker-controls .select-month input,
+html[data-theme="dark"] .datepicker-controls .select-year input,
+html[data-theme="dark"] .datepicker-table abbr,
+html[data-theme="dark"] .datepicker-day-button,
+html[data-theme="dark"] .datepicker-cancel,
+html[data-theme="dark"] .datepicker-clear,
+html[data-theme="dark"] .datepicker-done,
+html[data-theme="dark"] .timepicker-close {
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .datepicker-controls svg {
+    fill: var(--admin-text);
+}
+
+/* Flat buttons and tabs */
+html[data-theme="dark"] .btn-flat:not(.white-text):not([class*="-text"]) {
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .btn-flat:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .btn:disabled,
+html[data-theme="dark"] .btn.disabled {
+    background-color: var(--admin-surface-2) !important;
+    color: var(--admin-muted) !important;
+}
+
+html[data-theme="dark"] .tabs {
+    background-color: var(--admin-surface);
+}
+
+html[data-theme="dark"] .tabs .tab a {
+    color: var(--admin-muted) !important;
+}
+
+html[data-theme="dark"] .tabs .tab a.active,
+html[data-theme="dark"] .tabs .tab a:hover {
+    color: var(--admin-text) !important;
+}
+
+html[data-theme="dark"] .tabs .indicator {
+    background-color: var(--admin-accent);
+}
+
+html[data-theme="dark"] .progress {
+    background-color: var(--admin-surface-2);
+}
+
+/* Dashboard (style.css, "Admin dashboard") */
+html[data-theme="dark"] .dashboard-card {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .dashboard-card h2 {
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .dashboard-card h2::after {
+    background-color: var(--admin-teal);
+}
+
+html[data-theme="dark"] .dashboard-next h2::after {
+    background-color: #ffffff;
+}
+
+html[data-theme="dark"] .dashboard-table th,
+html[data-theme="dark"] .dashboard-empty {
+    color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .dashboard-play {
+    background-color: #1d4f86;
+}
+
+html[data-theme="dark"] .dashboard-play:hover {
+    background-color: #00796b;
+}
+
+html[data-theme="dark"] .dashboard-alert {
+    color: var(--admin-text) !important;
+}
+
+/* Statistics cards on the event pages */
+html[data-theme="dark"] .card-statistics .material-icons.stat-back {
+    opacity: .15;
+}
+
+/* Photos (src/Photos/views/admin/style.twig) */
+html[data-theme="dark"] .photos-admin .crumbs a,
+html[data-theme="dark"] .photos-drop .mdi {
+    color: var(--admin-accent);
+}
+
+html[data-theme="dark"] .photos-drop {
+    border-color: var(--admin-line);
+    color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .photos-drop:hover,
+html[data-theme="dark"] .photos-drop.is-over {
+    background-color: var(--admin-surface-2);
+    border-color: var(--admin-accent);
+}
+
+html[data-theme="dark"] .photos-requests li {
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] .photos-admin-albums .cover,
+html[data-theme="dark"] .photos-admin-tile {
+    background-color: var(--admin-surface-2);
+}
+
+html[data-theme="dark"] .photos-admin-albums .meta {
+    color: var(--admin-muted);
+}
+
+/* The editor's frame while TinyMCE starts (it then draws its own dark skin, script.js) */
+html[data-theme="dark"] .tox-tinymce {
+    border-color: var(--admin-line);
+}
+
+/* The theme button in the top bar and the side menu, drawn like the logout button beside it (style.css). No more
+   than the bar's height: taller, the floated menu would hang below the bar and squeeze the page beside it */
+.theme-toggle {
+    display: block;
+    width: 100%;
+    padding: 0 15px;
+    border: none;
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-size: 1rem;
+    line-height: inherit;
+    cursor: pointer;
+    transition: background-color .3s;
+}
+
+.theme-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.sidenav .theme-toggle {
+    height: 48px;
+    line-height: 48px;
+    padding: 0 32px;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.sidenav .theme-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Only hides the label of the other theme: the one shown keeps the display of the bar's icons */
+html:not([data-theme="dark"]) .theme-toggle .when-dark,
+html[data-theme="dark"] .theme-toggle .when-light {
+    display: none;
+}
+
+/* Printed lists stay black on white */
+@media print {
+    html[data-theme="dark"],
+    html[data-theme="dark"] body {
+        background-color: #ffffff;
+        color: #000000;
+    }
+}
+
+/* Keyboard focus: the ring of style.css, light on the dark backgrounds */
+html[data-theme="dark"] .admin :focus-visible {
+    outline-color: var(--admin-accent);
+}
+
+/* The blue of the events' Facebook icon, too dark to be seen on the dark surfaces (WCAG 1.4.11) */
+html[data-theme="dark"] .event-button.blue-text {
+    color: var(--admin-accent) !important;
+}

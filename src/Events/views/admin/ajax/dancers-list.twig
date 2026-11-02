@@ -1,17 +1,18 @@
 {% for dancer in dancers %}
-    <li class="collection-item" style="position:relative;">
+    {#- data-name is what the search in www/js/guests.js matches, the .guest-name parts are where it highlights #}
+    <li class="collection-item" style="position:relative;" data-name="{{ dancer.firstname }} {{ dancer.lastname }}">
 
         <span>
             {% if dancer.status == 2 %}
-                <i class="material-icons amber-text left">star</i>
+                <i class="material-icons amber-text left" aria-hidden="true">star</i><span class="sr-only">VIP :</span>
             {% endif %}
             {% if dancer.status == 3 %}
-                <i class="material-icons koamaru-text left">exposure_plus_1</i>
+                <i class="material-icons koamaru-text left" aria-hidden="true">exposure_plus_1</i><span class="sr-only">Sans inscription :</span>
             {% endif %}
-            {{ dancer.firstname }} <b>{{ dancer.lastname }}</b>
+            <span class="guest-name">{{ dancer.firstname }}</span> <b class="guest-name">{{ dancer.lastname }}</b>
         </span>
 
-        <span style="display: none">{{ dancer.lastname }} {{ dancer.firstname }}</span>
+        {% if dancer.status == 1 %}<span class="sr-only">(présent)</span>{% endif %}
 
         <div class="progress loader" style="display:none; margin:0;position: absolute; bottom: 0;">
             <div class="indeterminate"></div>
@@ -21,8 +22,9 @@
             <button
                     class="transparent green-text waves-green waves-effect secondary-content tab-highlighted"
                     data-dancer="{{ dancer.id }}" data-status="1"
+                    aria-label="Marquer {{ dancer.firstname }} {{ dancer.lastname }} présent"
             >
-                <i class="material-icons left">check</i> Ajouter
+                <i class="material-icons left" aria-hidden="true">check</i> Ajouter
             </button>
         {% endif %}
 
@@ -31,8 +33,9 @@
                     class="transparent amber-text waves-effect waves-yellow secondary-content tab-highlighted"
                     style="border-radius: 50%"
                     data-dancer="{{ dancer.id }}" data-status="2"
+                    aria-label="Marquer {{ dancer.firstname }} {{ dancer.lastname }} présent en VIP" title="VIP"
             >
-                <i class="material-icons">star</i>
+                <i class="material-icons" aria-hidden="true">star</i>
             </button>
         {% endif %}
 
@@ -40,8 +43,9 @@
             <button
                     class="transparent red-text waves-red waves-effect secondary-content tab-highlighted"
                     data-dancer="{{ dancer.id }}" data-status="0"
+                    aria-label="Retirer {{ dancer.firstname }} {{ dancer.lastname }} des présents"
             >
-                <i class="material-icons left">close</i> Retirer
+                <i class="material-icons left" aria-hidden="true">close</i> Retirer
             </button>
         {% endif %}
     </li>

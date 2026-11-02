@@ -47,7 +47,11 @@
 .site :focus-visible,
 .site input:focus-visible,
 .site select:focus-visible,
-.site textarea:focus-visible {
+.site textarea:focus-visible,
+.admin :focus-visible,
+.admin input:focus-visible,
+.admin select:focus-visible,
+.admin textarea:focus-visible {
     outline: 3px solid #072d55;
     outline-offset: 2px;
 }
@@ -56,13 +60,18 @@
 .site .page-footer :focus-visible,
 .site .parallax-container :focus-visible,
 .site .koamaru :focus-visible,
-.site.photos-dark :focus-visible {
+.site.photos-dark :focus-visible,
+.admin nav :focus-visible,
+.admin .koamaru :focus-visible,
+.admin .dancers-list-background :focus-visible,
+.admin .card-statistics :focus-visible {
     outline-color: #ffffff;
 }
 
 /* Visitors who asked their device for less motion: no sliding or fading (WCAG 2.3.3). script.js stops the parallax */
 @media (prefers-reduced-motion: reduce) {
-    .site *, .site *::before, .site *::after {
+    .site *, .site *::before, .site *::after,
+    .admin *, .admin *::before, .admin *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -218,6 +227,13 @@ h4 {
     margin: 1.52rem 0 0.912rem 0;
 }
 
+/* Headings at the right level for screen readers, at the size of the h4 they were */
+.modal-title,
+.h4-size {
+    font-size: 2.28rem;
+    line-height: 110%;
+}
+
 h5 {
     font-size: 1.64rem;
     line-height: 110%;
@@ -353,18 +369,26 @@ h6 {
     border-radius: inherit;
 }
 
+/* Both buttons as wide as the longer one: side by side, stacked on phones */
 .next-event-actions {
     position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-top: 10px;
+    width: fit-content;
+    margin: 10px auto 0 auto;
+}
+
+@media (max-width: 600px) {
+    .next-event-actions {
+        grid-template-columns: 1fr;
+    }
 }
 
 .next-event-calendar {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 16px;
     border: 2px solid #ffffff;
@@ -473,8 +497,10 @@ h6 {
     text-decoration: none;
 }
 
-/* Hidden on screen, still read by screen readers */
-.sr-only {
+/* Hidden on screen, still read by screen readers. The label of a field TinyMCE replaced names its editing area
+   (script.js) */
+.sr-only,
+.input-field > .tox-tinymce ~ label {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -492,8 +518,14 @@ a {
 }
 
 /* Darker shades of Materialize's defaults so text on them stays readable (at least 4.5:1) */
-.input-field > label {
+.input-field > label,
+html:not([data-theme="dark"]) .admin label {
     color: #575757;
+}
+
+/* In the admin, Materialize's grey text too (admin-dark.css has its own) */
+html:not([data-theme="dark"]) .admin .grey-text:not(.text-darken-1):not(.text-darken-2):not(.text-darken-3):not(.text-darken-4) {
+    color: #616161 !important;
 }
 
 .btn, .btn-large, .btn-small {
@@ -951,6 +983,225 @@ ul.next-event-infos li {
 
 ul.next-event-infos:last-child {
     margin-bottom: 0;
+}
+
+/* Admin dashboard (the widgets in dashboard.twig): white cards with a navy title, as the home page's sections and
+   members, and the next event in navy, as its card under the header photo */
+.dashboard-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* The cards side by side as tall as each other */
+.dashboard-row > .col {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-row .dashboard-card {
+    flex: 1 0 auto;
+}
+
+.dashboard-card {
+    display: block;
+    margin: 12px 0;
+    padding: 20px 24px 24px 24px;
+    border: 1px solid #e3e8ef;
+    border-radius: 16px;
+    background-color: #ffffff;
+    color: #1f2933;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    box-shadow: 0 6px 20px rgba(3, 41, 81, 0.06);
+}
+
+.dashboard-card h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: #072d55;
+    margin: 0 0 18px 0;
+}
+
+.dashboard-card h2::after {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background-color: #00574b;
+    margin-top: 10px;
+}
+
+.dashboard-chart {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Chart.js sizes the chart to this box: it needs a height of its own, and room for the legend on phones */
+.dashboard-chart-canvas {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 280px;
+}
+
+.dashboard-next {
+    border: none;
+    box-shadow: 0 18px 40px rgba(3, 41, 81, 0.25);
+    color: #ffffff;
+}
+
+.dashboard-next h2 {
+    color: #ffffff;
+}
+
+.dashboard-next h2::after {
+    background-color: #ffffff;
+    opacity: .6;
+}
+
+.dashboard-next .next-event-infos b {
+    font-weight: 600;
+    opacity: .75;
+}
+
+.dashboard-next-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dashboard-next-count {
+    margin-right: auto;
+    font-size: 17px;
+}
+
+.dashboard-next-count b {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+/* Pills like the home page's "add to my calendar" buttons */
+.dashboard-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    background-color: #ffffff;
+    color: #072d55;
+    font-weight: 700;
+    line-height: 1.2;
+    transition: background-color .15s, border-color .15s;
+}
+
+/* The sign-up pill is a form's button: looks like the links next to it */
+.dashboard-pill-form {
+    display: contents;
+}
+
+button.dashboard-pill {
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.dashboard-pill .mdi {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.dashboard-pill:hover {
+    background-color: #e0f2f1;
+    border-color: #e0f2f1;
+}
+
+.dashboard-pill-outline {
+    background-color: transparent;
+    color: #ffffff;
+}
+
+.dashboard-pill-outline:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: #ffffff;
+}
+
+.dashboard-pill.disabled {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.dashboard-table th {
+    color: #52606d;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.dashboard-table tr {
+    border-bottom: 1px solid #e3e8ef;
+}
+
+.dashboard-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.dashboard-table tbody tr:hover {
+    background-color: #f5f7fa;
+}
+
+.dashboard-table td {
+    padding: 8px 5px;
+}
+
+.dashboard-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #072d55;
+    color: #ffffff;
+    font-size: 20px;
+    transition: background-color .15s;
+}
+
+.dashboard-play:hover {
+    background-color: #00574b;
+}
+
+.dashboard-empty {
+    margin: 0;
+    color: #52606d;
+}
+
+/* Photo deletion requests waiting: the same card, with a red edge */
+.dashboard-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 6px solid #c62828;
+    color: #1f2933;
+    transition: box-shadow .15s, transform .15s;
+}
+
+.dashboard-alert .mdi {
+    color: #c62828;
+    font-size: 24px;
+}
+
+.dashboard-alert:hover {
+    box-shadow: 0 14px 34px rgba(3, 41, 81, 0.14);
+    transform: translateY(-2px);
 }
 
 table tbody tr td {
@@ -1453,31 +1704,6 @@ table tbody tr td .input-field {
     font-weight: 600;
 }
 
-.event-informations {
-    color: #FFFFFF;
-    margin-bottom: 15px;
-}
-
-.event-informations tr {
-    border: none;
-}
-
-.event-informations tr td {
-    width: 50%;
-}
-
-.event-informations tr td:first-child{
-    text-align: right;
-}
-
-.event-informations tr td:last-child{
-    text-align: left;
-}
-
-input:not([type]).mce-textbox {
-    width: inherit;
-}
-
 .event-button {
     display: block;
     width: 100%;
@@ -1527,6 +1753,7 @@ input:not([type]).mce-textbox {
 
 .dancers-list-background {
     background-image: url("/images/body/bg.webp");
+    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
     height: 100%;
 }
 
@@ -1585,7 +1812,7 @@ input:not([type]).mce-textbox {
     height: 40px;
 }
 
-.guests-list .collection .collection-item span, .guests-list .collection .collection-item button {
+.guests-list .collection .collection-item > span, .guests-list .collection .collection-item > button {
     padding: 10px 10px !important;
     display: inline-block;
     box-sizing: border-box;
@@ -1600,6 +1827,26 @@ input:not([type]).mce-textbox {
 
 .guests-list .collection .collection-item button i {
     margin-top: -2px;
+}
+
+/* The dancers' buttons, darker than Materialize's colors to be read on white (WCAG 1.4.3). admin-dark.css has its own */
+html:not([data-theme="dark"]) .guests-list .collection-item .green-text {
+    color: #2e7d32 !important;
+}
+
+html:not([data-theme="dark"]) .guests-list .collection-item .amber-text {
+    color: #8d6200 !important;
+}
+
+html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
+    color: #c62828 !important;
+}
+
+/* The letters the search matched (www/js/guests.js) */
+.guests-list .collection .collection-item mark {
+    background: #ffe082;
+    color: inherit;
+    border-radius: 2px;
 }
 
 .guests-list-nothing {
@@ -1623,6 +1870,16 @@ input:not([type]).mce-textbox {
     font-size: 80px;
 }
 
+/* The evening's total on the door list opens the event's statistics page */
+a.event-list-stat {
+    display: block;
+    border-radius: 8px;
+}
+
+a.event-list-stat:hover, a.event-list-stat:focus-visible {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
 .activator {
     cursor: pointer;
 }
@@ -1630,6 +1887,20 @@ input:not([type]).mce-textbox {
 .card-statistics {
     padding: 6px 24px !important;
     overflow: hidden;
+}
+
+/* The tiles of a row stretch to the tallest one (a label on two lines), so the next row can't catch on it */
+.stat-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stat-grid > .col {
+    display: flex;
+}
+
+.stat-grid .card-statistics {
+    flex: 1;
 }
 
 .card-statistics .stat {
@@ -1648,7 +1919,8 @@ input:not([type]).mce-textbox {
     margin-top: 30px;
     display: block;
     border: 2px solid rgba(0,0,0,0.5);
-    height: 60px;
+    min-height: 60px;
+    padding: 2px 44px 2px 70px;
     border-radius: 10px;
     color: rgba(0,0,0,0.67);
     position: relative;
@@ -1674,7 +1946,6 @@ input:not([type]).mce-textbox {
 }
 
 .go-to-list strong, .go-to-list span {
-    margin-left: 70px;
     line-height: 26px;
 }
 
@@ -1695,8 +1966,51 @@ input:not([type]).mce-textbox {
     background-color: #e0e0e0 !important;
 }
 
+/* Links in the admin's sentences are underlined, not told apart by their color alone (WCAG 1.4.1) */
+.admin main p a:not([class]) {
+    text-decoration: underline;
+}
+
+/* The search's label is the page's title */
+.admin .dancers-list .guest-search-label {
+    font-size: inherit;
+    color: inherit;
+}
+
 #guest-search:focus {
     border: 3px solid #ff9800 !important;
+}
+
+/* Admin menu on desktop: the logo takes its own room in the row instead of being laid over it, so the links can't
+   run under it. It gets smaller on smaller desktop screens, and is cut short if it still doesn't fit */
+@media only screen and (min-width: 993px) {
+    .admin-nav .nav-wrapper {
+        display: flex;
+    }
+
+    .admin-nav .brand-logo {
+        position: static;
+        flex: 0 1 auto;
+        min-width: 0;
+        margin-right: 16px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+    }
+
+    .admin-nav ul.right {
+        flex: none;
+        margin-left: auto;
+    }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1199px) {
+    .admin-nav .brand-logo {
+        font-size: 1.1rem;
+    }
 }
 
 /* The admin's logout: a button in its form (it's a POST), drawn like the links next to it */
@@ -1783,7 +2097,7 @@ input:not([type]).mce-textbox {
         background-color: transparent !important;
     }
 
-    .site main .white-text, .site .call-to-action, .site .event-informations {
+    .site main .white-text, .site .call-to-action {
         color: inherit !important;
     }
 
@@ -2081,7 +2395,7 @@ input:not([type]).mce-textbox {
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/mdi.woff2?v=d22315e6) format('woff2');
+    src: url(/fonts/mdi.woff2?v=74bfc9fc) format('woff2');
 }
 
 .mdi:before {
@@ -2116,7 +2430,6 @@ input:not([type]).mce-textbox {
 .mdi-google:before { content: "\F2AD"; }
 .mdi-home:before { content: "\F2DC"; }
 .mdi-instagram:before { content: "\F2FE"; }
-.mdi-laptop:before { content: "\F322"; }
 .mdi-lock:before { content: "\F33E"; }
 .mdi-lock-open:before { content: "\F33F"; }
 .mdi-logout:before { content: "\F343"; }
@@ -2128,4 +2441,6 @@ input:not([type]).mce-textbox {
 .mdi-plus:before { content: "\F415"; }
 .mdi-send:before { content: "\F48A"; }
 .mdi-view-dashboard:before { content: "\F56E"; }
+.mdi-weather-night:before { content: "\F594"; }
+.mdi-white-balance-sunny:before { content: "\F5A8"; }
 /* End of Material Design Icons */

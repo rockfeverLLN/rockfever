@@ -81,6 +81,10 @@ class EventStatisticsAction
         }
 
         foreach ($arrivalTimesSQL as $dancer) {
+            // The present dancers without an arrival time are grouped under a null time: they have no place on the chart
+            if ($dancer->time === null) {
+                continue;
+            }
             $arrivalTimes[$dancer->time] = (int)$dancer->amount;
         }
 

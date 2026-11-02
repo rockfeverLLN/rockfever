@@ -7,7 +7,7 @@
 //
 // - JPEG: repacked without loss, the same picture bit for bit (djxl gives the JPEG back), about 20% smaller
 // - PNG: lossless
-// - WebP (the sizes/ copies, bg.webp): made again from the image they were made from, at the lowest quality that
+// - WebP (copies made from a JPEG or PNG): made again from the image they were made from, at the lowest quality that
 //   still looks at least as good as the WebP (ssimulacra2 score), as WebP is already lossy
 // A copy that isn't smaller than its image isn't kept: the browser would download more for the same picture.
 
@@ -84,7 +84,10 @@ foreach ($images as $file) {
     $extension = strtolower($file->getExtension());
     $copy = "$path.jxl";
     // Browsers ask for the favicon on their own, without saying they read JPEG XL there
-    if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp']) || $path === 'www/images/favicon.png' || is_file($copy)) {
+    // and the images that have a JPEG XL version of their own, which the pages ask for by name (bg.webp => bg.jxl)
+    if (!in_array($extension, ['jpg', 'jpeg', 'png', 'webp']) || $path === 'www/images/favicon.png' || is_file($copy)
+        || is_file(substr($path, 0, -strlen($extension)) . 'jxl')
+    ) {
         continue;
     }
     if ($extension === 'jpg' || $extension === 'jpeg') {

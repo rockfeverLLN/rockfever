@@ -1,12 +1,10 @@
 <div class="col s12">
-    <div class="card-panel koamaru white-text" style="padding-top: 10px; background: linear-gradient(45deg, #2980b9, #3bb9fd); border-radius: 15px">
-        <h3 class="center" style="margin-top: 0;">Dernières musiques proposées</h3>
+    <section class="dashboard-card">
+        <h2>Dernières musiques proposées</h2>
         {% if items.isEmpty %}
-            <hr>
-            <center>Aucune nouvelle musique n'a été proposée</center>
-            <hr>
+            <p class="dashboard-empty">Aucune nouvelle musique n'a été proposée</p>
         {% else %}
-            <table>
+            <table class="dashboard-table">
                 <thead>
                 <tr>
                     <th>Titre</th>
@@ -20,8 +18,8 @@
                         <td>{{ music.title | excerpt(50) }}</td>
                         <td>{{ music.artist | excerpt(50) }}</td>
                         <td>
-                            <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}" class="btn-floating red tooltipped" data-position="top" data-tooltip="Voir sur youtube" target="_blank">
-                                <i class="mdi mdi-play"></i>
+                            <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}" class="dashboard-play tooltipped" data-position="top" data-tooltip="Voir sur youtube" target="_blank" aria-label="Voir {{ music.title }} sur YouTube (nouvel onglet)">
+                                <i class="mdi mdi-play" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>
@@ -29,5 +27,5 @@
                 </tbody>
             </table>
         {% endif %}
-    </div>
+    </section>
 </div>
