@@ -19,7 +19,12 @@
     {%- set open = status == 'open' %}
     <div class="parallax-container form-parallax-container{{ open ? '' : ' form-parallax-closed' }}">
         <div class="container">
-            {% include 'flash.twig' %}
+            {#- After a sign-up, the popup below says it's done: the green message only without JavaScript, which opens it #}
+            {% if flash('event') == 'sign_up' %}
+                <noscript>{% include 'flash.twig' %}</noscript>
+            {% else %}
+                {% include 'flash.twig' %}
+            {% endif %}
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
                 <p class="call-to-action" id="inscriptions" data-registration-status="{{ status }}">
@@ -110,6 +115,36 @@
         {% endif %}
     {% endif %}
     </div>
+
+    {#- Right after a sign-up (EventAction queues the sign_up event, bots don't get it): a popup to put the soirée in
+        their calendar, so they don't forget it. script.js opens it (data-open-on-load); its links' data-track count
+        the clicks in Analytics (add_to_calendar, by method) and close it, closing it otherwise counts
+        add_to_calendar_dismiss #}
+    {% if flash('event') == 'sign_up' %}
+        <dialog id="signupCalendar" class="modal signup-calendar" data-open-on-load data-track-close="add_to_calendar_dismiss">
+            <div class="modal-content">
+                <button type="button" class="modal-close signup-calendar-x" aria-label="Fermer">
+                    <i class="mdi mdi-close" aria-hidden="true"></i>
+                </button>
+                <i class="mdi mdi-calendar-plus signup-calendar-icon" aria-hidden="true"></i>
+                <h2>C’est noté&#8239;!</h2>
+                <p>Tu es sur la liste de la soirée du <strong>{{ soiree.label|lower }}</strong>, à {{ time }} au {{ soiree.place }}.
+                    {%- if soiree.prices %} Tu paieras {{ soiree.prices.online }}&nbsp;€ à l’entrée.{% endif %}</p>
+                <p>Ajoute-la à ton calendrier pour ne pas l’oublier&nbsp;:</p>
+                <div class="soiree-actions">
+                    <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light" autofocus
+                       data-track="add_to_calendar" data-track-method="ics">
+                        <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon calendrier
+                    </a>
+                    <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener"
+                       data-track="add_to_calendar" data-track-method="google">
+                        <i class="mdi mdi-google left" aria-hidden="true"></i>Google Agenda
+                    </a>
+                </div>
+                <p class="signup-calendar-hint">N’oublie pas ta carte d’étudiant ou d’identité.</p>
+            </div>
+        </dialog>
+    {% endif %}
 
     <div id="nextEventInfos" class="modal">
         <div class="modal-footer">

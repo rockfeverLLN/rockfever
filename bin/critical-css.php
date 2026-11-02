@@ -19,10 +19,10 @@ if (!array_filter($bases, fn ($base) => !is_file($base))) {
     array_unshift($bases, 'https://www.rockfever.be');
 }
 $paths = ['/', '/event', '/calendrier', '/music', '/contact', '/legal', '/login', '/page-not-found'];
-// Classes that only exist once script.js runs (the side menu and its overlay, the labels of text fields), and the
-// helpers of form fields
+// Classes that only exist once script.js runs (the side menu and its overlay, the labels of text fields, the overlay
+// of the modals), the helpers of form fields, and the modals: the one after a sign-up on /event is on no page fetched
 $scriptClasses = '/sidenav-overlay|\.open\b|\.active\b|\.valid\b|\.invalid\b|helper-text|\.selected\b'
-    . '|\.disabled\b|optgroup/';
+    . '|\.disabled\b|optgroup|\.modal\b|modal-overlay/';
 $stylesheets = ["$root/www/css/base.css", "$root/www/css/style.css"];
 
 /**
