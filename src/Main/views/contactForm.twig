@@ -1,13 +1,15 @@
-<form action="{{ path('contact') }}" method="post">
+{#- A WebMCP tool, like the sign-up form. field() writes its attributes as they are: no double quotes in them #}
+<form action="{{ path('contact') }}" method="post" toolname="contact_team"
+      tooldescription="Envoie un message par email à l'équipe du Rock Fever, qui répond à l'adresse donnée. Pour une question qu'aucune page du site ne règle.">
     <div class="row">
         <div class="col s12 m6">
-            {{ field('name', item.name, 'Ton nom', {attributes: {autocomplete: 'name', required: true}}) }}
+            {{ field('name', item.name, 'Ton nom', {attributes: {autocomplete: 'name', required: true, toolparamdescription: 'Nom de la personne qui écrit'}}) }}
         </div>
         <div class="col s12 m6">
-            {{ field('email', item.email, 'Ton adresse email', {type: 'email', attributes: {autocomplete: 'email', required: true}}) }}
+            {{ field('email', item.email, 'Ton adresse email', {type: 'email', attributes: {autocomplete: 'email', required: true, toolparamdescription: 'Adresse email où l\'équipe répondra'}}) }}
         </div>
         <div class="col s12">
-            {{ field('content', item.content, 'Contenu du message', {type:'textarea', attributes: {required: true}}) }}
+            {{ field('content', item.content, 'Contenu du message', {type:'textarea', attributes: {required: true, toolparamdescription: 'Le message pour l\'équipe, en français de préférence'}}) }}
             <button class="btn koamaru right waves-effect waves-light">Envoyer <i class="mdi mdi-send right" aria-hidden="true"></i></button>
         </div>
     </div>

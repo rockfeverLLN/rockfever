@@ -1,10 +1,14 @@
-<form action="{{ path('music') }}" method="post">
+{#- A WebMCP tool, like the sign-up form #}
+<form action="{{ path('music') }}" method="post" toolname="suggest_song"
+      tooldescription="Propose à l'équipe du Rock Fever une musique à passer pendant les soirées rock.">
     <label for="music-title" class="sr-only">Titre de la musique</label>
-    <input type="text" id="music-title" name="title" placeholder="Titre de la musique" class="register-input" required>
+    <input type="text" id="music-title" name="title" placeholder="Titre de la musique" class="register-input" required
+           toolparamdescription="Titre du morceau">
     <label for="music-artist" class="sr-only">Artiste</label>
-    <input type="text" id="music-artist" name="artist" placeholder="Artiste" class="register-input" required>
+    <input type="text" id="music-artist" name="artist" placeholder="Artiste" class="register-input" required
+           toolparamdescription="Artiste ou groupe qui interprète le morceau">
     <br>
-    <button class="send-button disabled">
+    <button class="send-button">
         Envoyer la musique
         <i class="mdi mdi-send right" aria-hidden="true"></i>
     </button>

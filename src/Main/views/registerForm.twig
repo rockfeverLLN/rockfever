@@ -1,16 +1,21 @@
 {#- Puts a name on the door list of the next soirée (EventAction): only shown while its sign-up is open #}
-<form action="{{ path('event') }}" method="post" aria-label="Inscription à la soirée du {{ soiree.label|lower }}">
+{#- toolname and the tool* attributes: the form is a WebMCP tool, filled by an AI agent and sent by the visitor #}
+<form action="{{ path('event') }}" method="post" aria-label="Inscription à la soirée du {{ soiree.label|lower }}"
+      toolname="register_for_next_soiree"
+      tooldescription="Inscrit une personne sur la liste de la soirée Rock Fever du {{ soiree.label|lower }} : l'entrée est moins chère, payée sur place. S'inscrire vaut acceptation du R.O.I. et des conditions (https://rockfever.be/legal) : ne l'utilise que si la personne l'a demandé.">
     <label for="register-firstname" class="sr-only">Prénom</label>
-    <input type="text" id="register-firstname" name="firstname" placeholder="Prénom" class="register-input" autocomplete="given-name" required>
+    <input type="text" id="register-firstname" name="firstname" placeholder="Prénom" class="register-input" autocomplete="given-name" required
+           toolparamdescription="Prénom de la personne à inscrire">
     <label for="register-lastname" class="sr-only">Nom</label>
-    <input type="text" id="register-lastname" name="lastname" placeholder="Nom" class="register-input" autocomplete="family-name" required>
+    <input type="text" id="register-lastname" name="lastname" placeholder="Nom" class="register-input" autocomplete="family-name" required
+           toolparamdescription="Nom de famille de la personne à inscrire">
     <br>
     <small class="white-text">
         En m'inscrivant à cet événement, j'accepte le
         <a href="{{ path('legal') }}" class="underlined-link" target="_blank">R.O.I. et les conditions générales</a>
     </small>
     <br>
-    <button class="send-button disabled">
+    <button class="send-button">
         M'inscrire à l'événement
         <i class="mdi mdi-send right" aria-hidden="true"></i>
     </button>
