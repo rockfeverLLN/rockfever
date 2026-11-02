@@ -107,12 +107,22 @@
             datasets: [
                 {% for event in countForChart %}
                 {
+                    // Those who came without signing up, at the bottom in a darker shade
+                    label: "{{ event.title | e('js') }}",
+                    walkIns: true,
+                    url: "{{ path('admin.events.statistics', {id: event.id}) | e('js') }}",
+                    stack: "{{ event.id }}",
+                    total: {{ event.count }},
+                    data: [{{ event.improvised }}],
+                    backgroundColor: '{{ event.shade }}'
+                },
+                {
                     label: "{{ event.title | e('js') }}",
                     url: "{{ path('admin.events.statistics', {id: event.id}) | e('js') }}",
-                    data: [{{ event.count }}],
-                    backgroundColor: [
-                        '{{ event.color }}'
-                    ]
+                    stack: "{{ event.id }}",
+                    total: {{ event.count }},
+                    data: [{{ event.count - event.improvised }}],
+                    backgroundColor: '{{ event.color }}'
                 },
                 {% endfor %}
             ]
@@ -128,8 +138,38 @@
             onHover: function (e) {
                 e.target.style.cursor = this.getElementAtEvent(e).length ? 'pointer' : 'default';
             },
+            // One legend entry per event, which shows or hides its whole bar
+            legend: {
+                labels: {
+                    filter: function (item, data) {
+                        return !data.datasets[item.datasetIndex].walkIns;
+                    }
+                },
+                onClick: function (e, item) {
+                    var chart = this.chart;
+                    [item.datasetIndex - 1, item.datasetIndex].forEach(function (i) {
+                        var meta = chart.getDatasetMeta(i);
+                        meta.hidden = meta.hidden === null ? !chart.data.datasets[i].hidden : null;
+                    });
+                    chart.update();
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function (item, data) {
+                        var dataset = data.datasets[item.datasetIndex];
+                        var share = dataset.total ? Math.round(100 * item.yLabel / dataset.total) : 0;
+                        return dataset.label + ' : ' + item.yLabel
+                            + (dataset.walkIns ? ' sans inscription' : ' pré-inscrits') + ' (' + share + ' %)';
+                    }
+                }
+            },
             scales: {
+                xAxes: [{
+                    stacked: true
+                }],
                 yAxes: [{
+                    stacked: true,
                     ticks: {
                         beginAtZero:true
                     }

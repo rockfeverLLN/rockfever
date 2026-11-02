@@ -49,7 +49,9 @@ class EventsWidget implements AdminWidgetInterface
                 'id'    =>  $count->id,
                 'title' =>  $count->title,
                 'count' =>  $count->count,
-                'color' =>  $this->colors[$i++]
+                'improvised' => (int)$count->improvised,
+                'color' =>  $this->colors[$i],
+                'shade' =>  $this->darken($this->colors[$i++])
             ];
         }
 
@@ -57,6 +59,17 @@ class EventsWidget implements AdminWidgetInterface
         // Its sign-up as the site shows it
         $registration = $nextEvent ? $this->calendar->find($nextEvent->getDay())['registration'] : null;
         return $this->renderer->render('@events/admin/widget', compact('countForChart', 'nextEvent', 'registration'));
+    }
+
+    /**
+     * The color with each channel brought 35% closer to black
+     */
+    private function darken(string $hex): string
+    {
+        return '#' . implode('', array_map(
+            fn ($channel) => sprintf('%02x', (int)round(hexdec($channel) * 0.65)),
+            str_split(ltrim($hex, '#'), 2)
+        ));
     }
 
     /**
