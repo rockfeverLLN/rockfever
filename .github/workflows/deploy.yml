@@ -61,9 +61,13 @@ jobs:
             APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
             timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lftp
             status=$?
-            [ $status -eq 0 ] && { timeout 300 bin/deploy.sh clean || echo "Could not remove the old caches: the next deploy will"; }
             # Written whole in one go, for the "Wait for lftp" step below
             echo $status > "$RUNNER_TEMP/upload-status.tmp" && mv "$RUNNER_TEMP/upload-status.tmp" "$RUNNER_TEMP/upload-status"
+            # The upload doesn't wait for this (removing what a busy day of visits cached took 45 seconds): only the
+            # last step does, so the runner doesn't stop it halfway. If it also removes the folder the upload sets the
+            # caches aside in, no harm: it only holds old caches
+            [ $status -eq 0 ] && { timeout 300 bin/deploy.sh clean || echo "Could not remove the old caches: the next deploy will"; }
+            touch "$RUNNER_TEMP/clean-done"
           ) > "$RUNNER_TEMP/upload-prepare.log" 2>&1 &
       # With the dev packages first: PHPStan and Phinx below
       - name: Install dependencies
@@ -141,10 +145,16 @@ jobs:
         timeout-minutes: 10
         run: |
           until [ -f "$RUNNER_TEMP/upload-status" ]; do sleep 1; done
-          cat "$RUNNER_TEMP/upload-prepare.log"
-          exit "$(cat "$RUNNER_TEMP/upload-status")"
+          [ "$(cat "$RUNNER_TEMP/upload-status")" = 0 ] || { cat "$RUNNER_TEMP/upload-prepare.log"; exit 1; }
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: bin/deploy.sh
+      # The site is live by now: this only lets bin/deploy.sh clean finish, and never fails the deploy
+      - name: Wait for the old caches to be removed
+        continue-on-error: true
+        timeout-minutes: 5
+        run: |
+          until [ -f "$RUNNER_TEMP/clean-done" ]; do sleep 1; done
+          cat "$RUNNER_TEMP/upload-prepare.log"
