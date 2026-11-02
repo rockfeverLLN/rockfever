@@ -6,6 +6,8 @@
 #   can't detect changes by itself.
 # - vendor/: only re-synced when composer.lock changed since the last deploy.
 # - config/database.php and storage/ (the gallery's photos) are not in git and stay on the server untouched.
+# - The caches under tmp/ are emptied by renaming them to tmp/old-cache-*: one request, where removing them takes one
+#   per file (30 to 40 seconds). `bin/deploy.sh clean` removes those, during the checks of the next deploy.
 #
 # The SFTP host comes from FTP_HOST (the repository's FTP_HOST secret), so it isn't in the public code.
 set -euo pipefail
@@ -23,6 +25,11 @@ remote_cat() {
 quote() {
     printf '"%s"' "${1//\"/\\\"}"
 }
+
+if [ "${1:-}" = clean ]; then
+    "${SERVER[@]}" -e "set sftp:auto-confirm yes; glob -a rm -r -f tmp/old-cache-* || echo 'No old caches to remove'; quit"
+    exit
+fi
 
 COMMANDS="$SETTINGS"
 
@@ -68,9 +75,16 @@ else
     echo "composer.lock unchanged, skipping vendor/"
 fi
 
+# Empty the caches once the new files are up
+OLD_CACHE="tmp/old-cache-$(date +%s)"
+COMMANDS+=" mkdir -f $OLD_CACHE;"
+for cache in views routes di proxies; do
+    COMMANDS+=" mv tmp/$cache $OLD_CACHE/$cache || echo 'No tmp/$cache cache';"
+done
+
 # Record the deployed commit last, so a failed upload is retried in full next time
 git rev-parse HEAD > .deployed-sha
-COMMANDS+=" rm -r -f tmp/views tmp/routes tmp/di tmp/proxies; put .deployed-sha; quit"
+COMMANDS+=" put .deployed-sha; quit"
 
 if [ "${DRY_RUN:-}" = 1 ]; then
     echo "$COMMANDS" | tr ';' '\n'

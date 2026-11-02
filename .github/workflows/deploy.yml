@@ -25,20 +25,6 @@ jobs:
     runs-on: ubuntu-26.04
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
-    # Test database for the copy of the site that the checks and bin/critical-css.php read
-    services:
-      mariadb:
-        image: mariadb:11
-        env:
-          MARIADB_DATABASE: rockfever
-          MARIADB_USER: rockfever
-          MARIADB_PASSWORD: ci
-          MARIADB_ROOT_PASSWORD: ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_initialized"
-          --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
       - name: Checkout
         env:
@@ -50,19 +36,46 @@ jobs:
       # Same PHP version as the server, read from .ovhconfig
       - name: Read PHP version
         run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
-      # With the dev packages first: Phinx sets up the test database below
+      # Things that only need time, started first so they run during the steps below rather than one after the other:
+      # the test database for the copy of the site that the checks and bin/critical-css.php read (rather than a
+      # service container, which the job waits for before its first step), and for the upload, lftp and removing
+      # the caches the previous deploy set aside (bin/deploy.sh clean, 30 to 40 seconds of SFTP requests)
+      - name: Start the test database and prepare the upload
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          docker run -d --name mariadb -p 3306:3306 \
+            -e MARIADB_DATABASE=rockfever -e MARIADB_USER=rockfever -e MARIADB_PASSWORD=ci -e MARIADB_ROOT_PASSWORD=ci \
+            --health-cmd "healthcheck.sh --connect --innodb_initialized" --health-interval 1s mariadb:11
+          # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
+          (
+            set +e
+            APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
+            timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lftp
+            status=$?
+            [ $status -eq 0 ] && { timeout 300 bin/deploy.sh clean || echo "Could not remove the old caches: the next deploy will"; }
+            # Written whole in one go, for the "Wait for lftp" step below
+            echo $status > "$RUNNER_TEMP/upload-status.tmp" && mv "$RUNNER_TEMP/upload-status.tmp" "$RUNNER_TEMP/upload-status"
+          ) > "$RUNNER_TEMP/upload-prepare.log" 2>&1 &
+      # With the dev packages first: Phinx sets up the test database below. The site's PHP image is built meanwhile
       - name: Install dependencies
         run: |
+          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php - &
           docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
             composer:2 install --no-interaction --ignore-platform-req=php
+          wait $!
       - name: Check PHP syntax
         run: |
-          docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
-            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
+          docker run --rm -v "$PWD:/app" -w /app site-php \
+            sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 -P$(nproc) php -l > /dev/null"
       # A copy of the site on the test database, for the checks and the trimmed CSS below
       - name: Start the test site
         run: |
-          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+          for i in $(seq 60); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' mariadb)" = healthy ] && break
+            sleep 1
+          done
           cat > config/database.php <<'EOF'
           <?php
           return [
@@ -99,12 +112,13 @@ jobs:
           # The seeded events are past: save the home page like this (shorter header), then add an upcoming event
           # so the sign-up link and the event page are read too
           curl -sf http://127.0.0.1:8000/ > home-no-event.html
-          docker run --rm --network host mariadb:11 mariadb -h 127.0.0.1 -u rockfever -pci rockfever -e "
+          docker exec mariadb mariadb -u rockfever -pci rockfever -e "
             INSERT INTO events (title, description, date, waltz_time, rock_time, place, price, facebook_link, covevent_link, closed)
             VALUES ('Soirée', 'Description', CURDATE() + INTERVAL 7 DAY, '20:00', '21:00', 'Hall Sainte-Barbe', '3 €',
                     'https://www.facebook.com/rockfeverlln', '', 0)"
           # The live pages add the real content written in the admin; build without them if the site doesn't answer
-          site php bin/critical-css.php https://www.rockfever.be http://127.0.0.1:8000 home-no-event.html \
+          # (rockfever.be rather than www, which only redirects there: half the requests)
+          site php bin/critical-css.php https://rockfever.be http://127.0.0.1:8000 home-no-event.html \
             || site php bin/critical-css.php http://127.0.0.1:8000 home-no-event.html
           docker rm -f site
           rm config/database.php home-no-event.html
@@ -112,13 +126,12 @@ jobs:
         run: |
           docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
             composer:2 install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
-      # apt once hung here for good: give up on slow mirrors and a busy package lock instead of waiting forever
-      - name: Install lftp
-        timeout-minutes: 5
+      - name: Wait for lftp
+        timeout-minutes: 10
         run: |
-          APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
-          $APT update
-          $APT install -y --no-install-recommends lftp
+          until [ -f "$RUNNER_TEMP/upload-status" ]; do sleep 1; done
+          cat "$RUNNER_TEMP/upload-prepare.log"
+          exit "$(cat "$RUNNER_TEMP/upload-status")"
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
