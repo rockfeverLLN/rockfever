@@ -9,6 +9,11 @@ RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE,QSA]
 # Browsers ask for /favicon.ico on every page: serve the PNG favicon there
 RewriteRule ^favicon\.ico$ /images/favicon.png [L]
+# Browsers that can show JPEG XL get the copy of an image in that format when it has one (photo.jpg =>
+# photo.jpg.jxl, made by bin/jpeg-xl.php), under the image's own URL: the pages don't change
+RewriteCond %{HTTP_ACCEPT} image/jxl
+RewriteCond %{REQUEST_FILENAME}.jxl -f
+RewriteRule ^images/.+\.(jpe?g|png|webp)$ $0.jxl [NC,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /index.php [NC,L,QSA]
@@ -19,6 +24,7 @@ RewriteRule ^(.*)$ /index.php [NC,L,QSA]
 </IfModule>
 
 AddType font/woff2 .woff2
+AddType image/jxl .jxl
 AddType "text/markdown; charset=utf-8" .md
 AddType "text/plain; charset=utf-8" .txt
 
@@ -41,6 +47,7 @@ AddType "text/plain; charset=utf-8" .txt
 <IfModule mod_expires.c>
     ExpiresActive On
     ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/jxl "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
@@ -59,5 +66,10 @@ AddType "text/plain; charset=utf-8" .txt
             Header set Cache-Control "public, max-age=31536000, immutable"
             Header unset Expires
         </If>
+    </FilesMatch>
+    # The same image URL gives a JPEG XL or not depending on what the browser accepts (rule above): caches must
+    # keep both apart
+    <FilesMatch "(?i)\.(jpe?g|png|webp|jxl)$">
+        Header append Vary Accept
     </FilesMatch>
 </IfModule>

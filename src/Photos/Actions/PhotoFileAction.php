@@ -17,7 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class PhotoFileAction
 {
-    const TYPES = ['jpg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
+    const TYPES = ['jpg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', 'jxl' => 'image/jxl'];
 
     /**
      * @var PhotoTable
@@ -64,6 +64,11 @@ class PhotoFileAction
         if (!is_file($file)) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Photo introuvable');
         }
+        // Browsers that can show JPEG XL get its copy when there is one. A download is always the photo as uploaded
+        $jxl = PhotoUpload::getJxlPath($file);
+        if (!$download && str_contains($request->getHeaderLine('Accept'), 'image/jxl') && is_file($jxl)) {
+            $file = $jxl;
+        }
         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         $headers = [
             'Content-Type' => self::TYPES[$extension] ?? 'application/octet-stream',
@@ -74,6 +79,8 @@ class PhotoFileAction
         ];
         if ($download) {
             $headers['Content-Disposition'] = 'attachment; filename="rockfever-' . $photo->id . '.' . $extension . '"';
+        } else {
+            $headers['Vary'] = 'Accept';
         }
         return new Response(200, $headers, Utils::streamFor(fopen($file, 'rb')));
     }
