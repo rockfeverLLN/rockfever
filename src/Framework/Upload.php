@@ -22,7 +22,7 @@ class Upload
     protected $maxSize = null;
 
     /**
-     * Widths (in pixels) of the smaller WebP copies saved in a sizes/ folder next to each image,
+     * Widths (in pixels) of the smaller JPEG copies saved in a sizes/ folder next to each image,
      * so pages can offer them in a srcset (see TextExtension::lazyImages)
      * @var int[]
      */
@@ -91,24 +91,27 @@ class Upload
             }
             foreach ($this->widths as $width) {
                 $oldFileWithWidth = self::getResizedPath($oldFile, $width);
-                if (file_exists($oldFileWithWidth)) {
-                    unlink($oldFileWithWidth);
+                // And the WebP copy from before the copies were JPEG
+                foreach ([$oldFileWithWidth, substr($oldFileWithWidth, 0, -3) . 'webp'] as $copy) {
+                    if (file_exists($copy)) {
+                        unlink($copy);
+                    }
                 }
             }
         }
     }
 
     /**
-     * Path of the WebP copy of an image at the given width: photo.jpg => sizes/photo-640.webp
+     * Path of the JPEG copy of an image at the given width: photo.png => sizes/photo-640.jpg
      */
     public static function getResizedPath(string $path, int $width) : string
     {
         $info = pathinfo($path);
-        return $info['dirname'] . '/sizes/' . $info['filename'] . '-' . $width . '.webp';
+        return $info['dirname'] . '/sizes/' . $info['filename'] . '-' . $width . '.jpg';
     }
 
     /**
-     * Saves the WebP copies of an image for the widths smaller than it. Existing copies are kept
+     * Saves the JPEG copies of an image for the widths smaller than it. Existing copies are kept
      */
     public function generateWidths(string $targetPath) : void
     {
@@ -145,10 +148,11 @@ class Upload
             $height = imagesy($image);
             foreach ($missing as $size) {
                 $copy = imagecreatetruecolor($size, (int) round($height * $size / $width));
-                imagealphablending($copy, false);
-                imagesavealpha($copy, true);
+                // JPEG has no transparency: see-through parts of a PNG turn white
+                imagefill($copy, 0, 0, imagecolorallocate($copy, 255, 255, 255));
                 imagecopyresampled($copy, $image, 0, 0, 0, 0, imagesx($copy), imagesy($copy), $width, $height);
-                imagewebp($copy, self::getResizedPath($targetPath, $size), 75);
+                imageinterlace($copy, true);
+                imagejpeg($copy, self::getResizedPath($targetPath, $size), 80);
             }
         } catch (\Throwable $e) {
             // Pages fall back to the original image

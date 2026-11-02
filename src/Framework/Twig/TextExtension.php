@@ -174,7 +174,7 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         $url = fn (string $path) => self::imageUrl($path);
         $candidates = [];
         $info = pathinfo($file);
-        $pattern = preg_replace('/[*?\[\]\\\\]/', '\\\\$0', $info['dirname'] . '/sizes/' . $info['filename']) . '-*.webp';
+        $pattern = preg_replace('/[*?\[\]\\\\]/', '\\\\$0', $info['dirname'] . '/sizes/' . $info['filename']) . '-*.jpg';
         foreach (glob($pattern) ?: [] as $copy) {
             $size = substr(pathinfo($copy, PATHINFO_FILENAME), strlen($info['filename']) + 1);
             if (ctype_digit($size)) {

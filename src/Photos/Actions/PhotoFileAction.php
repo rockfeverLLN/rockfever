@@ -84,6 +84,8 @@ class PhotoFileAction
     private function getFile(string $original, string $size) : string
     {
         if ($size !== 'full') {
+            // Photos uploaded while the copies were WebP get their JPEG copies the first time they're shown
+            $this->upload->generateWidths($original);
             foreach ($this->upload->getWidths() as $width) {
                 $file = PhotoUpload::getResizedPath($original, $width);
                 if ($width >= (int) $size && is_file($file)) {
