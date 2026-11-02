@@ -21,6 +21,16 @@ class PHPSession implements SessionInterface, \ArrayAccess
         }
     }
 
+    /**
+     * Whether there is a session to read: a started one, or one the browser sent the cookie of. Reading doesn't start
+     * one, so a visitor's pages come without a session cookie and its no-store headers: browsers can keep them in
+     * their back/forward cache. A session starts when something is saved in it (a flash message, a login)
+     */
+    private function exists() : bool
+    {
+        return session_status() == PHP_SESSION_ACTIVE || isset($_COOKIE[session_name()]);
+    }
+
     private function isHttps() : bool
     {
         return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
@@ -40,6 +50,9 @@ class PHPSession implements SessionInterface, \ArrayAccess
      */
     public function get(string $key, $default = null)
     {
+        if (!$this->exists()) {
+            return $default;
+        }
         $this->ensureStarted();
         if (array_key_exists($key, $_SESSION)) {
             return $_SESSION[$key];
@@ -62,6 +75,9 @@ class PHPSession implements SessionInterface, \ArrayAccess
      */
     public function delete(string $key): void
     {
+        if (!$this->exists()) {
+            return;
+        }
         $this->ensureStarted();
         unset($_SESSION[$key]);
     }
@@ -80,6 +96,9 @@ class PHPSession implements SessionInterface, \ArrayAccess
      */
     public function offsetExists(mixed $offset): bool
     {
+        if (!$this->exists()) {
+            return false;
+        }
         $this->ensureStarted();
         return array_key_exists($offset, $_SESSION);
     }
