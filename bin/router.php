@@ -11,6 +11,12 @@ if (preg_match('#^/images/.+\.(jpe?g|png|webp)$#i', $path) && str_contains($_SER
     readfile($jxl);
     return true;
 }
+// PHP's server doesn't know .jxl (bg.jxl, asked for by the pages' <picture>): its type, as www/.htaccess gives it
+if (str_ends_with($path, '.jxl') && is_file($_SERVER['DOCUMENT_ROOT'] . $path)) {
+    header('Content-Type: image/jxl');
+    readfile($_SERVER['DOCUMENT_ROOT'] . $path);
+    return true;
+}
 if ($path !== '/' && is_file($_SERVER['DOCUMENT_ROOT'] . $path)) {
     return false;
 }
