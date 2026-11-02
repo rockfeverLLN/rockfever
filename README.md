@@ -155,3 +155,7 @@ To run the same checks locally: `composer migrate && composer seed`, `composer s
 ## README screenshots
 
 The screenshots at the top of this README come from the live site and update themselves: after every deploy, and every Monday for what changes from the admin, [`.github/workflows/readme-screenshots.yml`](.github/workflows/readme-screenshots.yml) runs [`bin/readme-screenshots.mjs`](bin/readme-screenshots.mjs), which opens rockfever.be in headless Chrome, takes the home page on a computer (`desktop.jpg`) and the home page, the calendar and the photos on phones (`phones.webp`), and commits them when the page looks different. To change which pages the phones show, edit `PHONE_PAGES` in the script. The banner isn't a screenshot and stays as it is. To take them by hand: `node --experimental-websocket bin/readme-screenshots.mjs` (plain `node` from 22).
+
+## License
+
+The code is open source under the [Apache License 2.0](LICENSE). The Inter font keeps its own license ([`www/fonts/inter-LICENSE.txt`](www/fonts/inter-LICENSE.txt)), and the photos and the Rock Fever name and logo stay Rock Fever's.
