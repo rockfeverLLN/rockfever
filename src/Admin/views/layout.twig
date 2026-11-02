@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     {#- Before the stylesheets, so a dark page never shows white first: the theme chosen with the top bar's button,
         else the device's (admin-dark.css) #}
@@ -26,14 +26,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 
-<body class="{% block bodyColor %}{% endblock %}">
+<body class="admin {% block bodyColor %}{% endblock %}">
+<a href="#contenu" class="skip-link">Aller au contenu</a>
 {% include "@admin/topbar.twig" %}
 
-<div class="container">
-    {% include 'flash.twig' %}
-</div>
+<main id="contenu" tabindex="-1">
+    <div class="container">
+        {% include 'flash.twig' %}
+    </div>
 
-{% block body %}{% endblock %}
+    {% block body %}{% endblock %}
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/tinymce@8.10.1/tinymce.min.js"></script>
 {% block js %}{% endblock %}

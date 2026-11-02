@@ -10,10 +10,10 @@
                     </div>
                     <div class="col s12 m4">
                         <a href="{{ path('admin.events.participants',{id:event.id}) }}" class="go-to-list">
-                            <i class="material-icons left">computer</i>
+                            <i class="material-icons left" aria-hidden="true">computer</i>
                             <strong>Liste électronique</strong><br>
-                            <span>Gérer le inscriptions</span>
-                            <i class="material-icons right">chevron_right</i>
+                            <span>Gérer les inscriptions</span>
+                            <i class="material-icons right" aria-hidden="true">chevron_right</i>
                         </a>
                     </div>
                 </div>
@@ -22,11 +22,11 @@
                 <div class="row">
                     <div class="col s6">
                         <div class="card card-statistics green white-text">
-                            <i class="material-icons stat-back activator">done</i>
+                            <i class="material-icons stat-back activator" aria-hidden="true">done</i>
                             <span class="activator stat">{{ here + vip + improvised }}</span>
-                            <p class="activator">Personnes présentes</p>
+                            <p class="activator" aria-label="Personnes présentes : voir les pourcentages">Personnes présentes</p>
                             <div class="card-reveal green" style="overflow: hidden">
-                                <span class="card-title">Pourcentages <i class="material-icons right">close</i></span>
+                                <span class="card-title" aria-label="Fermer les pourcentages">Pourcentages <i class="material-icons right" aria-hidden="true">close</i></span>
                                 <p style="margin-top: 3px">
                                     {% if (vip+here+improvised) == 0 %}
                                         0 % pré-inscrits <br>
@@ -44,11 +44,11 @@
 
                     <div class="col s6">
                         <div class="card card-statistics koamaru white-text">
-                            <i class="material-icons stat-back activator">attach_money</i>
-                            <span class="stat activator">{{ improvised * 3 + here * 2 }}</span>
-                            <p class="activator">Revenus estimés</p>
+                            <i class="material-icons stat-back activator" aria-hidden="true">attach_money</i>
+                            <span class="stat activator">{{ improvised * 3 + here * 2 }}<span class="sr-only"> €</span></span>
+                            <p class="activator" aria-label="Revenus estimés : voir les détails">Revenus estimés</p>
                             <div class="card-reveal koamaru" style="overflow: hidden">
-                                <span class="card-title">Détails <i class="material-icons right">close</i></span>
+                                <span class="card-title" aria-label="Fermer les détails">Détails <i class="material-icons right" aria-hidden="true">close</i></span>
                                 <p style="margin-top: 3px">
                                     {{ here * 2 }} € pré-inscrits <br>
                                     {{ improvised * 3 }} € improvistes
@@ -59,7 +59,7 @@
 
                     <div class="col s6">
                         <div class="card card-statistics purple white-text">
-                            <i class="material-icons stat-back">add</i>
+                            <i class="material-icons stat-back" aria-hidden="true">add</i>
                             <span class="stat">{{ improvised }}</span>
                             <p>Venues improvisées</p>
                         </div>
@@ -67,7 +67,7 @@
 
                     <div class="col s6">
                         <div class="card card-statistics orange white-text">
-                            <i class="material-icons stat-back">star</i>
+                            <i class="material-icons stat-back" aria-hidden="true">star</i>
                             <span class="stat">{{ vip }}</span>
                             <p>Participants VIP</p>
                         </div>
@@ -76,22 +76,22 @@
             </div>
             <div class="col s12 m6">
                 <div class="collection print-type-collection">
-                    <a class="collection-item collection-header grey-text text-darken-4">
-                        <h4 style="margin-top: 0; margin-bottom: 0">Imprimer la liste</h4>
+                    <div class="collection-item collection-header grey-text text-darken-4">
+                        <h2 class="h4-size" style="margin-top: 0; margin-bottom: 0">Imprimer la liste</h2>
                         <p style="margin-bottom: 0">Choisissez le type de liste que vous voulez imprimer</p>
-                    </a>
+                    </div>
                     <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=registered" class="collection-item avatar grey-text text-darken-4">
-                        <i class="material-icons circle">list</i>
+                        <i class="material-icons circle" aria-hidden="true">list</i>
                         <strong class="title">Liste des personnes pré-inscrites</strong>
                         <p>Pour version papier pour l'événement</p>
                     </a>
                     <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=attendees" class="collection-item avatar">
-                        <i class="material-icons circle green">check</i>
+                        <i class="material-icons circle green" aria-hidden="true">check</i>
                         <strong class="title">Liste des personnes présentes</strong>
                         <p>Pour version papier après événement</p>
                     </a>
                     <a href="{{ path('admin.events.participants.print',{id:event.id}) }}?type=all" class="collection-item avatar">
-                        <i class="material-icons circle red">cloud_download</i>
+                        <i class="material-icons circle red" aria-hidden="true">cloud_download</i>
                         <strong class="title">Liste avec toutes les infos</strong>
                         <p>(Status, nom, prénom et heure d'arrivée si présent)</p>
                     </a>
@@ -99,7 +99,29 @@
             </div>
 
             <div class="col s12">
-                <canvas id="myChart" width="100%" height="55vh"></canvas>
+                <canvas id="myChart" width="100%" height="55vh" aria-hidden="true"></canvas>
+                {#- The chart's numbers, for screen readers #}
+                <table class="sr-only">
+                    <caption>Arrivées en fonction de l'heure</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">Heure</th>
+                        <th scope="col">Arrivées</th>
+                        <th scope="col">Arrivées cumulées</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set cumulative = 0 %}
+                    {% for time, amount in arrivalTimes %}
+                        {% set cumulative = cumulative + amount %}
+                        <tr>
+                            <th scope="row">{{ time|militaryToTime }}</th>
+                            <td>{{ amount }}</td>
+                            <td>{{ cumulative }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
         </div>

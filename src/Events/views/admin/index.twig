@@ -1,17 +1,17 @@
 {% extends '@admin/layout.twig' %}
-{% block title %}Evénements - Rock Fever{% endblock %}
+{% block title %}Événements - Rock Fever{% endblock %}
 {% block body %}
     <div class="container">
-        <h1>Evénements</h1>
+        <h1>Événements</h1>
         <ul class="collapsible" style="box-shadow: none; border: none">
             {% for event in items %}
                 <li {% if loop.first %}class="active" {% endif %}>
                     <div class="collapsible-header" style="position: relative;">
-                        <i class="material-icons">event</i>{{ event.date | dateToText }}
+                        <i class="material-icons" aria-hidden="true">event</i>{{ event.date | dateToText }}
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <strong>{{ event.title }}</strong>
                         <div style="position: absolute; right:30px">
-                            <i class="material-icons left">supervisor_account</i>
+                            <i class="material-icons left" aria-hidden="true">supervisor_account</i>
                             <strong>{{ event.participantsCount }}</strong>
                             participants
                         </div>
@@ -21,59 +21,70 @@
                                 <div class="col s2">
                                     <a href="{{ path(routePrefix ~ '.edit', {id: event.id}) }}"
                                        class="green-text tooltipped event-button" data-position="top"
-                                       data-tooltip="Modifier l'événement"
+                                       data-tooltip="Modifier l'événement" aria-label="Modifier l'événement {{ event.title }}"
                                     >
-                                        <i class="mdi mdi-pencil"></i>
+                                        <i class="mdi mdi-pencil" aria-hidden="true"></i>
                                     </a>
                                 </div>
                                 <div class="col s2">
                                     {% if event.closed %}
                                         <a href="{{ path(routePrefix ~ '.open', {id: event.id}) }}"
                                            class="orange-text tooltipped event-button" data-position="top"
-                                           data-tooltip="Réouvrir les inscriptions"
+                                           data-tooltip="Réouvrir les inscriptions" aria-label="Réouvrir les inscriptions de {{ event.title }}"
                                         >
-                                            <i class="mdi mdi-lock"></i>
+                                            <i class="mdi mdi-lock" aria-hidden="true"></i>
                                         </a>
                                     {% else %}
                                         <a href="{{ path(routePrefix ~ '.close', {id: event.id}) }}"
                                            class="orange-text tooltipped event-button" data-position="top"
-                                           data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Cloturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
+                                           data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Clôturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
+                                           aria-label="{% if event.registrationUpcoming %}Garder fermées les inscriptions de {{ event.title }}, qui s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}{% else %}Clôturer les inscriptions de {{ event.title }} (vous serez redirigé vers la liste){% endif %}"
                                         >
-                                            <i class="mdi mdi-lock-open"></i>
+                                            <i class="mdi mdi-lock-open" aria-hidden="true"></i>
                                         </a>
                                     {% endif %}
                                 </div>
                                 <div class="col s2">
                                     <a href="{{ path(routePrefix ~ '.participants', {id: event.id}) }}"
                                        class="koamaru-text tooltipped event-button" data-position="top"
-                                       data-tooltip="Liste électronique"
+                                       data-tooltip="Liste électronique" aria-label="Liste électronique de {{ event.title }}"
                                     >
-                                        <i class="mdi mdi-format-list-bulleted"></i>
+                                        <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>
                                     </a>
                                 </div>
                                 <div class="col s2">
                                     <a href="{{ path('admin.events.statistics', {id:event.id}) }}"
                                        class="red-text text-darken-4 tooltipped event-button"
-                                       data-position="top" data-tooltip="Statistiques de l'événement"
+                                       data-position="top" data-tooltip="Statistiques de l'événement" aria-label="Statistiques de {{ event.title }}"
                                     >
-                                        <i class="mdi mdi-chart-bar"></i>
+                                        <i class="mdi mdi-chart-bar" aria-hidden="true"></i>
                                     </a>
                                 </div>
                                 <div class="col s2">
-                                    <a href="{{ event.facebookLink | default('#') }}"
-                                       class="{% if event.facebookLink %}blue-text text-darken-4{% else %}grey-text{% endif %} tooltipped event-button"
-                                       data-position="top" data-tooltip="Evénement Facebook" {% if event.facebookLink %}target="_blank"{% endif %}
-                                    >
-                                        <i class="mdi mdi-facebook"></i>
-                                    </a>
+                                    {% if event.facebookLink %}
+                                        <a href="{{ event.facebookLink }}"
+                                           class="blue-text text-darken-4 tooltipped event-button"
+                                           data-position="top" data-tooltip="Événement Facebook" target="_blank"
+                                           aria-label="Événement Facebook de {{ event.title }} (nouvel onglet)"
+                                        >
+                                            <i class="mdi mdi-facebook" aria-hidden="true"></i>
+                                        </a>
+                                    {% else %}
+                                        {#- No link to follow: not focusable, and said as unavailable #}
+                                        <span class="grey-text tooltipped event-button" data-position="top"
+                                              data-tooltip="Pas d'événement Facebook" role="img" aria-label="Pas d'événement Facebook"
+                                        >
+                                            <i class="mdi mdi-facebook" aria-hidden="true"></i>
+                                        </span>
+                                    {% endif %}
                                 </div>
                                 <div class="col s2">
                                     <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: event.id}) }}"
                                           method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cet événement ?");'
                                     >
                                         <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement">
-                                            <i class="mdi mdi-delete"></i>
+                                        <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement" aria-label="Supprimer l'événement {{ event.title }}">
+                                            <i class="mdi mdi-delete" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -86,8 +97,8 @@
     </div>
 
     <div class="fixed-action-btn">
-        <a href="{{ path('admin.events.create') }}" class="pulse btn-floating btn-large koamaru">
-            <i class="mdi mdi-calendar-plus"></i>
+        <a href="{{ path('admin.events.create') }}" class="pulse btn-floating btn-large koamaru" aria-label="Nouvel événement" title="Nouvel événement">
+            <i class="mdi mdi-calendar-plus" aria-hidden="true"></i>
         </a>
     </div>
 {% endblock %}

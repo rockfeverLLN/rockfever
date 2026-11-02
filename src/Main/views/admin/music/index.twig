@@ -1,51 +1,56 @@
 {% extends '@admin/layout.twig' %}
-{% block title %}A propos - Rock Fever{% endblock %}
+{% block title %}Musiques - Rock Fever{% endblock %}
 {% block body %}
     <div class="container">
         <h1>Musiques proposées</h1>
         <table class="striped">
-            <thead>
+            <col width="60px">
+            <col>
+            <col>
+            <col width="300px">
+            {#- Headers for screen readers only: the table reads well enough on screen without them #}
+            <thead class="sr-only">
             <tr>
-                <col width="60px">
-                <col>
-                <col>
-                <col width="300px">
+                <th scope="col">Statut</th>
+                <th scope="col">Titre</th>
+                <th scope="col">Artiste</th>
+                <th scope="col">Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for music in items %}
                 <tr>
                     <td>
-                        <center>
+                        <div class="center-align">
                         {% if music.added == 0 %}
-                            <i class="mdi mdi-eye-off"></i>
+                            <i class="mdi mdi-eye-off" aria-hidden="true"></i><span class="sr-only">Pas encore vue</span>
                         {% elseif music.added == 1 %}
-                            <i class="mdi mdi-eye"></i>
+                            <i class="mdi mdi-eye" aria-hidden="true"></i><span class="sr-only">Vue</span>
                         {% endif %}
-                        </center>
+                        </div>
                     </td>
                     <td>{{ music.title | excerpt(50) }}</td>
                     <td>{{ music.artist | excerpt(50) }}</td>
                     <td>
                         {% if music.added == 0 %}
-                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="green-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme vue">
-                                <i class="mdi mdi-eye"></i>
+                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="green-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme vue" aria-label="Marquer {{ music.title }} comme vue">
+                                <i class="mdi mdi-eye" aria-hidden="true"></i>
                             </a>
                         {% elseif music.added == 1 %}
-                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="orange-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme non vue">
-                                <i class="mdi mdi-eye-off"></i>
+                            <a href="{{ path(routePrefix ~ '.edit', {id: music.id}) }}?p={{ p }}" class="orange-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Marquer comme non vue" aria-label="Marquer {{ music.title }} comme non vue">
+                                <i class="mdi mdi-eye-off" aria-hidden="true"></i>
                             </a>
                         {% endif %}
 
                         <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: music.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette musique de la liste ?");'>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="koamaru-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Supprimer la musique">
-                                <i class="mdi mdi-delete"></i>
+                            <button type="submit" class="koamaru-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Supprimer la musique" aria-label="Supprimer {{ music.title }}">
+                                <i class="mdi mdi-delete" aria-hidden="true"></i>
                             </button>
                         </form>
                         <a href="https://www.youtube.com/results?search_query={{ music.title | toSearch }}+{{ music.artist | toSearch }}"
-                           class="red-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Voir sur youtube" target="_blank">
-                            <i class="mdi mdi-play"></i>
+                           class="red-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Voir sur youtube" target="_blank" aria-label="Voir {{ music.title }} sur YouTube (nouvel onglet)">
+                            <i class="mdi mdi-play" aria-hidden="true"></i>
                         </a>
                     </td>
                 </tr>
