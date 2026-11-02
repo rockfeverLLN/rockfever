@@ -1,6 +1,6 @@
 <div class="col s12">
-    <a href="{{ path('admin.photos.index') }}#demandes" class="card-panel white-text" style="display: block; background: linear-gradient(45deg, #c62828, #ef5350); border-radius: 15px">
+    <a href="{{ path('admin.photos.index') }}#demandes" class="dashboard-card dashboard-alert">
         <i class="mdi mdi-delete" aria-hidden="true"></i>
-        <b>{{ count }} demande{{ count > 1 ? 's' }} de suppression de photo</b> en attente : voir les photos
+        <span><b>{{ count }} demande{{ count > 1 ? 's' }} de suppression de photo</b> en attente : voir les photos</span>
     </a>
 </div>

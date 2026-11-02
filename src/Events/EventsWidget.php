@@ -12,13 +12,13 @@ class EventsWidget implements AdminWidgetInterface
 {
 
     private $colors = [
-        '#f44336',//red
-        '#2196f3',//blue
-        '#4caf50',//green
-        '#ffc107',//amber
-        '#e91e63',//pink
-        '#00bcd4',//cyan
-        '#00bcd4',//cyan
+        '#1d4f86',//navy, a shade lighter than the site's so its walk-ins stay visible
+        '#00897b',//teal, as the home page's buttons
+        '#f0b429',//amber
+        '#3b82c4',//light blue
+        '#e5664a',//coral
+        '#7b8794',//slate
+        '#7b8794',//slate
     ];
 
     /**
