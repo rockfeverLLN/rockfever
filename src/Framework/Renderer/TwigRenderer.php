@@ -44,7 +44,10 @@ class TwigRenderer implements RendererInterface
      */
     public function render(string $view, array $params = []): string
     {
-        return $this->twig->render($view . '.twig', $params);
+        // The name of the page, as layout.twig puts it on <html data-page>: @main/home => main-home. It picks the
+        // first-paint CSS of the page that bin/critical-css.php built (views/critical/main-home.css)
+        $page = trim(preg_replace('/[^a-z0-9]+/i', '-', $view), '-');
+        return $this->twig->render($view . '.twig', $params + ['page' => $page]);
     }
 
     /**

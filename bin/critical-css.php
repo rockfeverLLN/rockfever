@@ -1,6 +1,7 @@
 <?php
-// Builds views/critical.css: the rules of base.css and style.css that the public pages use.
-// layout.twig inlines it so the first paint doesn't wait for the stylesheets, which then load in the background.
+// Builds views/critical.css: the rules of base.css and style.css that the public pages use, and views/critical/*.css:
+// those of each page (<html data-page>). layout.twig inlines the page's own so the first paint doesn't wait for the
+// stylesheets, which then load in the background.
 // Also builds www/css/site.css, the one stylesheet those pages load: the part of base.css they use (with the classes
 // script.js adds on them: side menu, form fields), then all of style.css. One file, so both apply at the same moment:
 // loaded apart, base.css alone briefly overrode the first-paint rules and moved the page.
@@ -228,13 +229,33 @@ function keepUsed(array $items, array $documents, ?string $keep = null, bool $an
     return $css;
 }
 
-$output = '';
+$rules = [];
 foreach ($stylesheets as $file) {
-    $css = preg_replace('#/\*.*?\*/#s', '', file_get_contents($file));
-    $output .= keepUsed(parseCss($css), $documents);
+    $rules[] = parseCss(preg_replace('#/\*.*?\*/#s', '', file_get_contents($file)));
 }
+$critical = fn (array $documents) => implode('', array_map(fn ($items) => keepUsed($items, $documents), $rules));
+
+// The rules of all the pages, for the pages not read here (photos, errors...)
+$output = $critical($documents);
 file_put_contents("$root/views/critical.css", $output . "\n");
 printf("views/critical.css: %d KB from %d pages\n", strlen($output) / 1024, count($documents));
+
+// And the rules of each page, which layout.twig inlines instead: views/critical/main-home.css for <html
+// data-page="main-home">. With the page from every site read (live and test) and the saved pages
+$byPage = [];
+foreach ($documents as $document) {
+    $page = $document->documentElement->getAttribute('data-page');
+    if ($page && preg_match('/^[a-z0-9-]+$/i', $page)) {
+        $byPage[$page][] = $document;
+    }
+}
+@mkdir("$root/views/critical");
+array_map('unlink', glob("$root/views/critical/*.css") ?: []);
+foreach ($byPage as $page => $pageDocuments) {
+    $css = $critical($pageDocuments);
+    file_put_contents("$root/views/critical/$page.css", $css . "\n");
+    printf("views/critical/%s.css: %d KB\n", $page, strlen($css) / 1024);
+}
 
 $base = preg_replace('#/\*.*?\*/#s', '', file_get_contents("$root/www/css/base.css"));
 $site = keepUsed(parseCss($base), $documents, $scriptClasses, true)

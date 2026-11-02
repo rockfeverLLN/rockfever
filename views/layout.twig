@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr"{% if page is defined %} data-page="{{ page }}"{% endif %}>
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -130,9 +130,10 @@
     {% block head %}{% endblock %}
     {# critical.css and site.css are built by bin/critical-css.php at every deploy (not in git) #}
     {%- if assetExists('/css/site.css') %}
-    {# Rules the public pages need for the first paint, then the one stylesheet (base.css's part and style.css),
-       loaded in the background #}
-    <style>{{ source('critical.css', ignore_missing = true) }}</style>
+    {# Rules the page needs for the first paint, then the one stylesheet (base.css's part and style.css), loaded in
+       the background. The rules of this page only when bin/critical-css.php read it, else those of all the pages #}
+    {%- set critical = page is defined ? source('critical/' ~ page ~ '.css', ignore_missing = true) : '' %}
+    <style>{{ critical ?: source('critical.css', ignore_missing = true) }}</style>
     <link rel="preload" href="{{ asset('/css/site.css') }}" as="style" id="site-css"/>
     {#- Not an onload attribute: the Content-Security-Policy blocks those. The script runs before the file can load #}
     <script nonce="{{ csp_nonce }}">
