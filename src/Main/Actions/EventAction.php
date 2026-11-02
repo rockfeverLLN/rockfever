@@ -74,6 +74,7 @@ class EventAction extends FormAction
                 $this->dancerTable->insert($params);
             }
             $this->flash->success($this->messages['create']);
+            $this->flash->event('sign_up');
             return $this->redirect('event');
         } else {
             $this->flash->error("Tu n'as pas complété ton prénom et ton nom correctement");
