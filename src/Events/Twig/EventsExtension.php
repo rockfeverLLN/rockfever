@@ -50,8 +50,9 @@ class EventsExtension extends \Twig\Extension\AbstractExtension
 
     public function soireesJsonLd(array $soirees) : string
     {
-        // Twig's filter keeps the keys: a list, so that several events stay a JSON array
-        $events = array_map([$this->calendar, 'toSchema'], array_values($soirees));
+        // Twig's filter keeps the keys: a list, so that several events stay a JSON array. Old soirées no longer in the
+        // config have no prices, so no offers, which Google flags: they get no markup
+        $events = array_map([$this->calendar, 'toSchema'], array_values(array_filter($soirees, fn ($soiree) => $soiree['prices'])));
         if (!$events) {
             return '';
         }
