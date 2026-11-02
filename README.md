@@ -41,7 +41,7 @@ PHP 8.5, Twig 3, PHP-DI 7, Mezzio router, on OVH web hosting. Every push to `mai
 
 ### Contents
 
-[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Facebook posts](#facebook-posts) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates)
+[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Facebook posts](#facebook-posts) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates) · [README screenshots](#readme-screenshots)
 
 ## Layout
 
@@ -150,3 +150,7 @@ The PHP version on OVH is set in [`.ovhconfig`](.ovhconfig).
 Updates install themselves within a day of their release, major versions included, with no one needing to do anything. Every night, [`.github/workflows/update-dependencies.yml`](.github/workflows/update-dependencies.yml) looks for new versions of the Composer packages (for the PHP version in `.ovhconfig`) and of the JavaScript libraries (`bin/update-js.sh`: TinyMCE, its French translation, clipboard.js and Masonry, loaded from jsDelivr; the site's own scripts and styles use no library, so there's no jQuery or Materialize to update). When there's one, `bin/auto-update.sh` tests it on a copy of the site before it goes live: PHP syntax, PHPStan, every main page answering (`bin/smoke-test.sh`) and their scripts working in Chrome (`bin/browser-test.mjs`: the side menu, dropdown, tooltips, collapsibles, modals, the date fields, the list at the door, TinyMCE, the gallery). Minor and patch releases are tested together, each major version on its own. What passes is committed and deployed; what fails stays on the previous version and is listed in an "Automatic package update failed" issue, then tried again when a newer version comes out. You can also start it by hand from the Actions tab.
 
 To run the same checks locally: `composer migrate && composer seed`, `composer serve`, then in another terminal `bin/smoke-test.sh`, `node --experimental-websocket bin/browser-test.mjs` (Node 20; plain `node` from 22) and `composer analyse`.
+
+## README screenshots
+
+The screenshots at the top of this README come from the live site and update themselves: after every deploy, and every Monday for what changes from the admin, [`.github/workflows/readme-screenshots.yml`](.github/workflows/readme-screenshots.yml) runs [`bin/readme-screenshots.mjs`](bin/readme-screenshots.mjs), which opens rockfever.be in headless Chrome, takes the home page on a computer (`desktop.jpg`) and the home page, the calendar and the photos on phones (`phones.webp`), and commits them when the page looks different. To change which pages the phones show, edit `PHONE_PAGES` in the script. The banner isn't a screenshot and stays as it is. To take them by hand: `node --experimental-websocket bin/readme-screenshots.mjs` (plain `node` from 22).
