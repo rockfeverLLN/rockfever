@@ -766,6 +766,96 @@ main:focus {
     font-weight: 500;
 }
 
+/* The popup after a sign-up on /event: add the soirée to a calendar (event.twig) */
+dialog.modal.signup-calendar {
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% - 32px);
+    max-width: 440px;
+    max-height: calc(100% - 32px);
+    border-radius: 16px;
+    background-color: #fff;
+    color: #072d55;
+    text-align: center;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+.signup-calendar .modal-content {
+    position: relative;
+    padding: 32px 24px 24px 24px;
+}
+
+.signup-calendar h2 {
+    margin: 4px 0 12px 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.signup-calendar p {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.signup-calendar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #e3ebf5;
+    color: #072d55;
+    font-size: 32px;
+}
+
+/* 44px square: big enough to tap */
+.signup-calendar-x {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: #4a4a4a;
+    font-size: 22px;
+    line-height: 44px;
+    padding: 0;
+}
+
+/* Not base.css's teal button:focus: the site's :focus-visible outline shows it */
+.signup-calendar-x:focus {
+    background: none;
+}
+
+.signup-calendar-x:hover {
+    background-color: #f0f0f0;
+}
+
+.signup-calendar .soiree-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0 16px 0;
+}
+
+.signup-calendar .soiree-actions .btn, .signup-calendar .soiree-actions .btn-flat {
+    margin: 0;
+    width: 100%;
+}
+
+.signup-calendar .btn-flat.calendar-google {
+    border: 1px solid #c5d0dc;
+}
+
+.signup-calendar .signup-calendar-hint {
+    margin: 0;
+    color: #4a4a4a;
+    font-size: 14px;
+}
+
 /* The facts of one soirée on its page (soireePage.twig) */
 .site .soiree-facts {
     margin: 0 0 24px 0;

@@ -250,8 +250,19 @@
         }
     });
 
+    // Analytics: a click on a link with data-track="event_name" sends that GA4 event, with data-track-method as its
+    // method. A dialog's data-track-close is sent when it's closed without a click on one of its tracked links
+    function track(name, method) {
+        if (typeof window.gtag === 'function') {
+            window.gtag('event', name, method ? {method: method} : {});
+        }
+    }
+
     function closeModal() {
         if (openModal) {
+            if (openModal.dataset.trackClose && !openModal.dataset.tracked) {
+                track(openModal.dataset.trackClose);
+            }
             openModal.close();
             openModal = null;
             modalOverlay.classList.remove('open');
@@ -263,25 +274,39 @@
         }
     }
 
+    function showModal(modal, trigger) {
+        if (!modalOverlay) {
+            modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay';
+            modalOverlay.addEventListener('click', closeModal);
+            document.body.appendChild(modalOverlay);
+        }
+        closeModal();
+        modalOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        modal.show();
+        openModal = modal;
+        modalTrigger = trigger;
+        // [autofocus] first: a dialog can choose where the focus goes, its main button rather than its close button
+        var field = modal.querySelector('[autofocus]') || modal.querySelector('input:not([type=hidden]):not([tabindex="-1"]), textarea:not(.tinymce), select, button');
+        (field || modal).focus();
+    }
+
     document.addEventListener('click', function (event) {
+        // A tracked link in the open dialog closes it: what it was there for is done
+        var tracked = event.target.closest('a[data-track]');
+        if (tracked) {
+            track(tracked.dataset.track, tracked.dataset.trackMethod);
+            if (openModal && openModal.contains(tracked)) {
+                openModal.dataset.tracked = 'true';
+                closeModal();
+            }
+        }
         var trigger = event.target.closest('.modal-trigger');
         var modal = trigger && document.querySelector(trigger.getAttribute('href') || '#' + trigger.dataset.target);
         if (modal && modal.tagName === 'DIALOG') {
             event.preventDefault();
-            if (!modalOverlay) {
-                modalOverlay = document.createElement('div');
-                modalOverlay.className = 'modal-overlay';
-                modalOverlay.addEventListener('click', closeModal);
-                document.body.appendChild(modalOverlay);
-            }
-            closeModal();
-            modalOverlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-            modal.show();
-            openModal = modal;
-            modalTrigger = trigger;
-            var field = modal.querySelector('input:not([type=hidden]):not([tabindex="-1"]), textarea:not(.tinymce), select, button');
-            (field || modal).focus();
+            showModal(modal, trigger);
             return;
         }
         var close = event.target.closest('dialog.modal .modal-close');
@@ -306,6 +331,12 @@
             closeModal();
         }
     });
+
+    // A dialog the page shows on its own, like the one after a sign-up on /event: data-open-on-load
+    var onLoad = document.querySelector('dialog.modal[data-open-on-load]');
+    if (onLoad) {
+        showModal(onLoad, null);
+    }
 
     // Collapsibles: a click on an item's header opens it and closes the others. The headers are buttons for the
     // keyboard and screen readers, which hear whether their item is open
