@@ -1,105 +1,94 @@
 <div class="col s12 m6">
-    <div class="card-panel white-text" style="background: linear-gradient(45deg, #292929, #424242); border-radius: 15px; padding-top: 10px">
-        <h3 class="center" style="margin-top: 0;">Participants</h3>
-        <canvas id="dancersChart" width="100" height="50"></canvas>
-    </div>
+    <section class="dashboard-card dashboard-chart">
+        <h2>Participants</h2>
+        {#- The chart fills the rest of the card, as tall as the next event's beside it #}
+        <div class="dashboard-chart-canvas">
+            <canvas id="dancersChart"></canvas>
+        </div>
+    </section>
 </div>
 
 <div class="col s12 m6">
-    <div class="card white-text" style="background: linear-gradient(45deg, #ff6f00 , #ffca28); border-radius: 15px">
-        <div class="card-content" style="padding-top: 10px">
-            <h3 class="center" style="margin-top: 0;">
-                {% if nextEvent %}
-                <a href="{{ path('admin.events.edit', {id:nextEvent.id }) }}" class="underlined-link">
-                    Prochain rock
-                </a>
+    {#- Navy like the next soirée's card on the home page (nextSoiree.twig) #}
+    <section class="dashboard-card dashboard-next koamaru">
+        <h2>
+            {% if nextEvent %}
+                <a href="{{ path('admin.events.edit', {id:nextEvent.id }) }}" class="underlined-link">Prochain rock</a>
+            {% else %}
+                Prochain rock
+            {% endif %}
+        </h2>
+        <ul class="next-event-infos">
+            <li>
+                <b>Titre :</b> {{ nextEvent.title | default('Pas d\'évènement prévu') }}
+            </li>
+            <li>
+                <b>Date :</b> {{ nextEvent.date | default('--/--/--') }}
+            </li>
+            <li>
+                <b>Heure :</b> {{ nextEvent.waltzTime | default('--:--') }} (valse) et {{ nextEvent.rockTime | default('--:--') }} (rock)
+            </li>
+            <li>
+                <b>Lieu :</b> {{ nextEvent.place | default('---') }}
+            </li>
+            <li>
+                <b>Prix :</b> {{ nextEvent.price | default('--€') }}
+            </li>
+            {% if nextEvent %}
+            <li>
+                <b>Inscriptions :</b>
+                {% if registration.status == 'open' %}
+                    ouvertes, jusqu'au début de la soirée
+                {% elseif registration.status == 'upcoming' %}
+                    s'ouvrent toutes seules le {{ registration.opens | dayLabel }}{% if registration.opens|date('H:i', false) != '00:00' %} à {{ registration.opens|date('H:i', false) }}{% endif %}
+                {% elseif registration.status == 'cancelled' %}
+                    soirée annulée
                 {% else %}
-                    Prochain rock
+                    fermées
                 {% endif %}
-            </h3>
-            <ul class="next-event-infos">
-                <li>
-                    <b>Titre :</b> {{ nextEvent.title | default('Pas d\'évènement prévu') }}
-                </li>
-                <li>
-                    <b>Date :</b> {{ nextEvent.date | default('--/--/--') }}
-                </li>
-                <li>
-                    <b>Heure :</b> {{ nextEvent.waltzTime | default('--:--') }} (valse) et {{ nextEvent.rockTime | default('--:--') }} (rock)
-                </li>
-                <li>
-                    <b>Lieu :</b> {{ nextEvent.place | default('---') }}
-                </li>
-                <li>
-                    <b>Prix :</b> {{ nextEvent.price | default('--€') }}
-                </li>
-                {% if nextEvent %}
-                <li>
-                    <b>Inscriptions :</b>
-                    {% if registration.status == 'open' %}
-                        ouvertes, jusqu'au début de la soirée
-                    {% elseif registration.status == 'upcoming' %}
-                        s'ouvrent toutes seules le {{ registration.opens | dayLabel }}{% if registration.opens|date('H:i', false) != '00:00' %} à {{ registration.opens|date('H:i', false) }}{% endif %}
-                    {% elseif registration.status == 'cancelled' %}
-                        soirée annulée
-                    {% else %}
-                        fermées
-                    {% endif %}
-                </li>
-                {% endif %}
-                {% if nextEvent.facebookLink %}
-                <li>
-                    <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook</a></b>
-                </li>
-                {% endif %}
-                {% if nextEvent.coveventLink %}
-                <li>
-                    <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent</a></b>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
-        <div class="card-action ">
-            {% if nextEvent.closed == 1 %}
-                <a
-                        class="left white-text waves-effect tooltipped"
-                        {% if nextEvent.id is defined %}
-                            href="{{ path('admin.events.open', {id:nextEvent.id | default(0) }) }}"
-                            data-tooltip="Réouvrir les inscriptions"
-                            data-position="top"
-                        {% else %}
-                            class="disabled"
-                        {% endif %}
-                        style="font-size: 30px; margin-top: -10px;">
-                    <i class="mdi mdi-lock"></i>
+            </li>
+            {% endif %}
+            {% if nextEvent.facebookLink %}
+            <li>
+                <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook</a></b>
+            </li>
+            {% endif %}
+            {% if nextEvent.coveventLink %}
+            <li>
+                <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent</a></b>
+            </li>
+            {% endif %}
+        </ul>
+        <div class="dashboard-next-actions">
+            <span class="dashboard-next-count"><b>{{ nextEvent.participantsCount | default(0) }}</b> participants</span>
+            {% if nextEvent.id is not defined %}
+                <span class="dashboard-pill dashboard-pill-outline disabled"><i class="mdi mdi-lock-open" aria-hidden="true"></i>Inscriptions</span>
+            {% elseif nextEvent.closed == 1 %}
+                <a href="{{ path('admin.events.open', {id:nextEvent.id}) }}" class="dashboard-pill dashboard-pill-outline tooltipped"
+                   data-tooltip="Réouvrir les inscriptions" data-position="top">
+                    <i class="mdi mdi-lock" aria-hidden="true"></i>Fermées
                 </a>
             {% else %}
-                <a
-                        class="left white-text waves-effect {% if nextEvent.id is defined %}tooltipped{% endif %}"
-                        {% if nextEvent.id is defined %}
-                            href="{{ path('admin.events.close', {id:nextEvent.id | default(0) }) }}"
-                            data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)"
-                            data-position="top"
-                        {% endif %}
-                        style="font-size: 30px; margin-top: -10px">
-                    <i class="mdi mdi-lock-open"></i>
+                <a href="{{ path('admin.events.close', {id:nextEvent.id}) }}" class="dashboard-pill dashboard-pill-outline tooltipped"
+                   data-tooltip="Cloturer les inscriptions<br>(vous serez redirigé vers la liste)" data-position="top">
+                    <i class="mdi mdi-lock-open" aria-hidden="true"></i>Ouvertes
                 </a>
             {% endif %}
-            <b>{{ nextEvent.participantsCount | default(0) }}</b> participants
-            <a class="right white-text waves-effect"
+            <a class="dashboard-pill{{ nextEvent.id is defined ? '' : ' disabled' }}"
                {% if nextEvent.id is defined %}
-               href="{{ path('admin.events.participants', {id:nextEvent.id | default(0) }) }}"
+               href="{{ path('admin.events.participants', {id:nextEvent.id}) }}"
                {% endif %}
             >
-                <i class="mdi mdi-laptop"></i> Liste
+                <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>Liste
             </a>
         </div>
-    </div>
+    </section>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 <script>
-    Chart.defaults.global.defaultFontColor = "#fff";
+    Chart.defaults.global.defaultFontColor = "#52606d";
+    Chart.defaults.global.defaultFontFamily = "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
     var dancersChart = document.getElementById("dancersChart").getContext('2d');
     new Chart(dancersChart, {
         type: 'bar',
@@ -128,6 +117,7 @@
             ]
         },
         options: {
+            maintainAspectRatio: false,
             // A bar opens its event's statistics
             onClick: function (e) {
                 var bar = this.getElementAtEvent(e);
@@ -166,12 +156,19 @@
             },
             scales: {
                 xAxes: [{
-                    stacked: true
+                    stacked: true,
+                    gridLines: {
+                        display: false
+                    }
                 }],
                 yAxes: [{
                     stacked: true,
                     ticks: {
                         beginAtZero:true
+                    },
+                    gridLines: {
+                        color: '#e3e8ef',
+                        zeroLineColor: '#e3e8ef'
                     }
                 }]
             }
