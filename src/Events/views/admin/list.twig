@@ -65,5 +65,5 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{{ asset('/js/guests.js') }}"></script>
+    <script nonce="{{ csp_nonce }}" src="{{ asset('/js/guests.js') }}"></script>
 {% endblock %}

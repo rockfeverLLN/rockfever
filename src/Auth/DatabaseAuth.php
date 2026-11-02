@@ -65,6 +65,9 @@ class DatabaseAuth implements Auth
     public function logout() : void
     {
         $this->session->delete('auth.user');
+        // A new id too, so the logged-in one is dead even if someone kept a copy
+        $this->session->regenerate();
+        $this->user = null;
     }
 
     /**
