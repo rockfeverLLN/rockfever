@@ -103,13 +103,20 @@
 }
 
 .login-card .input-field {
-    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 0;
     margin-bottom: 24px;
 }
 
-.login-card .input-field > label {
-    top: -20px;
+/* The label follows its control in the markup: put it back above, in the flow, so it never overlaps the field before */
+.login-card .input-field > label,
+.login-card .input-field > label:not(.label-icon).active {
+    order: -1;
+    position: static;
     transform: none;
+    margin-bottom: 6px;
+    font-size: 1rem;
     color: #334155;
 }
 
