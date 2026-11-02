@@ -120,12 +120,50 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         }
         $count = 0;
         return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use (&$count, $eager) {
-            $tag = $this->addSrcset($this->cleanSrc($match[0]));
+            $tag = $this->addSrcset($this->cleanSrc($this->pastedToFile($match[0])));
             if (preg_match('/\bloading=/i', $tag) || $count++ < $eager) {
                 return $tag;
             }
             return substr_replace($tag, '<img loading="lazy" decoding="async"', 0, 4);
         }, $content);
+    }
+
+    /**
+     * Points an image pasted into the editor, which keeps it in the text as a base64 data: URL, to a copy of it in
+     * www/images/about/pasted/ (named after its content, saved the first time). Otherwise every visit downloads it
+     * inside the page, a third bigger, before anything else, and no browser cache keeps it
+     */
+    private function pastedToFile(string $tag) : string
+    {
+        return preg_replace_callback(
+            '/(\ssrc=)(["\'])data:image\/[a-z]+;base64,([A-Za-z0-9+\/=\s]+)\2/i',
+            function ($match) {
+                $data = base64_decode($match[3], true);
+                $type = $data === false ? false : getimagesizefromstring($data);
+                // Pictures only, saved under the extension of what they really are
+                $extensions = [IMAGETYPE_JPEG => 'jpg', IMAGETYPE_PNG => 'png', IMAGETYPE_GIF => 'gif', IMAGETYPE_WEBP => 'webp'];
+                if (!$type || !isset($extensions[$type[2]])) {
+                    return $match[0];
+                }
+                $path = 'about/pasted/' . substr(hash('sha256', $data), 0, 20) . '.' . $extensions[$type[2]];
+                $file = dirname(__DIR__, 3) . '/www/images/' . $path;
+                if (!is_file($file)) {
+                    // Written aside then renamed, so a visitor never gets half a file. If it can't be saved, the
+                    // image stays in the page
+                    $temporary = $file . '.' . bin2hex(random_bytes(4)) . '.part';
+                    if ((!is_dir(dirname($file)) && !@mkdir(dirname($file), 0755, true))
+                        || @file_put_contents($temporary, $data) !== strlen($data)
+                        || !@rename($temporary, $file)
+                    ) {
+                        @unlink($temporary);
+                        return $match[0];
+                    }
+                }
+                return $match[1] . $match[2] . self::imageUrl($path) . $match[2];
+            },
+            $tag,
+            1
+        );
     }
 
     /**
