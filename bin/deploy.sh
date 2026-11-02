@@ -18,8 +18,9 @@ SETTINGS="set sftp:auto-confirm yes; set cmd:fail-exit yes; set mirror:parallel-
 # Repo files that never go to the server
 EXCLUDE=(':!.github' ':!.gitignore' ':!.editorconfig' ':!README.md')
 
+# A file that the last deploy recorded on the server, read with the others below
 remote_cat() {
-    "${SERVER[@]}" -e "set sftp:auto-confirm yes; cat $1; quit" 2>/dev/null || true
+    cat "$REMOTE/$(basename "$1")" 2>/dev/null || true
 }
 
 quote() {
@@ -30,6 +31,11 @@ if [ "${1:-}" = clean ]; then
     "${SERVER[@]}" -e "set sftp:auto-confirm yes; glob -a rm -r -f tmp/old-cache-* || echo 'No old caches to remove'; quit"
     exit
 fi
+
+# In one connection rather than one per file, which took 2 to 3 seconds each
+REMOTE=$(mktemp -d)
+"${SERVER[@]}" -e "set sftp:auto-confirm yes; lcd $REMOTE; get .deployed-sha; get vendor/.lock-hash; quit" \
+    > /dev/null 2>&1 || true
 
 COMMANDS="$SETTINGS"
 
