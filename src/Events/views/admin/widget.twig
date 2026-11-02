@@ -87,10 +87,12 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
 <script>
-    Chart.defaults.global.defaultFontColor = "#52606d";
+    // Text and grid in the colors of the admin's theme (admin-dark.css), and again when its button switches it
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    Chart.defaults.global.defaultFontColor = dark ? "#9aa7b4" : "#52606d";
     Chart.defaults.global.defaultFontFamily = "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
     var dancersChart = document.getElementById("dancersChart").getContext('2d');
-    new Chart(dancersChart, {
+    var chart = new Chart(dancersChart, {
         type: 'bar',
         data: {
             datasets: [
@@ -167,11 +169,21 @@
                         beginAtZero:true
                     },
                     gridLines: {
-                        color: '#e3e8ef',
-                        zeroLineColor: '#e3e8ef'
+                        color: dark ? '#2d3640' : '#e3e8ef',
+                        zeroLineColor: dark ? '#2d3640' : '#e3e8ef'
                     }
                 }]
             }
         }
+    });
+    document.addEventListener('admin-theme', function (event) {
+        var dark = event.detail === 'dark';
+        var text = dark ? '#9aa7b4' : '#52606d', line = dark ? '#2d3640' : '#e3e8ef';
+        chart.options.legend.labels.fontColor = text;
+        chart.options.scales.xAxes[0].ticks.fontColor = text;
+        chart.options.scales.yAxes[0].ticks.fontColor = text;
+        chart.options.scales.yAxes[0].gridLines.color = line;
+        chart.options.scales.yAxes[0].gridLines.zeroLineColor = line;
+        chart.update();
     });
 </script>

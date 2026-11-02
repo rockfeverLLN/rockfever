@@ -15,6 +15,12 @@
                 {{ renderMenu() }}
             {% endif %}
             <li>
+                <button type="button" class="theme-toggle" aria-label="Changer de thème">
+                    <i class="mdi mdi-weather-night when-light" aria-hidden="true" title="Mode sombre"></i>
+                    <i class="mdi mdi-white-balance-sunny when-dark" aria-hidden="true" title="Mode clair"></i>
+                </button>
+            </li>
+            <li>
                 <form action="{{ path('auth.logout') }}" method="post" class="logout-form">
                     <button type="submit" aria-label="Se déconnecter"><i class="mdi mdi-logout"></i></button>
                 </form>
@@ -48,6 +54,11 @@
         {% endif %}
         <li class="{{ isSubPath('admin.photos.index') ? 'active' }}">
             <a href="{{ path('admin.photos.index') }}">Photos</a>
+        </li>
+        <li>
+            <button type="button" class="theme-toggle">
+                <span class="when-light">Mode sombre</span><span class="when-dark">Mode clair</span>
+            </button>
         </li>
         <li>
             <form action="{{ path('auth.logout') }}" method="post" class="logout-form">

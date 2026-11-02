@@ -6,6 +6,20 @@
         return Array.prototype.slice.call((root || document).querySelectorAll(selector));
     }
 
+    // Admin dark mode (admin-dark.css): the top bar's button switches it and remembers the choice on this device. The
+    // layout's head sets the theme on load; the chart listens to admin-theme to redraw in the new colors
+    all('.theme-toggle').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            try {
+                localStorage.setItem('admin-theme', theme);
+            } catch (e) {
+            }
+            document.dispatchEvent(new CustomEvent('admin-theme', {detail: theme}));
+        });
+    });
+
     // Side menu on phones and tablets: the menu button opens it, a click beside it or Escape closes it
     all('.sidenav-trigger[data-target]').forEach(function (trigger) {
         var menu = document.getElementById(trigger.dataset.target);
@@ -381,7 +395,9 @@
         selector: '.tinymce',
         // The open source edition of TinyMCE, loaded from jsDelivr: no Tiny Cloud account or API key
         license_key: 'gpl',
-        content_css: '/css/base.css',
+        // The admin's dark mode, from the theme in place when the page opened
+        skin: document.documentElement.getAttribute('data-theme') === 'dark' ? 'oxide-dark' : 'oxide',
+        content_css: document.documentElement.getAttribute('data-theme') === 'dark' ? ['/css/base.css', 'dark'] : '/css/base.css',
         language: 'fr_FR',
         language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.26/langs7/fr_FR.js',
         branding: false,

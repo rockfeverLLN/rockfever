@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+    {#- Before the stylesheets, so a dark page never shows white first: the theme chosen with the top bar's button,
+        else the device's (admin-dark.css) #}
+    <script>
+        (function () {
+            var theme = null;
+            try { theme = localStorage.getItem('admin-theme'); } catch (e) {}
+            if (theme !== 'dark' && theme !== 'light') {
+                theme = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <title>{% block title %}Rock Fever{% endblock %}</title>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link type="text/css" rel="stylesheet" href="{{ asset('/css/base.css') }}"/>
     <link  href="{{ asset('/css/style.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('/css/admin-dark.css') }}" rel="stylesheet"/>
 
     {% block css %}{% endblock %}
 
