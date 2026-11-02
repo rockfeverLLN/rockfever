@@ -353,18 +353,26 @@ h6 {
     border-radius: inherit;
 }
 
+/* Both buttons as wide as the longer one: side by side, stacked on phones */
 .next-event-actions {
     position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-top: 10px;
+    width: fit-content;
+    margin: 10px auto 0 auto;
+}
+
+@media (max-width: 600px) {
+    .next-event-actions {
+        grid-template-columns: 1fr;
+    }
 }
 
 .next-event-calendar {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 8px 16px;
     border: 2px solid #ffffff;
