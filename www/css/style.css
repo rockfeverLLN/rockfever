@@ -1743,6 +1743,7 @@ input:not([type]).mce-textbox {
 
 .dancers-list-background {
     background-image: url("/images/body/bg.webp");
+    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
     height: 100%;
 }
 
