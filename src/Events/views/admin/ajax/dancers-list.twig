@@ -1,5 +1,6 @@
 {% for dancer in dancers %}
-    <li class="collection-item" style="position:relative;">
+    {#- data-name is what the search in www/js/guests.js matches, the .guest-name parts are where it highlights #}
+    <li class="collection-item" style="position:relative;" data-name="{{ dancer.firstname }} {{ dancer.lastname }}">
 
         <span>
             {% if dancer.status == 2 %}
@@ -8,10 +9,8 @@
             {% if dancer.status == 3 %}
                 <i class="material-icons koamaru-text left">exposure_plus_1</i>
             {% endif %}
-            {{ dancer.firstname }} <b>{{ dancer.lastname }}</b>
+            <span class="guest-name">{{ dancer.firstname }}</span> <b class="guest-name">{{ dancer.lastname }}</b>
         </span>
-
-        <span style="display: none">{{ dancer.lastname }} {{ dancer.firstname }}</span>
 
         <div class="progress loader" style="display:none; margin:0;position: absolute; bottom: 0;">
             <div class="indeterminate"></div>

@@ -10,14 +10,14 @@
                     <div class="col s12 m10 offset-m1">
                         <input type="text" name="dancers-search" autocomplete="off" placeholder="Nom du danseur" id="guest-search">
                     </div>
-                    <div class="col s12 m4 offset-m1 center-align event-list-stat">
+                    <a href="{{ path('admin.events.statistics', {id: id}) }}" class="col s12 m4 offset-m1 center-align event-list-stat white-text">
                         <strong id="attendees">-</strong>
                         <br>
                         personnes au total
                         (<span id="revenue">- €</span>)
                         <br>
                         <span id="venue-stats">- % des pré-inscrits</span>
-                    </div>
+                    </a>
                     <div class="col hide-on-small-only m4 offset-m2 center-align event-list-stat">
                         <strong id="improvised">-</strong>
                         <br>
