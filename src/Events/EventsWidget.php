@@ -46,6 +46,7 @@ class EventsWidget implements AdminWidgetInterface
         $i = 0;
         foreach ($countForChartResult as $count) {
             $countForChart[] = [
+                'id'    =>  $count->id,
                 'title' =>  $count->title,
                 'count' =>  $count->count,
                 'color' =>  $this->colors[$i++]

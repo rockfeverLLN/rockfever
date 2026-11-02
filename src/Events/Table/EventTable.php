@@ -33,7 +33,7 @@ class EventTable extends Table
     public function countByEvent(int $maxResults)
     {
         $queryResults = $this->makeQuery()
-            ->select('e.title', 'count(d.id) as count')
+            ->select('e.id', 'e.title', 'count(d.id) as count')
             ->where('d.status != 0', 'e.date < NOW()')
             ->join('dancers as d', 'd.event_id = e.id')
             ->groupBy('e.id')

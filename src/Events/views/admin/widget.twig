@@ -108,6 +108,7 @@
                 {% for event in countForChart %}
                 {
                     label: "{{ event.title | e('js') }}",
+                    url: "{{ path('admin.events.statistics', {id: event.id}) | e('js') }}",
                     data: [{{ event.count }}],
                     backgroundColor: [
                         '{{ event.color }}'
@@ -117,6 +118,16 @@
             ]
         },
         options: {
+            // A bar opens its event's statistics
+            onClick: function (e) {
+                var bar = this.getElementAtEvent(e);
+                if (bar.length) {
+                    window.location.href = this.data.datasets[bar[0]._datasetIndex].url;
+                }
+            },
+            onHover: function (e) {
+                e.target.style.cursor = this.getElementAtEvent(e).length ? 'pointer' : 'default';
+            },
             scales: {
                 yAxes: [{
                     ticks: {
