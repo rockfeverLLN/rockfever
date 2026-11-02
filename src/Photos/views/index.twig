@@ -26,7 +26,7 @@
                             <a href="{{ path('photos.album', {slug: album.slug}) }}">
                                 {% if album.id in unlocked %}
                                     <span class="photos-album-cover">
-                                        <img src="{{ path('photos.file', {id: album.coverId, size: '960'}) }}" alt=""
+                                        <img src="{{ path('photos.file', {id: album.coverId, size: '960'}) }}" alt="" width="960" height="640"
                                              {% if loop.parent.loop.index > 1 or loop.index > 6 %}loading="lazy" {% endif %}decoding="async">
                                     </span>
                                 {% else %}
