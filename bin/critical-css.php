@@ -24,30 +24,69 @@ $scriptClasses = '/sidenav-overlay|\.open\b|\.active\b|\.valid\b|\.invalid\b|hel
     . '|\.disabled\b|optgroup/';
 $stylesheets = ["$root/www/css/base.css", "$root/www/css/style.css"];
 
-$context = stream_context_create(['http' => [
-    'ignore_errors' => true,
-    // The host's bot filter refuses unknown user agents
-    'user_agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36',
-]]);
+/**
+ * Fetches the URLs all at once rather than one after the other: [url => html], whatever the HTTP status (the 404 page
+ * too), without those that couldn't be fetched
+ */
+function fetchAll(array $urls): array
+{
+    $multi = curl_multi_init();
+    $handles = [];
+    foreach ($urls as $url) {
+        $handles[$url] = curl_init($url);
+        curl_setopt_array($handles[$url], [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 60,
+            // The host's bot filter refuses unknown user agents
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/150 Safari/537.36',
+        ]);
+        curl_multi_add_handle($multi, $handles[$url]);
+    }
+    do {
+        curl_multi_exec($multi, $running);
+        curl_multi_select($multi);
+    } while ($running);
+    $pages = [];
+    // How each transfer ended is only given here (curl_errno() stays 0 in a curl_multi)
+    while ($info = curl_multi_info_read($multi)) {
+        if ($info['result'] === CURLE_OK) {
+            $pages[array_search($info['handle'], $handles, true)] = curl_multi_getcontent($info['handle']);
+        }
+    }
+    return $pages;
+}
+
+$urls = [];
+foreach ($bases as $base) {
+    foreach (is_file($base) ? [] : $paths as $path) {
+        $urls[] = rtrim($base, '/') . $path;
+    }
+}
+$pages = fetchAll($urls);
 $documents = [];
+$soirees = [];
 foreach ($bases as $base) {
     if (is_file($base)) {
         $documents[] = Dom\HTMLDocument::createFromString(file_get_contents($base), LIBXML_NOERROR);
         continue;
     }
     foreach ($paths as $path) {
-        $html = file_get_contents(rtrim($base, '/') . $path, false, $context);
-        if ($html === false) {
-            fwrite(STDERR, "Could not fetch $base$path\n");
+        $url = rtrim($base, '/') . $path;
+        if (!isset($pages[$url])) {
+            fwrite(STDERR, "Could not fetch $url\n");
             exit(1);
         }
-        $documents[] = $document = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
+        $documents[] = $document = Dom\HTMLDocument::createFromString($pages[$url], LIBXML_NOERROR);
         // The page of one soirée (/calendrier/2026-11-11), whose date changes: the first one /calendrier links to
         $soiree = $path === '/calendrier' ? $document->querySelector('a.soiree-link')?->getAttribute('href') : null;
-        if ($soiree && ($html = file_get_contents(rtrim($base, '/') . $soiree, false, $context)) !== false) {
-            $documents[] = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
+        if ($soiree) {
+            $soirees[] = rtrim($base, '/') . $soiree;
         }
     }
+}
+foreach (fetchAll($soirees) as $html) {
+    $documents[] = Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
 }
 
 /**
