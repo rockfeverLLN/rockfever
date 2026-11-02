@@ -122,4 +122,5 @@ jobs:
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
         run: bin/deploy.sh

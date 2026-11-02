@@ -6,9 +6,12 @@
 #   can't detect changes by itself.
 # - vendor/: only re-synced when composer.lock changed since the last deploy.
 # - config/database.php and storage/ (the gallery's photos) are not in git and stay on the server untouched.
+#
+# The SFTP host comes from FTP_HOST (the repository's FTP_HOST secret), so it isn't in the public code.
 set -euo pipefail
 
-SERVER=(lftp --env-password -u rockfevexj sftp://ftp.cluster105.hosting.ovh.net)
+: "${FTP_HOST:?Set FTP_HOST to the SFTP host}"
+SERVER=(lftp --env-password -u rockfevexj "sftp://$FTP_HOST")
 SETTINGS="set sftp:auto-confirm yes; set cmd:fail-exit yes; set mirror:parallel-transfer-count 8; set mirror:parallel-directories true;"
 # Repo files that never go to the server
 EXCLUDE=(':!.github' ':!.gitignore' ':!.editorconfig' ':!README.md')
