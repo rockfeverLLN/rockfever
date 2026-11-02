@@ -109,6 +109,12 @@
 {% block js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
     <script>
+        // Text and grid in the colors of the admin's theme (admin-dark.css)
+        if (document.documentElement.getAttribute('data-theme') === 'dark') {
+            Chart.defaults.global.defaultFontColor = '#9aa7b4';
+            Chart.defaults.scale.gridLines.color = '#2d3640';
+            Chart.defaults.scale.gridLines.zeroLineColor = '#2d3640';
+        }
         var ctx = document.getElementById('myChart').getContext('2d');
 
         var myLineChart = new Chart(ctx, {

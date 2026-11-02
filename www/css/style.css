@@ -2297,7 +2297,7 @@ input:not([type]).mce-textbox {
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/mdi.woff2?v=d22315e6) format('woff2');
+    src: url(/fonts/mdi.woff2?v=74bfc9fc) format('woff2');
 }
 
 .mdi:before {
@@ -2332,7 +2332,6 @@ input:not([type]).mce-textbox {
 .mdi-google:before { content: "\F2AD"; }
 .mdi-home:before { content: "\F2DC"; }
 .mdi-instagram:before { content: "\F2FE"; }
-.mdi-laptop:before { content: "\F322"; }
 .mdi-lock:before { content: "\F33E"; }
 .mdi-lock-open:before { content: "\F33F"; }
 .mdi-logout:before { content: "\F343"; }
@@ -2344,4 +2343,6 @@ input:not([type]).mce-textbox {
 .mdi-plus:before { content: "\F415"; }
 .mdi-send:before { content: "\F48A"; }
 .mdi-view-dashboard:before { content: "\F56E"; }
+.mdi-weather-night:before { content: "\F594"; }
+.mdi-white-balance-sunny:before { content: "\F5A8"; }
 /* End of Material Design Icons */
