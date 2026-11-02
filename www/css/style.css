@@ -1801,7 +1801,7 @@ input:not([type]).mce-textbox {
     height: 40px;
 }
 
-.guests-list .collection .collection-item span, .guests-list .collection .collection-item button {
+.guests-list .collection .collection-item > span, .guests-list .collection .collection-item > button {
     padding: 10px 10px !important;
     display: inline-block;
     box-sizing: border-box;
@@ -1816,6 +1816,13 @@ input:not([type]).mce-textbox {
 
 .guests-list .collection .collection-item button i {
     margin-top: -2px;
+}
+
+/* The letters the search matched (www/js/guests.js) */
+.guests-list .collection .collection-item mark {
+    background: #ffe082;
+    color: inherit;
+    border-radius: 2px;
 }
 
 .guests-list-nothing {
@@ -1837,6 +1844,16 @@ input:not([type]).mce-textbox {
 
 .event-list-stat strong {
     font-size: 80px;
+}
+
+/* The evening's total on the door list opens the event's statistics page */
+a.event-list-stat {
+    display: block;
+    border-radius: 8px;
+}
+
+a.event-list-stat:hover, a.event-list-stat:focus-visible {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .activator {
