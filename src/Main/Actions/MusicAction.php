@@ -12,12 +12,22 @@ use Framework\Actions\FormAction;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;
+use Framework\SpamGuard;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ServerRequestInterface;
 
 class MusicAction extends FormAction
 {
     protected $viewPath = '@main';
+
+    // Songs a visitor can suggest in an hour
+    const MAX_SUGGESTIONS = 10;
+    const MAX_SUGGESTIONS_DELAY = 3600;
+
+    /**
+     * @var SpamGuard
+     */
+    private $spamGuard;
 
     protected $messages = [
         'create'=>  "Merci pour ta suggestion de musique !"
@@ -27,9 +37,11 @@ class MusicAction extends FormAction
         RendererInterface $renderer,
         Router $router,
         MusicTable $musicTable,
-        FlashService $flash
+        FlashService $flash,
+        SpamGuard $spamGuard
     ) {
         parent::__construct($renderer, $router, $musicTable, $flash);
+        $this->spamGuard = $spamGuard;
     }
 
     public function index(Request $request): string
@@ -39,8 +51,15 @@ class MusicAction extends FormAction
 
     public function edit(ServerRequestInterface $request)
     {
+        if ($this->spamGuard->isBot($request)) {
+            $this->flash->success($this->messages['create']);
+            return $this->redirect('music');
+        }
         $validator = $this->getValidator($request);
-        if ($validator->isValid()) {
+        if ($this->spamGuard->isTooMany($request, 'music', self::MAX_SUGGESTIONS, self::MAX_SUGGESTIONS_DELAY)) {
+            $this->flash->error("Tu as déjà proposé beaucoup de musiques : réessaie dans une heure.");
+        } elseif ($validator->isValid()) {
+            $this->spamGuard->sent($request, 'music', self::MAX_SUGGESTIONS_DELAY);
             $params = $this->getParams($request);
             $this->table->insert($params);
             $this->flash->success($this->messages['create']);
@@ -65,7 +84,9 @@ class MusicAction extends FormAction
     {
         $validator = parent::getValidator($request)
             ->required('title', 'artist')
-            ->notEmpty('title');
+            ->notEmpty('title')
+            ->length('title', null, 255)
+            ->length('artist', null, 255);
         return $validator;
     }
 }

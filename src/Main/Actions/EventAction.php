@@ -10,6 +10,7 @@ use Framework\Database\NoRecordException;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;
+use Framework\SpamGuard;
 use Psr\Http\Message\ServerRequestInterface;
 
 class EventAction extends FormAction
@@ -20,6 +21,10 @@ class EventAction extends FormAction
     protected $messages = [
         'create'=>  "Ton inscription a bien été enregistrée"
     ];
+
+    // Sign-ups a visitor can send in an hour: enough to put a group of friends on the list
+    const MAX_SIGN_UPS = 15;
+    const MAX_SIGN_UPS_DELAY = 3600;
     /**
      * @var DancerTable
      */
@@ -33,6 +38,7 @@ class EventAction extends FormAction
      * @param FlashService $flash
      * @param DancerTable $dancerTable
      * @param Calendar $calendar
+     * @param SpamGuard $spamGuard
      */
     public function __construct(
         RendererInterface $renderer,
@@ -40,7 +46,8 @@ class EventAction extends FormAction
         EventTable $eventTable,
         FlashService $flash,
         DancerTable $dancerTable,
-        private Calendar $calendar
+        private Calendar $calendar,
+        private SpamGuard $spamGuard
     ) {
         parent::__construct($renderer, $router, $eventTable, $flash);
         $this->dancerTable = $dancerTable;
@@ -63,8 +70,15 @@ class EventAction extends FormAction
             $this->flash->error("Les inscriptions à cette soirée ne sont pas ouvertes");
             return $this->redirect('event');
         }
+        if ($this->spamGuard->isBot($request)) {
+            $this->flash->success($this->messages['create']);
+            return $this->redirect('event');
+        }
         $validator = $this->getValidator($request);
-        if ($validator->isValid()) {
+        if ($this->spamGuard->isTooMany($request, 'sign-up', self::MAX_SIGN_UPS, self::MAX_SIGN_UPS_DELAY)) {
+            $this->flash->error("Tu as déjà fait beaucoup d'inscriptions : réessaie dans une heure.");
+        } elseif ($validator->isValid()) {
+            $this->spamGuard->sent($request, 'sign-up', self::MAX_SIGN_UPS_DELAY);
             $params = $this->getParams($request, $item);
             try {
                 $this->dancerTable->findDuplicates($params['firstname'], $params['lastname'], $params['event_id']);
@@ -100,7 +114,9 @@ class EventAction extends FormAction
     {
         $validator = parent::getValidator($request)
             ->required('firstname', 'lastname')
-            ->notEmpty('firstname', 'lastname');
+            ->notEmpty('firstname', 'lastname')
+            ->length('firstname', null, 100)
+            ->length('lastname', null, 100);
         return $validator;
     }
 

@@ -13,6 +13,7 @@ use Framework\Database\Hydrator;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;
+use Framework\SpamGuard;
 use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -23,6 +24,15 @@ class ContactAction extends FormAction
      */
     private $mailer;
 
+    /**
+     * @var SpamGuard
+     */
+    private $spamGuard;
+
+    // Messages a visitor can send in an hour
+    const MAX_MESSAGES = 5;
+    const MAX_MESSAGES_DELAY = 3600;
+
     protected $viewPath = "@main";
 
     public function __construct(
@@ -30,10 +40,12 @@ class ContactAction extends FormAction
         Router $router,
         ValueTable $table,
         FlashService $flash,
-        PHPMailer $mailer
+        PHPMailer $mailer,
+        SpamGuard $spamGuard
     ) {
         parent::__construct($renderer, $router, $table, $flash);
         $this->mailer = $mailer;
+        $this->spamGuard = $spamGuard;
     }
 
     public function index(ServerRequestInterface $request): string
@@ -43,8 +55,19 @@ class ContactAction extends FormAction
 
     public function edit(ServerRequestInterface $request)
     {
+        if ($this->spamGuard->isBot($request)) {
+            $this->flash->success("Le message a bien été envoyé !");
+            return $this->redirect('contact');
+        }
+        $item = null;
+        $errors = null;
         $validator = $this->getValidator($request);
-        if ($validator->isValid()) {
+        if ($this->spamGuard->isTooMany($request, 'contact', self::MAX_MESSAGES, self::MAX_MESSAGES_DELAY)) {
+            $this->flash->error("Tu as déjà envoyé plusieurs messages : réessaie dans une heure.");
+            $item = new \stdClass();
+            Hydrator::hydrate($this->getParams($request), $item);
+        } elseif ($validator->isValid()) {
+            $this->spamGuard->sent($request, 'contact', self::MAX_MESSAGES_DELAY);
             try {
                 $email = $this->table->getValue("CONTACT_EMAIL");
                 $params = $this->getParams($request);
@@ -88,6 +111,8 @@ class ContactAction extends FormAction
             ->required('name', 'email', 'content')
             ->notEmpty('name', 'email', 'content')
             ->length('name', null, 100)
+            ->length('email', null, 254)
+            ->length('content', null, 5000)
             ->email('email');
         return $validator;
     }

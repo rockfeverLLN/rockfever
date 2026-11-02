@@ -1,0 +1,6 @@
+{#- The trap of Framework\SpamGuard: hidden to people and screen readers, out of the tab order. Bots fill it in #}
+<div class="sr-only" aria-hidden="true">
+    <label for="{{ id }}-website">Ne pas remplir ce champ</label>
+    <input type="text" id="{{ id }}-website" name="website" value="" tabindex="-1" autocomplete="off"
+           toolparamdescription="Toujours vide">
+</div>
