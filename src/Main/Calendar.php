@@ -451,7 +451,7 @@ class Calendar
             'prices' => $listed !== null || !$past ? $this->prices : null,
             'priceText' => $event ? (trim((string) $event->price) ?: null) : null,
             'facebookLink' => $event?->facebookLink ?: null,
-            'coveventLink' => $event?->coveventLink ?? null,
+            'coveventLink' => $event->coveventLink ?? null,
             'cancelled' => $cancelled,
             'past' => $past,
             'registration' => ['status' => $status, 'opens' => $opens, 'closes' => $start],

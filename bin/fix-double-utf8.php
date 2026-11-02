@@ -8,7 +8,7 @@
 //   php bin/fix-double-utf8.php --apply   # write the fixes
 
 $config = require dirname(__DIR__) . '/config/database.php';
-$apply = in_array('--apply', $argv, true);
+$apply = in_array('--apply', $_SERVER['argv'], true);
 
 $pdo = new PDO(
     'mysql:host=' . $config['database.host'] . ';dbname=' . $config['database.name'] . ';charset=utf8mb4',

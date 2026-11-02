@@ -14,7 +14,7 @@
 // Needs PHP 8.4+ (Dom\HTMLDocument::querySelector).
 
 $root = dirname(__DIR__);
-$bases = array_slice($argv, 1) ?: ['https://www.rockfever.be'];
+$bases = array_slice($_SERVER['argv'], 1) ?: ['https://www.rockfever.be'];
 if (!array_filter($bases, fn ($base) => !is_file($base))) {
     array_unshift($bases, 'https://www.rockfever.be');
 }

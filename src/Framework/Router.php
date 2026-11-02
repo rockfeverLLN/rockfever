@@ -82,12 +82,10 @@ class Router
     public function match(ServerRequestInterface $request) : ?Route
     {
         $result = $this->router->match($request);
-        if ($result->isSuccess()) {
-            return new Route(
-                $result->getMatchedRouteName(),
-                $result->getMatchedRoute()->getMiddleware()->getCallback(),
-                $result->getMatchedParams()
-            );
+        // Every route is added with a MiddlewareCallback (get(), post()...)
+        $middleware = $result->isSuccess() ? $result->getMatchedRoute()->getMiddleware() : null;
+        if ($middleware instanceof MiddlewareCallback) {
+            return new Route($result->getMatchedRouteName(), $middleware->getCallback(), $result->getMatchedParams());
         }
 
         return null;

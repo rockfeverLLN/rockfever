@@ -15,7 +15,7 @@ class Validator
     private $params;
 
     /**
-     * @var string[]
+     * @var ValidationError[]
      */
     private $errors=[];
 
@@ -164,7 +164,7 @@ class Validator
      */
     public function uploaded(string $key) : self
     {
-        /** @var UploadedFileInterface $file */
+        /** @var UploadedFileInterface|null $file */
         $file = $this->getValue($key);
         if ($file === null || $file->getError() !== UPLOAD_ERR_OK) {
             $this->addError($key, 'uploaded');
