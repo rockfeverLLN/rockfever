@@ -1,3 +1,6 @@
+# No file listings for folders (css/, js/, images/)
+Options -Indexes
+
 RewriteEngine on
 # The site lives on https://rockfever.be: send www to it in one hop
 RewriteCond %{HTTP_HOST} ^www\.rockfever\.be$ [NC]

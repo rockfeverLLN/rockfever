@@ -1,0 +1,4 @@
+# Uploaded images live here (images/about, from the admin): never run or serve a script from this folder
+<FilesMatch "\.(php\d?|phtml|phar|pht|phps)$">
+    Require all denied
+</FilesMatch>

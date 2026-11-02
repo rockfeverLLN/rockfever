@@ -51,7 +51,10 @@ class AboutGalleryAction extends FormAction
         $validator = $this->getValidator($request);
         if ($validator->isValid()) {
             $image = $this->aboutUpload->upload($request->getUploadedFiles()['image']);
-            if ($image != null) {
+            if ($image === null) {
+                $this->flash->error("L'image n'est pas valide");
+            } else {
+                $image = htmlspecialchars($image, ENT_QUOTES);
                 $this->flash->success(
                     '<a class="btn-floating right waves-effect waves-light red to-clipboard" ' .
                     'data-clipboard-text="/images/about/'.$image.'">' .

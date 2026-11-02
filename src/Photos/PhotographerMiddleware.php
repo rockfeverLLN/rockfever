@@ -44,7 +44,8 @@ class PhotographerMiddleware implements MiddlewareInterface
     {
         $user = $this->auth->getUser();
         if ($user && $user->getRole() === self::ROLE) {
-            $path = $request->getUri()->getPath();
+            // Decoded like the router does, so /admin/photos/%72equests is /admin/photos/requests here too
+            $path = rawurldecode($request->getUri()->getPath());
             $photos = $this->prefix . '/photos';
             $allowed = ($path === $photos || str_starts_with($path, $photos . '/'))
                 && !str_starts_with($path, $photos . '/requests');
