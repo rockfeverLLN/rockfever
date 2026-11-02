@@ -77,7 +77,7 @@
                     {% for album in albums %}
                         <a href="{{ path('admin.photos.album', {id: album.id}) }}">
                             <span class="cover">
-                                {% if album.coverId %}<img src="{{ path('photos.file', {id: album.coverId, size: '480'}) }}" alt="" loading="lazy">{% endif %}
+                                {% if album.coverId %}<img src="{{ path('photos.file', {id: album.coverId, size: '480'}) }}" alt="" width="480" height="320" loading="lazy">{% endif %}
                             </span>
                             <span class="title">{{ album.title }}</span>
                             <span class="meta">{{ album.collection }}{% if album.eventDate %} · {{ album.eventDate|date('d/m/Y') }}{% endif %} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
