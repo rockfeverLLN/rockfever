@@ -9,7 +9,6 @@ namespace App\Auth\Actions;
 
 use App\Auth\DatabaseAuth;
 use Framework\Actions\RouterAwareAction;
-use Framework\Renderer\RendererInterface;
 use Framework\Responses\RedirectResponse;
 use Framework\Router;
 use Framework\Session\FlashService;
@@ -26,11 +25,6 @@ class LoginAttemptAction
     const ATTEMPTS = 5;
 
     const ATTEMPTS_DELAY = 900;
-
-    /**
-     * @var RendererInterface
-     */
-    private $renderer;
 
     /**
      * @var DatabaseAuth
@@ -55,13 +49,11 @@ class LoginAttemptAction
     use RouterAwareAction;
 
     public function __construct(
-        RendererInterface $renderer,
         DatabaseAuth $auth,
         Router $router,
         SessionInterface $session,
         Throttle $throttle
     ) {
-        $this->renderer = $renderer;
         $this->auth = $auth;
         $this->router = $router;
         $this->session = $session;

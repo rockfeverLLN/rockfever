@@ -9,8 +9,6 @@ namespace App\Events\Actions;
 
 use App\Events\Table\DancerTable;
 use Framework\Actions\FormAction;
-use Framework\Database\QueryResult;
-use Framework\Database\Table;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;

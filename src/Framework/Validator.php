@@ -9,12 +9,6 @@ use Psr\Http\Message\UploadedFileInterface;
 class Validator
 {
 
-    private const MIME_TYPES = [
-        'jpg'   =>  'image/jpeg',
-        'png'   =>  'image/png',
-        'pdf'   =>  'application/pdf'
-    ];
-
     /**
      * @var array
      */
@@ -94,21 +88,6 @@ class Validator
 
     /**
      * @param string $key
-     * @return Validator
-     */
-    public function slug(string $key) : self
-    {
-        $value = $this->getValue($key);
-        $pattern = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
-
-        if (!is_null($value) && !preg_match($pattern, $value)) {
-            $this->addError($key, 'slug');
-        }
-        return $this;
-    }
-
-    /**
-     * @param string $key
      * @param string $format
      * @return Validator
      */
@@ -179,21 +158,6 @@ class Validator
     }
 
     /**
-     * @param string $key
-     * @param Table $table
-     * @param int|null $exclude
-     * @return Validator
-     */
-    public function unique(string $key, Table $table, ?int $exclude = null) : self
-    {
-        $value = $this->getValue($key);
-        if ($table->entryExists($key, $value, $exclude)) {
-            $this->addError($key, 'unique', [$value]);
-        }
-        return $this;
-    }
-
-    /**
      * Verifies if file has well been uploaded
      * @param string $key
      * @return Validator
@@ -205,27 +169,6 @@ class Validator
         if ($file === null || $file->getError() !== UPLOAD_ERR_OK) {
             $this->addError($key, 'uploaded');
         }
-        return $this;
-    }
-
-    /**
-     * @param string $key
-     * @param array $extensions
-     * @return Validator
-     */
-    public function extension(string $key, array $extensions) : self
-    {
-        /** @var UploadedFileInterface $file */
-        $file = $this->getValue($key);
-        if ($file !== null && $file->getError() === UPLOAD_ERR_OK) {
-            $type = $file->getClientMediaType();
-            $extension = mb_strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-            $expectedType = self::MIME_TYPES[$extension] ?? null;
-            if (!in_array($extension, $extensions) || $expectedType !== $type) {
-                $this->addError($key, 'filetype', [join(', ', $extensions)]);
-            }
-        }
-
         return $this;
     }
 
@@ -253,7 +196,7 @@ class Validator
      */
     private function addError(string $key, string $rule, array $attributes = []) :void
     {
-        $this->errors[$key] = new ValidationError($key, $rule, $attributes);
+        $this->errors[$key] = new ValidationError($rule, $attributes);
     }
     /**
      * @param string $key

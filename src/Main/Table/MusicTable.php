@@ -7,10 +7,8 @@
 
 namespace App\Main\Table;
 
-use App\Main\Entity\AboutSection;
 use App\Main\Entity\Music;
 use Framework\Database\Query;
-use Framework\Database\QueryResult;
 use Framework\Database\Table;
 
 class MusicTable extends Table

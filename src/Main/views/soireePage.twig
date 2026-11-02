@@ -17,7 +17,7 @@
     {%- if soiree.past %}
     <meta name="robots" content="noindex, follow"/>
     {%- endif %}
-    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.webp" fetchpriority="high"/>
+    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl" fetchpriority="high"/>
     {{ soireesJsonLd([soiree]) }}
 {% endblock %}
 
@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="parallax">
-            <img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high">
+            <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high"></picture>
         </div>
     </div>
 

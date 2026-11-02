@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Admin\AdminWidgetInterface;
-use App\Events\Table\DancerTable;
 use App\Events\Table\EventTable;
 use App\Main\Calendar;
 use Framework\Renderer\RendererInterface;

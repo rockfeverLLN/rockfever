@@ -19,6 +19,7 @@ RewriteRule ^(.*)$ /index.php [NC,L,QSA]
 </IfModule>
 
 AddType font/woff2 .woff2
+AddType image/jxl .jxl
 AddType "text/markdown; charset=utf-8" .md
 AddType "text/plain; charset=utf-8" .txt
 
@@ -40,6 +41,7 @@ AddType "text/plain; charset=utf-8" .txt
 # Let browsers cache static files. Images are replaced under a new name; CSS/JS without a ?v= version get less.
 <IfModule mod_expires.c>
     ExpiresActive On
+    ExpiresByType image/jxl "access plus 1 year"
     ExpiresByType image/webp "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"

@@ -1693,31 +1693,6 @@ table tbody tr td .input-field {
     font-weight: 600;
 }
 
-.event-informations {
-    color: #FFFFFF;
-    margin-bottom: 15px;
-}
-
-.event-informations tr {
-    border: none;
-}
-
-.event-informations tr td {
-    width: 50%;
-}
-
-.event-informations tr td:first-child{
-    text-align: right;
-}
-
-.event-informations tr td:last-child{
-    text-align: left;
-}
-
-input:not([type]).mce-textbox {
-    width: inherit;
-}
-
 .event-button {
     display: block;
     width: 100%;
@@ -1767,6 +1742,7 @@ input:not([type]).mce-textbox {
 
 .dancers-list-background {
     background-image: url("/images/body/bg.webp");
+    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
     height: 100%;
 }
 
@@ -1825,7 +1801,7 @@ input:not([type]).mce-textbox {
     height: 40px;
 }
 
-.guests-list .collection .collection-item span, .guests-list .collection .collection-item button {
+.guests-list .collection .collection-item > span, .guests-list .collection .collection-item > button {
     padding: 10px 10px !important;
     display: inline-block;
     box-sizing: border-box;
@@ -1855,6 +1831,13 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
     color: #c62828 !important;
 }
 
+/* The letters the search matched (www/js/guests.js) */
+.guests-list .collection .collection-item mark {
+    background: #ffe082;
+    color: inherit;
+    border-radius: 2px;
+}
+
 .guests-list-nothing {
     position: relative;
     display: none;
@@ -1876,6 +1859,16 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
     font-size: 80px;
 }
 
+/* The evening's total on the door list opens the event's statistics page */
+a.event-list-stat {
+    display: block;
+    border-radius: 8px;
+}
+
+a.event-list-stat:hover, a.event-list-stat:focus-visible {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
 .activator {
     cursor: pointer;
 }
@@ -1883,6 +1876,20 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
 .card-statistics {
     padding: 6px 24px !important;
     overflow: hidden;
+}
+
+/* The tiles of a row stretch to the tallest one (a label on two lines), so the next row can't catch on it */
+.stat-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stat-grid > .col {
+    display: flex;
+}
+
+.stat-grid .card-statistics {
+    flex: 1;
 }
 
 .card-statistics .stat {
@@ -1901,7 +1908,8 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
     margin-top: 30px;
     display: block;
     border: 2px solid rgba(0,0,0,0.5);
-    height: 60px;
+    min-height: 60px;
+    padding: 2px 44px 2px 70px;
     border-radius: 10px;
     color: rgba(0,0,0,0.67);
     position: relative;
@@ -1927,7 +1935,6 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
 }
 
 .go-to-list strong, .go-to-list span {
-    margin-left: 70px;
     line-height: 26px;
 }
 
@@ -1948,12 +1955,6 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
     background-color: #e0e0e0 !important;
 }
 
-/* The admin's top bar uses more of the width than the page under it: at 70%, its title and its menu overlap on
-   screens just wider than a tablet */
-.admin nav .nav-wrapper.container {
-    width: 95%;
-}
-
 /* Links in the admin's sentences are underlined, not told apart by their color alone (WCAG 1.4.1) */
 .admin main p a:not([class]) {
     text-decoration: underline;
@@ -1967,6 +1968,38 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
 
 #guest-search:focus {
     border: 3px solid #ff9800 !important;
+}
+
+/* Admin menu on desktop: the logo takes its own room in the row instead of being laid over it, so the links can't
+   run under it. It gets smaller on smaller desktop screens, and is cut short if it still doesn't fit */
+@media only screen and (min-width: 993px) {
+    .admin-nav .nav-wrapper {
+        display: flex;
+    }
+
+    .admin-nav .brand-logo {
+        position: static;
+        flex: 0 1 auto;
+        min-width: 0;
+        margin-right: 16px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+    }
+
+    .admin-nav ul.right {
+        flex: none;
+        margin-left: auto;
+    }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1199px) {
+    .admin-nav .brand-logo {
+        font-size: 1.1rem;
+    }
 }
 
 /* The admin's logout: a button in its form (it's a POST), drawn like the links next to it */
@@ -2053,7 +2086,7 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
         background-color: transparent !important;
     }
 
-    .site main .white-text, .site .call-to-action, .site .event-informations {
+    .site main .white-text, .site .call-to-action {
         color: inherit !important;
     }
 

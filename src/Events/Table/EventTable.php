@@ -8,7 +8,6 @@
 namespace App\Events\Table;
 
 use App\Events\Entity\Event;
-use Framework\Database\NoRecordException;
 use Framework\Database\Query;
 use Framework\Database\QueryResult;
 use Framework\Database\Table;

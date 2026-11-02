@@ -10,7 +10,6 @@ namespace App\Events\Actions\Ajax;
 use App\Events\Table\DancerTable;
 use Framework\Actions\AjaxAction;
 use Framework\Database\NoRecordException;
-use Framework\Database\Table;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
