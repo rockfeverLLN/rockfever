@@ -1865,6 +1865,20 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
     overflow: hidden;
 }
 
+/* The tiles of a row stretch to the tallest one (a label on two lines), so the next row can't catch on it */
+.stat-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.stat-grid > .col {
+    display: flex;
+}
+
+.stat-grid .card-statistics {
+    flex: 1;
+}
+
 .card-statistics .stat {
     font-size: 56px;
 }
@@ -1881,7 +1895,8 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
     margin-top: 30px;
     display: block;
     border: 2px solid rgba(0,0,0,0.5);
-    height: 60px;
+    min-height: 60px;
+    padding: 2px 44px 2px 70px;
     border-radius: 10px;
     color: rgba(0,0,0,0.67);
     position: relative;
@@ -1907,7 +1922,6 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 }
 
 .go-to-list strong, .go-to-list span {
-    margin-left: 70px;
     line-height: 26px;
 }
 
@@ -1930,6 +1944,38 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 
 #guest-search:focus {
     border: 3px solid #ff9800 !important;
+}
+
+/* Admin menu on desktop: the logo takes its own room in the row instead of being laid over it, so the links can't
+   run under it. It gets smaller on smaller desktop screens, and is cut short if it still doesn't fit */
+@media only screen and (min-width: 993px) {
+    .admin-nav .nav-wrapper {
+        display: flex;
+    }
+
+    .admin-nav .brand-logo {
+        position: static;
+        flex: 0 1 auto;
+        min-width: 0;
+        margin-right: 16px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+    }
+
+    .admin-nav ul.right {
+        flex: none;
+        margin-left: auto;
+    }
+}
+
+@media only screen and (min-width: 993px) and (max-width: 1199px) {
+    .admin-nav .brand-logo {
+        font-size: 1.1rem;
+    }
 }
 
 /* The admin's logout: a button in its form (it's a POST), drawn like the links next to it */
