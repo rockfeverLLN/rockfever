@@ -2,7 +2,6 @@
 namespace Framework\Actions;
 
 use Framework\Database\Table;
-use Framework\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -11,9 +10,6 @@ abstract class AjaxAction
 
     /** @var Table */
     protected $table;
-
-    /** @var string */
-    protected $routePrefix;
 
     use RouterAwareAction;
 
@@ -48,25 +44,4 @@ abstract class AjaxAction
      * @return ResponseInterface|string
      */
     abstract public function edit(Request $request);
-
-    /**
-     * @param Request $request
-     * @param null $item
-     * @return array
-     */
-    protected function getParams(Request $request, $item = null) : array
-    {
-        return array_filter($request->getParsedBody(), function ($key) {
-            return in_array($key, []);
-        }, ARRAY_FILTER_USE_KEY);
-    }
-
-    /**
-     * @param Request $request
-     * @return Validator
-     */
-    protected function getValidator(Request $request)
-    {
-        return new Validator(array_merge($request->getParsedBody(), $request->getUploadedFiles()));
-    }
 }

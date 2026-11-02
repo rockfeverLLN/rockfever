@@ -9,7 +9,6 @@ namespace App\Events\Actions;
 
 use App\Events\Table\EventTable;
 use Framework\Actions\RouterAwareAction;
-use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,10 +16,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class EventCloseAction
 {
     use RouterAwareAction;
-    /**
-     * @var RendererInterface
-     */
-    private $renderer;
     /**
      * @var EventTable
      */
@@ -30,9 +25,8 @@ class EventCloseAction
      */
     private $router;
 
-    public function __construct(RendererInterface $renderer, EventTable $table, Router $router)
+    public function __construct(EventTable $table, Router $router)
     {
-        $this->renderer = $renderer;
         $this->table = $table;
         $this->router = $router;
     }

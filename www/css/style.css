@@ -1669,31 +1669,6 @@ table tbody tr td .input-field {
     font-weight: 600;
 }
 
-.event-informations {
-    color: #FFFFFF;
-    margin-bottom: 15px;
-}
-
-.event-informations tr {
-    border: none;
-}
-
-.event-informations tr td {
-    width: 50%;
-}
-
-.event-informations tr td:first-child{
-    text-align: right;
-}
-
-.event-informations tr td:last-child{
-    text-align: left;
-}
-
-input:not([type]).mce-textbox {
-    width: inherit;
-}
-
 .event-button {
     display: block;
     width: 100%;
@@ -1743,6 +1718,7 @@ input:not([type]).mce-textbox {
 
 .dancers-list-background {
     background-image: url("/images/body/bg.webp");
+    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
     height: 100%;
 }
 
@@ -2062,7 +2038,7 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
         background-color: transparent !important;
     }
 
-    .site main .white-text, .site .call-to-action, .site .event-informations {
+    .site main .white-text, .site .call-to-action {
         color: inherit !important;
     }
 

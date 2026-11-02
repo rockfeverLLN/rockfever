@@ -10,7 +10,6 @@ namespace App\Main\Actions;
 use App\Main\Table\ValueTable;
 use Framework\Actions\FormAction;
 use Framework\Database\Hydrator;
-use Framework\Database\Table;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;
