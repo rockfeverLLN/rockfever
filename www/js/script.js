@@ -224,6 +224,15 @@
         }
     });
 
+    // Forms that delete something ask first: <form data-confirm="question">. Not an onsubmit attribute, which the
+    // Content-Security-Policy blocks (ContentSecurityPolicyMiddleware)
+    document.addEventListener('submit', function (event) {
+        var question = event.target.dataset && event.target.dataset.confirm;
+        if (question && !confirm(question)) {
+            event.preventDefault();
+        }
+    });
+
     // Modals: <dialog class="modal">, opened by the links to them (.modal-trigger), closed by .modal-close, Escape
     // or a click beside them. Opened as plain dialogs, not modal ones: TinyMCE's menus and windows, in some of
     // them, must be able to show above

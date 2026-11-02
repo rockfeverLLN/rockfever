@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="col s2">
                                     <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: event.id}) }}"
-                                          method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cet événement ?");'
+                                          method="post" data-confirm="Etes-vous sûr de vouloir supprimer cet événement ?"
                                     >
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement" aria-label="Supprimer l'événement {{ event.title }}">

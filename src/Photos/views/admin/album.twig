@@ -71,7 +71,7 @@
                         <button class="btn koamaru waves-effect waves-light">Enregistrer</button>
                     </form>
                     <form action="{{ path('admin.photos.album.delete', {id: album.id}) }}" method="post" style="margin-top: 16px"
-                          onsubmit="return confirm('Supprimer l\'album et ses {{ photos|length }} photos ? C\'est définitif.')">
+                          data-confirm="Supprimer l'album et ses {{ photos|length }} photos ? C'est définitif.">
                         <button class="btn-flat red-text waves-effect"><i class="mdi mdi-delete left"></i>Supprimer l'album</button>
                     </form>
                 </div>
@@ -146,7 +146,7 @@
 {% endblock %}
 
 {% block js %}
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             // Delete: count the checked photos
             var deleteForm = document.getElementById('photos-delete');

@@ -129,8 +129,8 @@
 {% endblock %}
 
 {% block js %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
-    <script>
+    <script nonce="{{ csp_nonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+    <script nonce="{{ csp_nonce }}">
         // Text and grid in the colors of the admin's theme (admin-dark.css)
         if (document.documentElement.getAttribute('data-theme') === 'dark') {
             Chart.defaults.global.defaultFontColor = '#9aa7b4';

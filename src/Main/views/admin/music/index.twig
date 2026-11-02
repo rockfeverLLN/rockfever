@@ -42,7 +42,7 @@
                             </a>
                         {% endif %}
 
-                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: music.id}) }}" method="post" onsubmit='return confirm("Etes-vous sûr de vouloir supprimer cette musique de la liste ?");'>
+                        <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: music.id}) }}" method="post" data-confirm="Etes-vous sûr de vouloir supprimer cette musique de la liste ?">
                             <input type="hidden" name="_method" value="DELETE">
                             <button type="submit" class="koamaru-text text-lighten-1 tooltipped music-button" data-position="top" data-tooltip="Supprimer la musique" aria-label="Supprimer {{ music.title }}">
                                 <i class="mdi mdi-delete" aria-hidden="true"></i>
