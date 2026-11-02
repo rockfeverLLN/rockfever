@@ -80,25 +80,33 @@ class Upload
     {
         if ($oldFile) {
             $oldFile = $this->path . '/' . $oldFile;
-            if (file_exists($oldFile)) {
-                unlink($oldFile);
-            }
+            $files = [$oldFile];
             foreach ($this->formats as $format => $_) {
-                $oldFileWithFormat = $this->getPathWithSuffix($oldFile, $format);
-                if (file_exists($oldFileWithFormat)) {
-                    unlink($oldFileWithFormat);
-                }
+                $files[] = $this->getPathWithSuffix($oldFile, $format);
             }
             foreach ($this->widths as $width) {
-                $oldFileWithWidth = self::getResizedPath($oldFile, $width);
+                $resized = self::getResizedPath($oldFile, $width);
                 // And the WebP copy from before the copies were JPEG
-                foreach ([$oldFileWithWidth, substr($oldFileWithWidth, 0, -3) . 'webp'] as $copy) {
-                    if (file_exists($copy)) {
-                        unlink($copy);
+                array_push($files, $resized, substr($resized, 0, -3) . 'webp');
+            }
+            foreach ($files as $file) {
+                // With its JPEG XL copy (bin/jpeg-xl.php): left behind, it would be sent for a new file of that name
+                foreach ([$file, self::getJxlPath($file)] as $path) {
+                    if (file_exists($path)) {
+                        unlink($path);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Path of the JPEG XL copy of an image, sent instead of it to the browsers that accept JPEG XL: photo.jpg =>
+     * photo.jpg.jxl (see www/.htaccess and PhotoFileAction)
+     */
+    public static function getJxlPath(string $path) : string
+    {
+        return $path . '.jxl';
     }
 
     /**
