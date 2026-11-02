@@ -761,9 +761,17 @@ main:focus {
     margin: 6px 0 0 0;
 }
 
+/* Secondary button: outlined, so it reads as a button next to the filled one rather than as a bare link */
 .btn-flat.calendar-google {
     color: #072d55;
-    font-weight: 500;
+    background-color: #fff;
+    border: 2px solid #072d55;
+    line-height: 40px;
+    padding: 0 18px;
+}
+
+.btn-flat.calendar-google:hover, .btn-flat.calendar-google:focus {
+    background-color: #e8eef5;
 }
 
 /* The facts of one soirée on its page (soireePage.twig) */
