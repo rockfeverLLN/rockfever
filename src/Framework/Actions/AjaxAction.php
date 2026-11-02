@@ -2,6 +2,7 @@
 namespace Framework\Actions;
 
 use Framework\Database\Table;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -10,8 +11,6 @@ abstract class AjaxAction
 
     /** @var Table */
     protected $table;
-
-    use RouterAwareAction;
 
     /**
      * @param Table $table
@@ -34,14 +33,22 @@ abstract class AjaxAction
     }
 
     /**
+     * The answer to a GET. Each action's route only takes one method: the other one isn't reachable
      * @param Request $request
      * @return ResponseInterface|string
      */
-    abstract public function index(Request $request);
+    public function index(Request $request)
+    {
+        return new Response(405);
+    }
 
     /**
+     * The answer to a POST
      * @param Request $request
      * @return ResponseInterface|string
      */
-    abstract public function edit(Request $request);
+    public function edit(Request $request)
+    {
+        return new Response(405);
+    }
 }

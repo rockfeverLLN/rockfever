@@ -30,15 +30,6 @@ class AddImprovisedDancerAction extends AjaxAction
      * @param Request $request
      * @return ResponseInterface|string
      */
-    public function index(Request $request)
-    {
-        return $this->redirect('admin.events.participants');
-    }
-
-    /**
-     * @param Request $request
-     * @return ResponseInterface|string
-     */
     public function edit(Request $request)
     {
         $params = $this->getParams($request);

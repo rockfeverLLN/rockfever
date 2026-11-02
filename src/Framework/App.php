@@ -29,7 +29,7 @@ class App implements RequestHandlerInterface
     private $container;
 
     /**
-     * @var string[]
+     * @var array<string|object> class names, or middlewares already built (RoutePrefixedMiddleware)
      */
     private $middlewares = [];
 
@@ -114,7 +114,7 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * @return object
+     * @return object|null the next middleware, null once they all ran
      */
     public function getMiddleware()
     {

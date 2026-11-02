@@ -38,13 +38,4 @@ class LoadDancersListAction extends AjaxAction
         $dancers = EventListAction::getDancers($id, $this->table);
         return $this->renderer->render('@events/admin/ajax/dancers-list', compact('dancers'));
     }
-
-    /**
-     * @param Request $request
-     * @return ResponseInterface|string
-     */
-    public function edit(Request $request)
-    {
-        return $this->redirect("admin.events.participants");
-    }
 }

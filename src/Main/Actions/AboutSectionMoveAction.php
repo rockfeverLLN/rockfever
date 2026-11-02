@@ -62,7 +62,7 @@ class AboutSectionMoveAction
     {
         /** @var AboutSection $section */
         $section = $this->table->find($request->getAttribute('id'));
-        if ($section && $section->position > 1 && $section->position <= $this->table->findMaximumPosition()) {
+        if ($section->position > 1 && $section->position <= $this->table->findMaximumPosition()) {
             $upperSection = $this->table->findBy('position', $section->position - 1);
             $this->table->update($section->id, ['position' => $section->position - 1]);
             $this->table->update($upperSection->id, ['position' => $section->position]);
@@ -80,7 +80,7 @@ class AboutSectionMoveAction
     {
         /** @var AboutSection $section */
         $section = $this->table->find($request->getAttribute('id'));
-        if ($section && $section->position > 0 && $section->position < $this->table->findMaximumPosition()) {
+        if ($section->position > 0 && $section->position < $this->table->findMaximumPosition()) {
             $upperSection = $this->table->findBy('position', $section->position + 1);
             $this->table->update($section->id, ['position' => $section->position + 1]);
             $this->table->update($upperSection->id, ['position' => $section->position]);

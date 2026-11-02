@@ -25,6 +25,11 @@ class ContactAction extends FormAction
     private $mailer;
 
     /**
+     * @var ValueTable
+     */
+    protected $table;
+
+    /**
      * @var SpamGuard
      */
     private $spamGuard;

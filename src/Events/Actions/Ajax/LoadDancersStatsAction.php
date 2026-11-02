@@ -43,13 +43,4 @@ class LoadDancersStatsAction extends AjaxAction
         }
         return json_encode($stats);
     }
-
-    /**
-     * @param Request $request
-     * @return ResponseInterface|string
-     */
-    public function edit(Request $request)
-    {
-        return $this->redirect("admin.events.participants");
-    }
 }

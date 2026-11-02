@@ -65,11 +65,11 @@ class Table
 
     /**
      * @param string $field
-     * @param string $value
+     * @param string|int $value
      * @return mixed
      * @throws NoRecordException
      */
-    public function findBy(string $field, string $value)
+    public function findBy(string $field, string|int $value)
     {
         return $this->makeQuery()->where("$field  = :field")->params(["field" => $value])->fetchOrFail();
     }

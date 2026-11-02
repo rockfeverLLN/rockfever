@@ -27,6 +27,11 @@ class AboutCrudAction extends CrudAction
 
     protected $routePrefix = 'admin.about';
 
+    /**
+     * @var AboutTable
+     */
+    protected $table;
+
     public function __construct(
         RendererInterface $renderer,
         Router $router,
@@ -38,7 +43,6 @@ class AboutCrudAction extends CrudAction
 
     public function delete(ServerRequestInterface $request)
     {
-        /** @var AboutTable $table */
         $table = $this->table;
         /** @var AboutSection $section */
         $section = $table->find($request->getAttribute('id'));
