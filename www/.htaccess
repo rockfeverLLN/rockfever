@@ -4,6 +4,8 @@ RewriteCond %{HTTP_HOST} ^www\.rockfever\.be$ [NC]
 RewriteRule ^ https://rockfever.be%{REQUEST_URI} [R=301,L,NE]
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE,QSA]
+# Browsers ask for /favicon.ico on every page: serve the PNG favicon there
+RewriteRule ^favicon\.ico$ /images/favicon.png [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ /index.php [NC,L,QSA]
