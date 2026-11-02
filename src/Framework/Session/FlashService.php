@@ -38,6 +38,17 @@ class FlashService
         $this->session->set($this->sessionKey, $flash);
     }
 
+    /**
+     * A Google Analytics event (a GA4 event name) for the next page to send, so it's counted after a redirect too.
+     * Call it after success(), which replaces the whole flash
+     */
+    public function event(string $name)
+    {
+        $flash = $this->session->get($this->sessionKey, []);
+        $flash['event'] = $name;
+        $this->session->set($this->sessionKey, $flash);
+    }
+
     public function get(string $type) : ?string
     {
         if (is_null($this->messages)) {

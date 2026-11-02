@@ -9,9 +9,10 @@
     <script nonce="{{ csp_nonce }}">
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
-        {#- No consent banner: Analytics runs in cookieless mode (Consent Mode denied), so nothing is stored on the visitor's device #}
+        {#- Analytics may set its cookies, with no banner: with storage denied, Google doesn't report the visits of a
+            site this small (it only models them above 1,000 consenting users a day). Nothing for ads #}
         gtag('consent', 'default', {
-            'analytics_storage': 'denied',
+            'analytics_storage': 'granted',
             'ad_storage': 'denied',
             'ad_user_data': 'denied',
             'ad_personalization': 'denied'
@@ -19,6 +20,11 @@
         gtag('js', new Date());
 
         gtag('config', 'G-MKKLSTRX4W');
+        {#- What the visitor just did (a sign-up, a message...), queued by the action with FlashService::event() #}
+        {%- set analytics_event = flash('event') %}
+        {%- if analytics_event %}
+        gtag('event', {{ analytics_event|json_encode(constant('JSON_HEX_TAG'))|raw }});
+        {%- endif %}
     </script>
     <!-- The site's scripts are only needed once the page is shown: they load after its first paint, so that on a slow
          connection they don't hold it back -->
