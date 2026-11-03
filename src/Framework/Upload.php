@@ -104,8 +104,9 @@ class Upload
             foreach ($files as $file) {
                 // With its JPEG XL copy (bin/jpeg-xl.php): left behind, it would be sent for a new file of that name
                 $jxl = self::getJxlPath($file);
-                // And what a conversion stopped halfway left (saveJxl)
-                foreach ([$file, $jxl, "$jxl.tmp", "$jxl.lock"] as $path) {
+                // And what a conversion stopped halfway left, and the mark of an image JPEG XL doesn't make smaller
+                // (saveJxl)
+                foreach ([$file, $jxl, "$jxl.tmp", "$jxl.lock", self::getNoJxlPath($file)] as $path) {
                     if (file_exists($path)) {
                         unlink($path);
                     }
@@ -121,6 +122,14 @@ class Upload
     public static function getJxlPath(string $path) : string
     {
         return $path . '.jxl';
+    }
+
+    /**
+     * Mark left next to an image whose JPEG XL copy wasn't smaller, so it isn't made again: photo.png => photo.png.nojxl
+     */
+    public static function getNoJxlPath(string $path) : string
+    {
+        return $path . '.nojxl';
     }
 
     /**
@@ -203,7 +212,7 @@ class Upload
         $option = $options[strtolower(pathinfo($path, PATHINFO_EXTENSION))] ?? null;
         $jxl = self::getJxlPath($path);
         $cjxl = self::getCjxl();
-        if (!$option || !$cjxl || !is_file($path) || file_exists($jxl)) {
+        if (!$option || !$cjxl || !is_file($path) || file_exists($jxl) || file_exists(self::getNoJxlPath($path))) {
             return;
         }
         // One at a time per image: the admin page asks for the photos it just uploaded while their copies are made.
@@ -228,6 +237,10 @@ class Upload
                 rename($tmp, $jxl);
             } elseif (file_exists($tmp)) {
                 unlink($tmp);
+                // Made but not smaller: it would be the same the next time. A failure (no cjxl) is tried again
+                if ($status === 0) {
+                    touch(self::getNoJxlPath($path));
+                }
             }
         } finally {
             @unlink("$jxl.lock");
