@@ -124,8 +124,31 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             if (preg_match('/\bloading=/i', $tag) || $count++ < $eager) {
                 return $tag;
             }
-            return substr_replace($tag, '<img loading="lazy" decoding="async"', 0, 4);
+            return substr_replace($this->addAspectRatio($tag), '<img loading="lazy" decoding="async"', 0, 4);
         }, $content);
+    }
+
+    /**
+     * Writes the width and height attributes as a CSS aspect-ratio. The stylesheet's height: auto overrides the
+     * height attribute, and Chrome then reports the lazy image as unsized: it would take no room until loaded
+     */
+    private function addAspectRatio(string $tag) : string
+    {
+        if (!preg_match('/\swidth=["\']?(\d+)/i', $tag, $width)
+            || !preg_match('/\sheight=["\']?(\d+)/i', $tag, $height)
+            || (int) $width[1] === 0 || (int) $height[1] === 0
+        ) {
+            return $tag;
+        }
+        $ratio = sprintf('aspect-ratio: %d / %d;', $width[1], $height[1]);
+        if (preg_match('/\sstyle=(["\'])(.*?)\1/is', $tag, $style, PREG_OFFSET_CAPTURE)) {
+            if (stripos($style[2][0], 'aspect-ratio') !== false) {
+                return $tag;
+            }
+            $value = rtrim(trim($style[2][0]), ';');
+            return substr_replace($tag, ($value === '' ? '' : $value . '; ') . $ratio, $style[2][1], strlen($style[2][0]));
+        }
+        return substr_replace($tag, sprintf('<img style="%s"', $ratio), 0, 4);
     }
 
     /**
