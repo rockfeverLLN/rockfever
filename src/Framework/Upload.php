@@ -55,7 +55,10 @@ class Upload
             $this->clean($targetPath);
             $this->generateFormats($targetPath);
             $this->generateWidths($targetPath);
-            $this->generateJxl($targetPath);
+            // Once the response is sent: whoever uploads doesn't wait for it, and the pages send the copies once made.
+            // The full path, as the working folder can change by then
+            $fullPath = realpath($targetPath) ?: $targetPath;
+            Background::defer(fn () => $this->generateJxl($fullPath));
 
             return pathinfo($targetPath)['basename'];
         }
@@ -100,7 +103,9 @@ class Upload
             }
             foreach ($files as $file) {
                 // With its JPEG XL copy (bin/jpeg-xl.php): left behind, it would be sent for a new file of that name
-                foreach ([$file, self::getJxlPath($file)] as $path) {
+                $jxl = self::getJxlPath($file);
+                // And what a conversion stopped halfway left (saveJxl)
+                foreach ([$file, $jxl, "$jxl.tmp", "$jxl.lock"] as $path) {
                     if (file_exists($path)) {
                         unlink($path);
                     }
@@ -201,18 +206,33 @@ class Upload
         if (!$option || !$cjxl || !is_file($path) || file_exists($jxl)) {
             return;
         }
-        // Written under another name first: www/.htaccess sends the copy as soon as it exists
-        $tmp = $jxl . '.' . bin2hex(random_bytes(4)) . '.tmp';
-        // Without worker threads: the server refuses them (cjxl stops with "Resource temporarily unavailable")
-        exec(
-            escapeshellarg($cjxl) . ' ' . escapeshellarg($path) . ' ' . escapeshellarg($tmp) . " $option --num_threads=0 --quiet 2>&1",
-            $output,
-            $status
-        );
-        if ($status === 0 && is_file($tmp) && filesize($tmp) < filesize($path)) {
-            rename($tmp, $jxl);
-        } elseif (file_exists($tmp)) {
-            unlink($tmp);
+        // One at a time per image: the admin page asks for the photos it just uploaded while their copies are made.
+        // The lock goes when the process does, even if it's stopped halfway
+        $lock = @fopen("$jxl.lock", 'c');
+        if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+            return;
+        }
+        try {
+            if (file_exists($jxl)) {
+                return;
+            }
+            // Written under another name first: www/.htaccess sends the copy as soon as it exists
+            $tmp = "$jxl.tmp";
+            // Without worker threads: the server refuses them (cjxl stops with "Resource temporarily unavailable")
+            exec(
+                escapeshellarg($cjxl) . ' ' . escapeshellarg($path) . ' ' . escapeshellarg($tmp) . " $option --num_threads=0 --quiet 2>&1",
+                $output,
+                $status
+            );
+            if ($status === 0 && is_file($tmp) && filesize($tmp) < filesize($path)) {
+                rename($tmp, $jxl);
+            } elseif (file_exists($tmp)) {
+                unlink($tmp);
+            }
+        } finally {
+            @unlink("$jxl.lock");
+            flock($lock, LOCK_UN);
+            fclose($lock);
         }
     }
 

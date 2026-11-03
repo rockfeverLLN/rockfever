@@ -6,6 +6,7 @@ use App\Photos\PhotoAccess;
 use App\Photos\PhotoUpload;
 use App\Photos\Table\AlbumTable;
 use App\Photos\Table\PhotoTable;
+use Framework\Background;
 use Framework\Database\NoRecordException;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Utils;
@@ -64,21 +65,26 @@ class PhotoFileAction
         if (!is_file($file)) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Photo introuvable');
         }
-        // Browsers that can show JPEG XL get its copy when there is one: photos uploaded before the copies were made
-        // at upload get theirs the first time one of those browsers asks. A download is always the photo as uploaded
+        // Browsers that can show JPEG XL get its copy when there is one. A download is always the photo as uploaded
+        $waitingForJxl = false;
         if (!$download && str_contains($request->getHeaderLine('Accept'), 'image/jxl')) {
             $jxl = PhotoUpload::getJxlPath($file);
-            $this->upload->saveJxl($file);
             if (is_file($jxl)) {
                 $file = $jxl;
+            } else {
+                // Not made yet (being made since the upload, or the photo is older): made once this response is sent
+                $waitingForJxl = true;
+                $source = realpath($file) ?: $file;
+                Background::defer(fn () => $this->upload->saveJxl($source));
             }
         }
         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         $headers = [
             'Content-Type' => self::TYPES[$extension] ?? 'application/octet-stream',
             'Content-Length' => (string) filesize($file),
-            // A photo never changes under its URL: deleting it removes the URL
-            'Cache-Control' => 'private, max-age=31536000, immutable',
+            // A photo never changes under its URL: deleting it removes the URL. Unless its JPEG XL copy comes next:
+            // kept a minute only, so the browser gets the copy instead the next time
+            'Cache-Control' => $waitingForJxl ? 'private, max-age=60' : 'private, max-age=31536000, immutable',
             'X-Robots-Tag' => 'noindex'
         ];
         if ($download) {
