@@ -22,7 +22,7 @@ Propose, ne crée rien sans son accord.
 
 ## S'inscrire à une soirée
 
-- Seule la prochaine soirée peut avoir ses inscriptions ouvertes (`registration.status` vaut `open`). Sinon, `registration.opens` dit quand elles ouvrent ; `pending` veut dire que la date est passée mais que l'équipe n'a pas encore publié la soirée. Elles ferment au début de la soirée (`registration.closes`).
+- Seule la prochaine soirée peut avoir ses inscriptions ouvertes (`registration.status` vaut `open`). Sinon, `registration.opens` dit quand elles ouvrent ; `pending` veut dire que la date est passée mais que l'équipe n'a pas encore publié la soirée. Elles ferment à `registration.closes` (en général au début de la soirée).
 - L'inscription demande un prénom et un nom, et vaut acceptation du [R.O.I. et des conditions](https://rockfever.be/legal). Elle ne se paie pas en ligne : on paie à l'entrée, moins cher si on est inscrit (`prices`).
 - Le formulaire est sur [/event](https://rockfever.be/event) (`POST`, champs `firstname` et `lastname`). Il n'y est que quand les inscriptions sont ouvertes, et il refuse les inscriptions sinon.
 

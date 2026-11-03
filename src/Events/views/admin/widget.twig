@@ -60,9 +60,9 @@
             <li>
                 <b>Inscriptions :</b>
                 {% if registration.status == 'open' %}
-                    ouvertes, jusqu'au début de la soirée
+                    ouvertes, {{ registration.until }}
                 {% elseif registration.status == 'upcoming' %}
-                    s'ouvrent toutes seules le {{ registration.opens | dayLabel }}{% if registration.opens|date('H:i', false) != '00:00' %} à {{ registration.opens|date('H:i', false) }}{% endif %}
+                    s'ouvrent toutes seules le {{ registration.opens|dayTimeLabel }}
                 {% elseif registration.status == 'cancelled' %}
                     soirée annulée
                 {% else %}

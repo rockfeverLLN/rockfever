@@ -31,7 +31,9 @@ class EventsExtension extends \Twig\Extension\AbstractExtension
     {
         return [
             // "mercredi 4 novembre"
-            new TwigFilter('dayLabel', fn (\DateTimeInterface $date) => mb_strtolower(Calendar::label($date)))
+            new TwigFilter('dayLabel', fn (\DateTimeInterface $date) => mb_strtolower(Calendar::label($date))),
+            // "mercredi 4 novembre", "vendredi 6 novembre à 12h"
+            new TwigFilter('dayTimeLabel', [Calendar::class, 'dayTimeLabel'])
         ];
     }
 

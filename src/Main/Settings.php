@@ -10,7 +10,7 @@ use App\Main\Table\ValueTable;
  */
 class Settings
 {
-    // name => label, type (time, string, int, email, url, html), default, group
+    // name => label, type (time, optional_time, string, int, email, url, html), default, group
     const DEFINITIONS = [
         'SOIREE_WALTZ_TIME' => ['Heure de la valse', 'time', '20:30', 'soirees'],
         'SOIREE_ROCK_TIME' => ['Heure du rock', 'time', '21:00', 'soirees'],
@@ -19,7 +19,10 @@ class Settings
         'SOIREE_ADDRESS' => ['Adresse', 'string', 'Place Sainte-Barbe 1, 1348 Louvain-la-Neuve', 'soirees'],
         'PRICE_ONLINE' => ['Prix avec inscription sur le site (€)', 'int', '3', 'soirees'],
         'PRICE_DOOR' => ['Prix sans inscription (€)', 'int', '4', 'soirees'],
-        'REGISTRATION_DAYS' => ['Ouverture des inscriptions (jours avant, à minuit)', 'int', '7', 'soirees'],
+        'REGISTRATION_DAYS' => ['Ouverture des inscriptions : jours avant la soirée', 'int', '7', 'soirees'],
+        'REGISTRATION_OPEN_TIME' => ['Ouverture des inscriptions : heure', 'time', '00:00', 'soirees'],
+        'REGISTRATION_CLOSE_DAYS' => ['Fermeture : jours avant la soirée (0 = le jour même)', 'int', '0', 'soirees'],
+        'REGISTRATION_CLOSE_TIME' => ['Fermeture : heure (vide = au début de la soirée)', 'optional_time', '', 'soirees'],
         'CONTACT_EMAIL' => ['Adresse qui reçoit les messages du formulaire de contact', 'email', '', 'site'],
         'FACEBOOK_URL' => ['Page Facebook', 'url', 'https://www.facebook.com/rockfeverlln', 'site'],
         'INSTAGRAM_URL' => ['Compte Instagram', 'url', 'https://www.instagram.com/rockfeverlln/', 'site'],
@@ -105,6 +108,7 @@ class Settings
     {
         return match ($type) {
             'time' => preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $value) ? null : 'une heure comme 20:30',
+            'optional_time' => $value === '' || preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $value) ? null : 'une heure comme 18:00, ou vide',
             'int' => preg_match('/^\d{1,3}$/', $value) ? null : 'un nombre entier',
             'email' => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'une adresse e-mail',
             'url' => $value === '' || preg_match('#^https://#', $value) ? null : 'un lien qui commence par https://',
