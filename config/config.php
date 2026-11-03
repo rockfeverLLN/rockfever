@@ -13,6 +13,7 @@ use Framework\Twig\PagerFantaExtension;
 use Framework\Twig\TextExtension;
 use Framework\Twig\TimeExtension;
 use Framework\Twig\AssetExtension;
+use Framework\Twig\CdnExtension;
 use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Container\ContainerInterface;
 
@@ -29,6 +30,7 @@ return [
         \DI\get(TextExtension::class),
         \DI\get(TimeExtension::class),
         \DI\get(AssetExtension::class),
+        \DI\get(CdnExtension::class),
         \DI\get(FlashExtension::class),
         \DI\get(FormExtension::class)
     ],

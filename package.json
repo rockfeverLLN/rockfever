@@ -1,0 +1,11 @@
+{
+    "name": "rockfever-site",
+    "private": true,
+    "description": "The JavaScript libraries the site loads from jsDelivr, at these exact versions (Framework\\Twig\\CdnExtension builds their URLs from this file). Nothing is installed with npm: this file is only here for Dependabot to raise the versions",
+    "dependencies": {
+        "clipboard": "2.0.11",
+        "masonry-layout": "4.2.2",
+        "tinymce": "8.10.1",
+        "tinymce-i18n": "26.10.26"
+    }
+}

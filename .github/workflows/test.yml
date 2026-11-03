@@ -1,0 +1,101 @@
+name: Test
+on:
+  pull_request:
+  workflow_dispatch:
+
+# A new push to the pull request replaces the run of the previous one
+concurrency:
+  group: test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
+defaults:
+  run:
+    shell: bash
+
+# Tests every pull request on a copy of the site (bin/test.sh). Dependabot's package updates (.github/dependabot.yml)
+# that pass are merged and deployed without anyone needing to do anything.
+# Same rule as deploy.yml: no marketplace actions, only plain git and official images.
+jobs:
+  test:
+    # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_DATABASE: rockfever
+          MARIADB_USER: rockfever
+          MARIADB_PASSWORD: ci
+          MARIADB_ROOT_PASSWORD: ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      # The pull request's own commit, not the merge with main GitHub prepares
+      - name: Checkout
+        env:
+          TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          git init --quiet .
+          git fetch --quiet --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$SHA"
+          git checkout --quiet FETCH_HEAD
+      # Same PHP version as the server, read from .ovhconfig
+      - name: Read PHP version
+        run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
+      - name: Start a test database
+        run: |
+          printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
+          docker run --rm --user "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
+            composer:2 install --no-interaction --no-progress --quiet
+          cat > config/database.php <<'EOF'
+          <?php
+          return [
+              'database.host'     => '127.0.0.1',
+              'database.username' => 'rockfever',
+              'database.password' => 'ci',
+              'database.name'     => 'rockfever',
+          ];
+          EOF
+          site() {
+            docker run --rm --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php "$@"
+          }
+          site vendor/bin/phinx migrate
+          site vendor/bin/phinx seed:run
+      - name: Test
+        run: bin/test.sh
+
+  # Dependabot's pull requests that passed go live. Merged here rather than with GitHub's auto-merge, which needs a
+  # branch protection rule; and a merge made with this job's token doesn't start deploy.yml on its own, so it's
+  # started here
+  merge:
+    needs: test
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    # One merge at a time: two updates passing together would otherwise both deploy the same commit
+    concurrency:
+      group: dependabot-merge
+      cancel-in-progress: false
+    permissions:
+      contents: write       # merge the pull request
+      pull-requests: write
+      actions: write        # start the deploy
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_URL: ${{ github.event.pull_request.html_url }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Merge and deploy
+        run: |
+          # --match-head-commit: not if Dependabot pushed again during the tests, the newer run will merge it.
+          # If another update was merged meanwhile and conflicts, Dependabot rebases this one and it's tested again
+          gh pr merge "$PR_URL" --merge --match-head-commit "$HEAD_SHA"
+          gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main
