@@ -1,0 +1,3 @@
+# The libjxl release whose static cjxl the deploy uploads to the server (bin/fetch-cjxl.sh), and the SHA-256 GitHub
+# gives for its jxl-linux-x86_64-static.tar.lz. Raised by .github/workflows/update-cjxl.yml when a new one is out
+v0.12.0 5318a1ea40adad76d023e0c17a03d4627f8282f83cb2b575e69be8e74f1ff456

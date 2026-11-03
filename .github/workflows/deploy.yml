@@ -146,17 +146,10 @@ jobs:
         run: |
           until [ -f "$RUNNER_TEMP/upload-status" ]; do sleep 1; done
           [ "$(cat "$RUNNER_TEMP/upload-status")" = 0 ] || { cat "$RUNNER_TEMP/upload-prepare.log"; exit 1; }
-      # The server can't write JPEG XL by itself (its Imagick is built without it): cjxl from libjxl's static Linux
-      # build, checked against the release's checksum, which bin/deploy.sh uploads to bin/cjxl. Needs lzip, installed
-      # with lftp above
+      # cjxl for the server's JPEG XL copies, at the version in bin/cjxl.version, checked against its checksum and
+      # tested as the site runs it; bin/deploy.sh uploads it to bin/cjxl. Needs lzip, installed with lftp above
       - name: Download the JPEG XL encoder
-        run: |
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/jxl.tar.lz" \
-            https://github.com/libjxl/libjxl/releases/download/v0.12.0/jxl-linux-x86_64-static.tar.lz
-          echo "5318a1ea40adad76d023e0c17a03d4627f8282f83cb2b575e69be8e74f1ff456  $RUNNER_TEMP/jxl.tar.lz" | sha256sum -c -
-          tar -xf "$RUNNER_TEMP/jxl.tar.lz" --lzip -C "$RUNNER_TEMP" tools/cjxl
-          mv "$RUNNER_TEMP/tools/cjxl" bin/cjxl
-          bin/cjxl --version
+        run: bin/fetch-cjxl.sh
       - name: Upload via SFTP
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
