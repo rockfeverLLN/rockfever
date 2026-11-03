@@ -1,7 +1,6 @@
 <?php
 namespace App\Main\Actions;
 
-use App\Events\Entity\Event;
 use App\Main\Calendar;
 use GuzzleHttp\Psr7\Response;
 
@@ -34,7 +33,7 @@ class SoireesApiAction
             'suggestions' => $next ? $this->calendar->toSuggestions($next) : [],
             'registration' => [
                 'about' => 'Seule la prochaine soirée peut avoir ses inscriptions ouvertes. Elles ouvrent '
-                    . Event::REGISTRATION_DAYS . ' jours avant à minuit (pas avant la fin de la soirée précédente) '
+                    . $this->calendar->getRegistrationDays() . ' jours avant à minuit (pas avant la fin de la soirée précédente) '
                     . 'et ferment au début de la soirée. On paie à l\'entrée, inscrit ou non.',
                 'statuses' => [
                     Calendar::REGISTRATION_OPEN => 'ouvertes : le formulaire de /event est là',

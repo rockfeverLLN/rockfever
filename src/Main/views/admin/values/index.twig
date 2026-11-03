@@ -1,54 +1,28 @@
 {% extends '@admin/layout.twig' %}
-{% block title %}Paramètres - Rock Fever{% endblock %}
+{% block title %}Réglages - Rock Fever{% endblock %}
 {% block body %}
     <div class="container">
-        <h1>Valeurs par défaut</h1>
-        <table class="striped">
-            <thead>
-            <tr>
-                <th>Label</th>
-                <th>Nom</th>
-                <th>Valeur</th>
-                <th style="width: 150px"><span class="sr-only">Actions</span></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for value in values %}
-                <tr>
-                    <td>{{ value.label }}</td>
-                    <td>{{ value.name }}</td>
-                    <td>{{ value.value | excerpt(40) | raw }}</td>
-                    <td>
-                        <a class="waves-effect waves-koamaru btn-flat modal-trigger koamaru-text" href="#modal_{{ value.id }}" aria-haspopup="dialog"><i class="material-icons left" aria-hidden="true">edit</i> Modifier<span class="sr-only"> {{ value.label }}</span></a>
-                    </td>
-
-                    <dialog id="modal_{{ value.id }}" class="modal modal-fixed-footer" aria-labelledby="modal_{{ value.id }}-title">
-                        <form method="post">
-                            <div class="modal-content">
-                                <div class="chip right" style="margin-top: 8px">
-                                    <img src="{{ __DIR__ }}/images/body/text.png" alt="">
-                                    Valeur : <strong>{{ value.value | excerpt(30) | raw }}</strong>
-                                </div>
-                                <h2 class="modal-title" id="modal_{{ value.id }}-title">{{ value.label }}</h2>
-                                <br>
-                                {% if value.type == 'string' %}
-                                    {{ field('value', value.value, 'Nouvelle valeur', {idSuffix:value.id}) }}
-                                {% elseif value.type == 'text' %}
-                                    {{ field('value', value.value, 'Nouvelle valeur', {idSuffix:value.id, type:'textarea'}) }}
-                                {% elseif value.type == 'html' %}
-                                    {{ field('value', value.value, 'Nouvelle valeur de « ' ~ value.label ~ ' »', {idSuffix:value.id, type:'tinymce'}) }}
-                                {% endif %}
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="modal-close waves-effect waves-red btn-flat red-text">Annuler</button>
-                                <button type="submit" class="modal-close waves-effect waves-green green-text btn-flat">Modifier</button>
-                                <input type="hidden" name="id" value="{{ value.id }}">
-                            </div>
-                        </form>
-                    </dialog>
-                </tr>
+        <h1>Réglages du site</h1>
+        <p class="grey-text">
+            Les heures, le lieu, les prix et l'ouverture des inscriptions des soirées se règlent sur la page
+            <a href="{{ path('admin.events.index') }}" class="underlined-link">Événements</a>.
+        </p>
+        <form method="post" class="row">
+            {% for name, setting in settings %}
+                <div class="col s12{{ setting.type in ['email', 'url'] ? ' m4' }}">
+                    {%- if setting.type == 'html' %}
+                        <h2 style="font-size: 1.5rem">{{ setting.label }}</h2>
+                        {{ field(name, setting.value, setting.label, {type: 'tinymce'}) }}
+                    {%- elseif setting.type == 'email' %}
+                        {{ field(name, setting.value, setting.label, {type: 'email', attributes: {required: true}}) }}
+                    {%- else %}
+                        {{ field(name, setting.value, setting.label, {attributes: {pattern: 'https://.*'}}) }}
+                    {%- endif %}
+                </div>
             {% endfor %}
-            </tbody>
-        </table>
+            <div class="col s12">
+                <button class="btn koamaru right">Enregistrer les réglages</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

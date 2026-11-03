@@ -13,6 +13,7 @@ use App\Events\Actions\EventListPrintAction;
 use App\Events\Actions\EventOpenAction;
 use App\Events\Actions\FacebookPostAction;
 use App\Events\Actions\SoireeAction;
+use App\Events\Actions\SoireeSettingsAction;
 use App\Events\Actions\EventStatisticsAction;
 use App\Events\Actions\StatisticsAction;
 use Framework\Module;
@@ -67,6 +68,13 @@ class EventsModule extends Module
                 $adminPrefix . '/events/past',
                 EventCrudAction::class,
                 'admin.events.past'
+            );
+
+            // The usual times, place, prices and sign-up opening of the soirées (admins only: www/index.php)
+            $router->post(
+                $adminPrefix . '/events/settings',
+                SoireeSettingsAction::class,
+                'admin.events.settings'
             );
 
             // The planned dates of the soirées, before their event

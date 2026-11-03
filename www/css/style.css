@@ -1929,6 +1929,29 @@ table tbody tr td .input-field {
     margin: 16px 0 0;
 }
 
+/* Its "Réglages des soirées": one line that sums them up, the form once opened */
+.events-settings {
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    border: 1px solid rgba(127, 127, 127, 0.3);
+    border-radius: 4px;
+}
+
+.events-settings summary {
+    cursor: pointer;
+    padding: 8px 0;
+    line-height: 24px;
+}
+
+.events-settings summary .mdi {
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.events-settings form {
+    margin-top: 8px;
+}
+
 .event-button .text {
     font-size: 24px;
     line-height: 28px;

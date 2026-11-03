@@ -35,9 +35,6 @@ class Event
 
     public $participantsCount;
 
-    // Sign-ups open on their own at midnight, this many days before the soirée (unless closed in the admin)
-    const REGISTRATION_DAYS = 7;
-
     const TIMEZONE = 'Europe/Brussels';
 
     public function setDate(string $date)
@@ -46,13 +43,14 @@ class Event
     }
 
     /**
-     * When sign-ups open for a soirée on that day (Y-m-d)
+     * When sign-ups open for a soirée on that day (Y-m-d): at midnight, that many days before (App\Main\Calendar
+     * gives the days of the settings)
      */
-    public static function registrationOpeningFor(string $date) : \DateTimeImmutable
+    public static function registrationOpeningFor(string $date, int $days) : \DateTimeImmutable
     {
         return (new \DateTimeImmutable($date, new \DateTimeZone(self::TIMEZONE)))
             ->setTime(0, 0)
-            ->modify('-' . self::REGISTRATION_DAYS . ' days');
+            ->modify('-' . $days . ' days');
     }
 
     /**
@@ -61,20 +59,6 @@ class Event
     public function getDay() : string
     {
         return implode('-', array_reverse(explode('/', $this->date)));
-    }
-
-    public function getRegistrationOpening() : \DateTimeImmutable
-    {
-        return self::registrationOpeningFor($this->getDay());
-    }
-
-    /**
-     * Sign-ups that will open on their own later (the event is announced early)
-     */
-    public function isRegistrationUpcoming(?\DateTimeImmutable $now = null) : bool
-    {
-        $now = $now ?? new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE));
-        return empty($this->closed) && $now < $this->getRegistrationOpening();
     }
 
     /**

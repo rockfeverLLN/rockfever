@@ -5,12 +5,56 @@
         <h1>Événements</h1>
         {% include '@events/admin/tabs.twig' with {current: 'admin.events.index'} %}
 
-        {#- A date first, without theme: /calendrier and the calendars show it right away. Its event (theme,
-            description, Facebook) comes later, with the sign-up, from "Créer l'événement" #}
+        {#- The usual times, place, prices and sign-up opening: every page, calendar and new event takes them from here
+            (App\Main\Settings). Only admins change them (www/index.php) #}
+        {%- set s = settings|map(setting => setting.value) %}
+        <details class="events-settings">
+            <summary>
+                <i class="mdi mdi-cog left" aria-hidden="true"></i><strong>Réglages des soirées</strong>
+                <span class="grey-text">
+                    · valse {{ s.SOIREE_WALTZ_TIME|replace({':': 'h'}) }}, rock {{ s.SOIREE_ROCK_TIME|replace({':': 'h'}) }},
+                    fin {{ s.SOIREE_END_TIME|replace({':': 'h'}) }} · {{ s.SOIREE_PLACE }}
+                    · {{ s.PRICE_ONLINE }}&nbsp;€ inscrit, {{ s.PRICE_DOOR }}&nbsp;€ sur place
+                    · inscriptions {{ s.REGISTRATION_DAYS }}&nbsp;jours avant
+                </span>
+            </summary>
+            {% if isAdmin() %}
+                <form action="{{ path('admin.events.settings') }}" method="post" class="row">
+                    {% for name, setting in settings %}
+                        <div class="col s12 {{ setting.type == 'string' ? 'm6' : 'm4' }}">
+                            {%- if setting.type == 'time' %}
+                                {{ field(name, setting.value, setting.label, {type: 'time', attributes: {required: true}}) }}
+                            {%- elseif setting.type == 'int' %}
+                                {{ field(name, setting.value, setting.label, {attributes: {required: true, inputmode: 'numeric', pattern: '[0-9]{1,3}'}}) }}
+                            {%- else %}
+                                {{ field(name, setting.value, setting.label, {attributes: {required: true, maxlength: 250}}) }}
+                            {%- endif %}
+                        </div>
+                    {% endfor %}
+                    <div class="col s12">
+                        <p class="grey-text">
+                            Valent pour toutes les soirées, sauf les heures et le lieu qu'un événement a changés (sa
+                            page «&nbsp;Modifier&nbsp;»).
+                        </p>
+                        <button class="btn koamaru">Enregistrer les réglages</button>
+                    </div>
+                </form>
+            {% else %}
+                <p class="grey-text">Seuls les administrateurs peuvent changer ces réglages.</p>
+            {% endif %}
+        </details>
+
+        {#- Dates first, without theme: /calendrier and the calendars show them right away. Their event (theme,
+            description, Facebook) comes later, with the sign-up, from "Créer l'événement". With "Jusqu'au", the same
+            weekday every week: a whole quadrimestre at once #}
         <form action="{{ path('admin.events.dates.create') }}" method="post" class="row events-new-date">
-            <div class="col s12 m5">{{ field('date', '', 'Date de la soirée', {type: 'date', idSuffix: 'new', attributes: {required: true}}) }}</div>
-            <div class="col s8 m4">{{ field('week', '', 'Semaine (ex. S9)', {idSuffix: 'new', attributes: {maxlength: 10}}) }}</div>
-            <div class="col s4 m3"><button class="btn koamaru events-new-date-button">Ajouter</button></div>
+            <div class="col s12 m4">{{ field('date', '', 'Date de la soirée (ou la première)', {type: 'date', idSuffix: 'new', attributes: {required: true}}) }}</div>
+            <div class="col s12 m3">
+                {{ field('until', '', 'Jusqu\'au (facultatif)', {type: 'date', idSuffix: 'new'}) }}
+                <span class="helper-text">Une date par semaine, le même jour.</span>
+            </div>
+            <div class="col s8 m3">{{ field('week', '', 'Semaine (ex. S1)', {idSuffix: 'new', attributes: {maxlength: 10}}) }}</div>
+            <div class="col s4 m2"><button class="btn koamaru events-new-date-button">Ajouter</button></div>
         </form>
 
         <ul class="collapsible" style="box-shadow: none; border: none">

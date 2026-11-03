@@ -544,6 +544,45 @@
         facebookPost.addEventListener('change', fillFromFacebook);
     }
 
+    // Event form: when sign-ups open for the date picked, as Calendar::getRegistrationOpening() works it out (the
+    // REGISTRATION_DAYS before at midnight, not before the soirée before it is over). Every time is Brussels' wall
+    // clock as text (Y-m-dTH:i), so they compare as strings whatever the admin's timezone
+    var eventDate = document.getElementById('date');
+    var registrationHint = document.getElementById('date-registration');
+    if (eventDate && registrationHint) {
+        var weekdays = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        var months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+        var ends = JSON.parse(registrationHint.dataset.ends || '{}');
+        var registrationDays = parseInt(registrationHint.dataset.days, 10);
+        var pad = function (number) {
+            return (number < 10 ? '0' : '') + number;
+        };
+        eventDate.addEventListener('change', function () {
+            var parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(eventDate.value);
+            if (!parts) {
+                return;
+            }
+            var day = new Date(Date.UTC(+parts[1], parts[2] - 1, parts[3] - registrationDays));
+            var opens = day.getUTCFullYear() + '-' + pad(day.getUTCMonth() + 1) + '-' + pad(day.getUTCDate()) + 'T00:00';
+            Object.keys(ends).forEach(function (soiree) {
+                var end = ends[soiree].slice(0, 16);
+                if (soiree < eventDate.value && end > opens) {
+                    opens = end;
+                }
+            });
+            var now = new Date().toLocaleString('sv-SE', {timeZone: 'Europe/Brussels'}).replace(' ', 'T').slice(0, 16);
+            if (opens <= now) {
+                registrationHint.textContent = 'Inscriptions sur le site dès l’enregistrement de l’événement, jusqu’au début de la soirée.';
+                return;
+            }
+            var date = new Date(Date.UTC(+opens.slice(0, 4), opens.slice(5, 7) - 1, +opens.slice(8, 10)));
+            var time = opens.slice(11, 16);
+            registrationHint.textContent = 'Inscriptions sur le site dès le ' + weekdays[date.getUTCDay()] + ' '
+                + (date.getUTCDate() === 1 ? '1er' : date.getUTCDate()) + ' ' + months[date.getUTCMonth()]
+                + (time !== '00:00' ? ' à ' + time.replace(':', 'h') : '') + ', jusqu’au début de la soirée.';
+        });
+    }
+
     if (typeof tinymce !== 'undefined') tinymce.init({
         selector: '.tinymce',
         // The open source edition of TinyMCE, loaded from jsDelivr: no Tiny Cloud account or API key

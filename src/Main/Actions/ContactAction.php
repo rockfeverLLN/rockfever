@@ -7,6 +7,7 @@
 
 namespace App\Main\Actions;
 
+use App\Main\Settings;
 use App\Main\Table\ValueTable;
 use Framework\Actions\FormAction;
 use Framework\Database\Hydrator;
@@ -46,7 +47,8 @@ class ContactAction extends FormAction
         ValueTable $table,
         FlashService $flash,
         PHPMailer $mailer,
-        SpamGuard $spamGuard
+        SpamGuard $spamGuard,
+        private Settings $settings
     ) {
         parent::__construct($renderer, $router, $table, $flash);
         $this->mailer = $mailer;
@@ -74,7 +76,7 @@ class ContactAction extends FormAction
         } elseif ($validator->isValid()) {
             $this->spamGuard->sent($request, 'contact', self::MAX_MESSAGES_DELAY);
             try {
-                $email = $this->table->getValue("CONTACT_EMAIL");
+                $email = $this->settings->get('CONTACT_EMAIL');
                 $params = $this->getParams($request);
 
                 // Sent from and to the team only: with the visitor's address in From or CC, anyone could send

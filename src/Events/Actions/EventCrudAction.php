@@ -10,7 +10,7 @@ namespace App\Events\Actions;
 use App\Events\Entity\Event;
 use App\Events\Table\EventTable;
 use App\Main\Calendar;
-use App\Main\Table\ValueTable;
+use App\Main\Settings;
 use Framework\Actions\CrudAction;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
@@ -29,11 +29,6 @@ class EventCrudAction extends CrudAction
 
     protected $routePrefix = 'admin.events';
     /**
-     * @var ValueTable
-     */
-    private $valueTable;
-
-    /**
      * The day (Y-m-d) the new event is for, from the "Créer l'événement" of a planned date
      */
     private ?string $newDate = null;
@@ -48,11 +43,10 @@ class EventCrudAction extends CrudAction
         Router $router,
         EventTable $table,
         FlashService $flash,
-        ValueTable $valueTable,
-        private Calendar $calendar
+        private Calendar $calendar,
+        private Settings $settings
     ) {
         parent::__construct($renderer, $router, $table, $flash);
-        $this->valueTable = $valueTable;
         $this->events = $table;
     }
 
@@ -71,7 +65,8 @@ class EventCrudAction extends CrudAction
         }
         $soirees = array_values(array_filter($this->calendar->all(), fn (array $soiree) => !$soiree['past']));
         $participants = $this->events->countUpcomingParticipants();
-        return $this->renderer->render($this->viewPath . '/index', compact('soirees', 'participants'));
+        $settings = $this->settings->group('soirees');
+        return $this->renderer->render($this->viewPath . '/index', compact('soirees', 'participants', 'settings'));
     }
 
     public function create(ServerRequestInterface $request)
@@ -99,15 +94,20 @@ class EventCrudAction extends CrudAction
                     'waltz_time',
                     'rock_time',
                     'place',
-                    'price',
                     'facebook_link',
-                    'covevent_link',
                     'photos_password'
                 ]
             );
         }, ARRAY_FILTER_USE_KEY);
         // Empty: the soirée's album is only for the team
         $params['photos_password'] = trim($params['photos_password'] ?? '') ?: null;
+        // Empty: the usual place of the settings, and no Facebook event. The columns don't take NULL
+        $params['place'] = trim($params['place'] ?? '');
+        $params['facebook_link'] = trim($params['facebook_link'] ?? '');
+        // The prices are the settings' now: a new event no longer has its own text (old ones keep theirs)
+        if ($event->id === null) {
+            $params['price'] = '';
+        }
 
         $explodedDate = explode('/', $params['date']);
         $params['date'] = join('-', array_reverse($explodedDate));
@@ -122,19 +122,10 @@ class EventCrudAction extends CrudAction
     protected function getValidator(ServerRequestInterface $request)
     {
         $validator = parent::getValidator($request)
-            ->required(
-                'title',
-                'description',
-                'date',
-                'waltz_time',
-                'rock_time',
-                'place',
-                'price',
-                'facebook_link',
-                'covevent_link'
-            )
+            ->required('title', 'description', 'date', 'waltz_time', 'rock_time')
             ->length('title', 2, 250)
             ->length('description', 100)
+            ->length('place', null, 250)
             ->date('date')
             ->time('waltz_time')
             ->time('rock_time')
@@ -145,13 +136,31 @@ class EventCrudAction extends CrudAction
         return $validator;
     }
 
+    /**
+     * When sign-ups open for the event's date, as the site will say it (src/Main/views/registration.twig), and the
+     * soirées' ends for the form to work it out again when the date changes (www/js/script.js)
+     */
+    protected function formParams(array $params) : array
+    {
+        $date = (string) ($params['item']->date ?? '');
+        if (preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $date, $m)) {
+            $date = "$m[3]-$m[2]-$m[1]";
+        }
+        $params['registrationOpens'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
+            ? $this->calendar->getRegistrationOpening($date)
+            : null;
+        $params['soireeEnds'] = $this->calendar->getEnds();
+        $params['registrationDays'] = $this->calendar->getRegistrationDays();
+        $params['usualPlace'] = $this->calendar->getPlace();
+        return $params;
+    }
+
     protected function getNewEntity()
     {
         $event = new Event();
-        $event->setWaltzTime($this->valueTable->getValue('DEFAULT_WALTZTIME'));
-        $event->setRockTime($this->valueTable->getValue('DEFAULT_ROCKTIME'));
-        $event->place = $this->valueTable->getValue('DEFAULT_PLACE');
-        $event->price = $this->valueTable->getValue('DEFAULT_PRICE');
+        // The usual times of /admin/events; the place stays empty: the usual one, unless another is typed
+        $event->setWaltzTime($this->settings->get('SOIREE_WALTZ_TIME'));
+        $event->setRockTime($this->settings->get('SOIREE_ROCK_TIME'));
         if ($this->newDate !== null) {
             $event->setDate($this->newDate);
         }
