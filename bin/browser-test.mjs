@@ -26,10 +26,12 @@ const PAGES = [
         + " return input.parentElement.querySelector('label').classList.contains('active'); })()"],
     // The role is a native select, shown
     ['/login', "!!document.querySelector('.sidenav-overlay') && document.querySelector('select[name=role]').offsetHeight > 0"],
-    // Collapsible (another soirée opens and the first closes), tooltip, the "Paramètres" dropdown
-    ['/admin/events', "(() => {"
+    // Collapsible (another soirée opens and the first closes), tooltip, the "Paramètres" dropdown. On the past events:
+    // the test database's are all past, and /admin/events only lists those to come (their buttons hold the tooltips)
+    ['/admin/events/past', "(() => {"
         + " const items = document.querySelectorAll('.collapsible > li');"
-        + " if (!items[1].classList.contains('active')) items[1].querySelector('.collapsible-header').click();"
+        + " if (!items[1].classList.contains('active')) {"
+        + "  items[0].querySelector('.collapsible-header').click(); items[1].querySelector('.collapsible-header').click(); }"
         + " document.querySelector('.tooltipped').dispatchEvent(new MouseEvent('mouseenter'));"
         + " const menu = document.getElementById('params-dropdown');"
         + " if (!menu.classList.contains('open')) document.querySelector('.dropdown-trigger').click();"
