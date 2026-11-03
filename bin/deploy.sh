@@ -34,7 +34,7 @@ fi
 
 # In one connection rather than one per file, which took 2 to 3 seconds each
 REMOTE=$(mktemp -d)
-"${SERVER[@]}" -e "set sftp:auto-confirm yes; lcd $REMOTE; get .deployed-sha; get vendor/.lock-hash; quit" \
+"${SERVER[@]}" -e "set sftp:auto-confirm yes; lcd $REMOTE; get .deployed-sha; get vendor/.lock-hash; get bin/.cjxl-hash; quit" \
     > /dev/null 2>&1 || true
 
 COMMANDS="$SETTINGS"
@@ -84,6 +84,16 @@ if [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; th
     COMMANDS+=" mirror --reverse --delete vendor/ vendor/;"
 else
     echo "composer.lock unchanged, skipping vendor/"
+fi
+
+# The JPEG XL encoder that deploy.yml downloads (not in git): only when it's another version than the server's
+if [ -f bin/cjxl ]; then
+    CJXL_HASH=$(sha256sum bin/cjxl | cut -c1-64)
+    if [ "$CJXL_HASH" != "$(remote_cat bin/.cjxl-hash | tr -d '[:space:]')" ]; then
+        echo "  upload bin/cjxl (downloaded)"
+        echo "$CJXL_HASH" > bin/.cjxl-hash
+        COMMANDS+=" put bin/cjxl -o bin/cjxl; chmod 755 bin/cjxl; put bin/.cjxl-hash -o bin/.cjxl-hash;"
+    fi
 fi
 
 # Empty the caches once the new files are up

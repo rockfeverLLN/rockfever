@@ -32,3 +32,7 @@ Thumbs.db
 
 # Images pasted into the About sections, saved as files when a page shows them (TextExtension::pastedToFile)
 /www/images/about/pasted/
+
+# The JPEG XL encoder, downloaded by deploy.yml
+/bin/cjxl
+/bin/.cjxl-hash
