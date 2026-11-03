@@ -1907,6 +1907,28 @@ table tbody tr td .input-field {
     cursor: pointer;
 }
 
+/* /admin/events: its two lists, and the form that plans a date */
+.events-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.events-per-page a,
+.events-per-page strong {
+    display: inline-block;
+    padding: 0 6px;
+}
+
+.events-new-date-button {
+    margin-top: 24px;
+    width: 100%;
+}
+
+.events-date-form {
+    margin: 16px 0 0;
+}
+
 .event-button .text {
     font-size: 24px;
     line-height: 28px;

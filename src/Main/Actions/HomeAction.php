@@ -51,7 +51,7 @@ class HomeAction
             $staffFound = mb_strtolower(trim($item->title)) === 'le staff';
         }
 
-        // A "[dates]" paragraph in a section becomes the soirées of the quadrimestre under way from src/Main/config.php,
+        // A "[dates]" paragraph in a section becomes the soirées of the quadrimestre under way (planned in the admin),
         // marked past or next like on /calendrier, so it never needs editing when a soirée is over
         $dates = null;
         foreach ($items as $item) {

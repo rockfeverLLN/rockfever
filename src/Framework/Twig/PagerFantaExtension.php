@@ -40,10 +40,9 @@ class PagerFantaExtension extends \Twig\Extension\AbstractExtension
     ) : string {
         $view = new TwitterBootstrap4View();
         return $view->render($paginatedResults, function (int $page) use ($route, $routerParams, $queryArgs) {
-            if ($page > 1) {
-                $queryArgs['p'] = $page;
-            }
-            return $this->router->generateUri($route, $routerParams, ['p' => $page]);
+            // The other arguments (how many per page…) stay from one page to the next
+            $queryArgs['p'] = $page;
+            return $this->router->generateUri($route, $routerParams, $queryArgs);
         }, [
             'prev_message'      => '<i class="material-icons">chevron_left</i>',
             'next_message'          => '<i class="material-icons">chevron_right</i>',

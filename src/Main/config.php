@@ -5,16 +5,9 @@ return [
     ]),
 
     // The soirées: every page, the .ics files, the schema.org markup and /api/events take them from App\Main\Calendar,
-    // which adds each one's event of the admin (same day). Add the next semester's soirées here (date, week of the
-    // quadrimestre); a soirée that won't take place gets 'cancelled' => true instead of being removed.
+    // which puts together each date planned in the admin (/admin/events, the soirees table) and its event (same day).
     // Times are in Brussels time; an end before the start is the next day. Every soirée has the usual waltz (its start)
     // and rock times, unless its event in the admin gives others.
-    'calendar.soirees' => [
-        ['date' => '2026-09-30', 'week' => 'S3'],
-        ['date' => '2026-10-14', 'week' => 'S5'],
-        ['date' => '2026-11-11', 'week' => 'S9'],
-        ['date' => '2026-11-18', 'week' => 'S10'],
-    ],
     'calendar.start' => '20:30',
     'calendar.rock' => '21:00',
     'calendar.end' => '01:00',
@@ -23,7 +16,6 @@ return [
     // In euros, paid at the door: with a sign-up on the site, and without
     'calendar.prices' => ['online' => 3, 'door' => 4],
     \App\Main\Calendar::class => \DI\autowire()
-        ->constructorParameter('soirees', \DI\get('calendar.soirees'))
         ->constructorParameter('start', \DI\get('calendar.start'))
         ->constructorParameter('rock', \DI\get('calendar.rock'))
         ->constructorParameter('end', \DI\get('calendar.end'))

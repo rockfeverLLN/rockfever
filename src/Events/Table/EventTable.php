@@ -29,6 +29,27 @@ class EventTable extends Table
             ->order('e.date DESC');
     }
 
+    /**
+     * The events that are over, newest first (the soirées to come are listed with their dates)
+     */
+    public function findPast() : Query
+    {
+        return $this->findAll()->where('e.date < CURDATE()');
+    }
+
+    /**
+     * How many dancers signed up to each event from today on
+     * @return int[] event id => count
+     */
+    public function countUpcomingParticipants() : array
+    {
+        $counts = [];
+        foreach ($this->findAll()->where('e.date >= CURDATE()')->fetchAll() as $event) {
+            $counts[$event->id] = (int) $event->participantsCount;
+        }
+        return $counts;
+    }
+
     public function countByEvent(int $maxResults)
     {
         $queryResults = $this->makeQuery()

@@ -71,7 +71,8 @@ class CrudAction
         if ($request->getMethod() === 'DELETE') {
             return $this->delete($request);
         }
-        if (substr((string) $request->getUri(), -3) === 'new') {
+        // The path, not the whole URI: a query string can follow it (/admin/events/new?date=…)
+        if (substr($request->getUri()->getPath(), -3) === 'new') {
             return $this->create($request);
         }
         if ($request->getAttribute('id')) {
