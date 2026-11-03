@@ -1952,6 +1952,27 @@ table tbody tr td .input-field {
     margin-top: 8px;
 }
 
+.events-settings .events-settings-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 16px 0 0;
+}
+
+/* A day to choose, lined up with the fields beside it (Materialize's labels sit above their field) */
+.events-settings-select {
+    margin-top: 1rem;
+    margin-bottom: 8px;
+}
+
+.events-settings-select label {
+    display: block;
+    font-size: 0.8rem;
+}
+
+.events-settings-select select {
+    height: 3rem;
+}
+
 .event-button .text {
     font-size: 24px;
     line-height: 28px;

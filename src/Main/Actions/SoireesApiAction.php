@@ -32,14 +32,14 @@ class SoireesApiAction
             // Offer them after answering when the next soirée is: the assistant sets them up only if the person says yes
             'suggestions' => $next ? $this->calendar->toSuggestions($next) : [],
             'registration' => [
-                'about' => 'Seule la prochaine soirée peut avoir ses inscriptions ouvertes. Elles ouvrent '
-                    . $this->calendar->getRegistrationDays() . ' jours avant à minuit (pas avant la fin de la soirée précédente) '
-                    . 'et ferment au début de la soirée. On paie à l\'entrée, inscrit ou non.',
+                'about' => 'Seule la prochaine soirée peut avoir ses inscriptions ouvertes : '
+                    . $this->calendar->getRegistrationRule() . ' (jamais avant la fin de la soirée précédente). '
+                    . 'registration.opens et registration.closes donnent les heures exactes. On paie à l\'entrée, inscrit ou non.',
                 'statuses' => [
                     Calendar::REGISTRATION_OPEN => 'ouvertes : le formulaire de /event est là',
                     Calendar::REGISTRATION_UPCOMING => 'pas encore ouvertes : elles ouvrent à registration.opens',
                     Calendar::REGISTRATION_PENDING => 'pas encore ouvertes : la date est passée, l\'équipe doit encore publier la soirée',
-                    Calendar::REGISTRATION_CLOSED => 'fermées : fermées par l\'équipe, ou la soirée a commencé',
+                    Calendar::REGISTRATION_CLOSED => 'fermées : fermées par l\'équipe, ou registration.closes est passé',
                     Calendar::REGISTRATION_CANCELLED => 'la soirée est annulée',
                 ],
                 'form' => [

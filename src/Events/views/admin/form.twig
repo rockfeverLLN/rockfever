@@ -5,16 +5,16 @@
         </div>
         <div class="col s12 m6">
             {{ field('date', item.date, 'Date de l\'événement', {type: 'date'}) }}
-            {#- When sign-ups open, said as on the site (src/Main/views/registration.twig); www/js/script.js says it again
-                when the date changes #}
+            {#- When sign-ups open and close, said as on the site (src/Main/views/registration.twig); www/js/script.js says
+                it again when the date or the times change #}
             <span class="helper-text" id="date-registration" data-ends="{{ soireeEnds|default({})|json_encode }}"
-                  data-days="{{ registrationDays }}" aria-live="polite">
-                {%- if registrationOpens|default(null) is null -%}
-                    Inscriptions sur le site {{ registrationDays }} jours avant, à minuit, jusqu’au début de la soirée.
+                  data-window="{{ registrationWindow|json_encode }}" aria-live="polite">
+                {%- if registrationOpens|default(null) is null or registrationUntil is null -%}
+                    Inscriptions sur le site {{ registrationRule }}.
                 {%- elseif registrationOpens|date('U') > 'now'|date('U') -%}
-                    Inscriptions sur le site dès le {{ registrationOpens|dayLabel }}{% if registrationOpens|date('H:i', false) != '00:00' %} à&nbsp;{{ registrationOpens|date('H:i', false)|replace({':': 'h'}) }}{% endif %}, jusqu’au début de la soirée.
+                    Inscriptions sur le site dès le {{ registrationOpens|dayTimeLabel }}, {{ registrationUntil }}.
                 {%- else -%}
-                    Inscriptions sur le site dès l’enregistrement de l’événement, jusqu’au début de la soirée.
+                    Inscriptions sur le site dès l’enregistrement de l’événement, {{ registrationUntil }}.
                 {%- endif -%}
             </span>
         </div>

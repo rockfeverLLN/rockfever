@@ -5,7 +5,7 @@
         <h1>Événements</h1>
         {% include '@events/admin/tabs.twig' with {current: 'admin.events.index'} %}
 
-        {#- The usual times, place, prices and sign-up opening: every page, calendar and new event takes them from here
+        {#- The usual times, place, prices and sign-up window: every page, calendar and new event takes them from here
             (App\Main\Settings). Only admins change them (www/index.php) #}
         {%- set s = settings|map(setting => setting.value) %}
         <details class="events-settings">
@@ -15,20 +15,39 @@
                     · valse {{ s.SOIREE_WALTZ_TIME|replace({':': 'h'}) }}, rock {{ s.SOIREE_ROCK_TIME|replace({':': 'h'}) }},
                     fin {{ s.SOIREE_END_TIME|replace({':': 'h'}) }} · {{ s.SOIREE_PLACE }}
                     · {{ s.PRICE_ONLINE }}&nbsp;€ inscrit, {{ s.PRICE_DOOR }}&nbsp;€ sur place
-                    · inscriptions {{ s.REGISTRATION_DAYS }}&nbsp;jours avant
+                    · inscriptions {{ registrationRule }}
                 </span>
             </summary>
             {% if isAdmin() %}
                 <form action="{{ path('admin.events.settings') }}" method="post" class="row">
+                    {#- A titled row each: the times, the place, the prices, the sign-up window. The titles, full width, also
+                        keep a field with a helper text from pushing the next row aside #}
+                    {%- set titles = {SOIREE_WALTZ_TIME: 'Horaire', SOIREE_PLACE: 'Lieu', PRICE_ONLINE: 'Prix', REGISTRATION_DAYS: 'Inscriptions sur le site'} %}
                     {% for name, setting in settings %}
-                        <div class="col s12 {{ setting.type == 'string' ? 'm6' : 'm4' }}">
-                            {%- if setting.type == 'time' %}
+                        {% if titles[name] is defined %}
+                            <div class="col s12"><h2 class="events-settings-title">{{ titles[name] }}</h2></div>
+                        {% endif %}
+                        <div class="col s12 {{ name starts with 'REGISTRATION' ? 'm6 l3' : (setting.type == 'string' or name starts with 'PRICE' ? 'm6' : 'm4') }}">
+                            {%- if setting.type == 'days' %}
+                                {#- The browser's own select: Materialize's needs its script #}
+                                <div class="events-settings-select">
+                                    <label for="{{ name }}">{{ setting.label }}</label>
+                                    <select id="{{ name }}" name="{{ name }}" class="browser-default">
+                                        {% for value, choice in dayChoices %}
+                                            <option value="{{ value }}" {% if value == setting.value %}selected{% endif %}>{{ choice }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {%- elseif setting.type == 'time' %}
                                 {{ field(name, setting.value, setting.label, {type: 'time', attributes: {required: true}}) }}
+                            {%- elseif setting.type == 'optional_time' %}
+                                {{ field(name, setting.value, setting.label, {type: 'time'}) }}
                             {%- elseif setting.type == 'int' %}
                                 {{ field(name, setting.value, setting.label, {attributes: {required: true, inputmode: 'numeric', pattern: '[0-9]{1,3}'}}) }}
                             {%- else %}
                                 {{ field(name, setting.value, setting.label, {attributes: {required: true, maxlength: 250}}) }}
                             {%- endif %}
+                            {% if setting.help %}<span class="helper-text">{{ setting.help }}</span>{% endif %}
                         </div>
                     {% endfor %}
                     <div class="col s12">
@@ -84,9 +103,9 @@
                         <p style="margin-top: 0">
                             {% set registration = soiree.registration %}
                             {% if registration.status == 'open' %}
-                                Inscriptions ouvertes jusqu'au début de la soirée.
+                                Inscriptions ouvertes {{ registration.until }}.
                             {% elseif registration.status == 'upcoming' %}
-                                Les inscriptions s'ouvriront toutes seules le {{ registration.opens | dayLabel }}{{ event ? '' : ', si son événement est créé' }}.
+                                Les inscriptions s'ouvriront toutes seules le {{ registration.opens|dayTimeLabel }}{{ event ? '' : ', si son événement est créé' }}, {{ registration.until }}.
                             {% elseif registration.status == 'pending' %}
                                 Les inscriptions attendent son événement : crée-le pour les ouvrir.
                             {% elseif registration.status == 'cancelled' %}

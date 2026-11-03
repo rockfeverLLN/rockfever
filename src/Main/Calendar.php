@@ -58,9 +58,13 @@ class Calendar
     /** @var array{online: int, door: int} */
     private array $prices;
     private int $registrationDays;
+    private string $openTime;
+    private int $closeDays;
+    // Empty: sign-ups close when the soirée starts
+    private string $closeTime;
 
     /**
-     * The usual times, place, prices and sign-up opening: the settings of /admin/events (App\Main\Settings)
+     * The usual times, place, prices and sign-up window: the settings of /admin/events (App\Main\Settings)
      */
     public function __construct(private SoireeTable $soirees, private EventTable $events, Settings $settings)
     {
@@ -71,6 +75,9 @@ class Calendar
         $this->address = $settings->get('SOIREE_ADDRESS');
         $this->prices = ['online' => $settings->getInt('PRICE_ONLINE'), 'door' => $settings->getInt('PRICE_DOOR')];
         $this->registrationDays = $settings->getInt('REGISTRATION_DAYS');
+        $this->openTime = $settings->get('REGISTRATION_OPEN_TIME');
+        $this->closeDays = $settings->getInt('REGISTRATION_CLOSE_DAYS');
+        $this->closeTime = $settings->get('REGISTRATION_CLOSE_TIME');
     }
 
     /**
@@ -137,7 +144,7 @@ class Calendar
      */
     public function getRegistrationOpening(string $day) : \DateTimeImmutable
     {
-        $opens = Event::registrationOpeningFor($day, $this->registrationDays);
+        $opens = $this->opening($day);
         foreach ($this->all() as $soiree) {
             if ($soiree['date'] >= $day) {
                 break;
@@ -188,6 +195,14 @@ class Calendar
             }
         }
         return null;
+    }
+
+    /**
+     * "mercredi" for 3 (0 is Sunday, as date('w'))
+     */
+    public static function weekdayName(int $weekday) : string
+    {
+        return mb_strtolower(self::WEEKDAYS[$weekday]);
     }
 
     /**
@@ -247,11 +262,104 @@ class Calendar
     }
 
     /**
-     * How many days before a soirée its sign-up opens, at midnight
+     * The sign-up window of the settings, for the event form's script: ['days' => 7, 'openTime' => '00:00',
+     * 'closeDays' => 0, 'closeTime' => ''] (empty: when the soirée starts)
+     * @return array{days: int, openTime: string, closeDays: int, closeTime: string}
      */
-    public function getRegistrationDays() : int
+    public function getRegistrationWindow() : array
     {
-        return $this->registrationDays;
+        return [
+            'days' => $this->registrationDays,
+            'openTime' => $this->openTime,
+            'closeDays' => $this->closeDays,
+            'closeTime' => $this->closeTime,
+        ];
+    }
+
+    /**
+     * The weekday of the soirées (0 for Sunday), from the next one, or the last one: "7 jours avant" is then "le
+     * mercredi" in the settings. Null without any soirée
+     */
+    public function getUsualWeekday() : ?int
+    {
+        $soirees = array_values(array_filter($this->all(), fn (array $soiree) => !$soiree['cancelled']));
+        $next = array_values(array_filter($soirees, fn (array $soiree) => !$soiree['past']))[0] ?? end($soirees);
+        return $next ? (int) $next['start']->format('w') : null;
+    }
+
+    /**
+     * The sign-up window in words: "7 jours avant à minuit, jusqu’au début de la soirée"
+     */
+    public function getRegistrationRule() : string
+    {
+        $at = fn (string $time) => $time === '00:00' ? 'minuit' : self::hour($time);
+        $opens = match ($this->registrationDays) {
+            0 => 'le jour même',
+            1 => 'la veille',
+            default => $this->registrationDays . ' jours avant',
+        } . ' à ' . $at($this->openTime);
+        if ($this->closeTime === '' && $this->closeDays === 0) {
+            return $opens . ', jusqu’au début de la soirée';
+        }
+        return $opens . ', ' . match ($this->closeDays) {
+            0 => 'jusqu’au jour de la soirée',
+            1 => 'jusqu’à la veille',
+            default => 'jusqu’à ' . $this->closeDays . ' jours avant',
+        } . ' à ' . ($this->closeTime === '' ? 'l’heure du début' : $at($this->closeTime));
+    }
+
+    /**
+     * When sign-ups open for a soirée that day (Y-m-d), before the previous soirée's end is taken into account
+     */
+    private function opening(string $day) : \DateTimeImmutable
+    {
+        [$hours, $minutes] = array_map('intval', explode(':', $this->openTime));
+        return Event::registrationOpeningFor($day, $this->registrationDays)->setTime($hours, $minutes);
+    }
+
+    /**
+     * When sign-ups close for a soirée from $start to $end: the time of the settings that many days before, or when it
+     * starts; never after it's over
+     */
+    private function closing(\DateTimeImmutable $start, \DateTimeImmutable $end) : \DateTimeImmutable
+    {
+        $closes = $start->modify('-' . $this->closeDays . ' days');
+        if ($this->closeTime !== '') {
+            [$hours, $minutes] = array_map('intval', explode(':', $this->closeTime));
+            $closes = $closes->setTime($hours, $minutes);
+        }
+        return min($closes, $end);
+    }
+
+    /**
+     * Until when a soirée that day (Y-m-d), starting at that time (H:i), takes sign-ups, in words (until())
+     */
+    public function getRegistrationUntil(string $day, string $startTime) : string
+    {
+        [$start, $end] = $this->getTimes($day, $startTime);
+        return self::until($this->closing($start, $end), $start);
+    }
+
+    public function getEndTime() : string
+    {
+        return $this->end;
+    }
+
+    /**
+     * "jusqu’au début de la soirée", or "jusqu’au mardi 10 novembre à 18h"
+     */
+    public static function until(\DateTimeImmutable $closes, \DateTimeImmutable $start) : string
+    {
+        return $closes == $start ? 'jusqu’au début de la soirée' : 'jusqu’au ' . self::dayTimeLabel($closes);
+    }
+
+    /**
+     * "mercredi 4 novembre", "vendredi 6 novembre à 12h" (the time unless midnight)
+     */
+    public static function dayTimeLabel(\DateTimeInterface $date) : string
+    {
+        $time = $date->format('H:i');
+        return mb_strtolower(self::label($date)) . ($time === '00:00' ? '' : ' à ' . self::hour($time));
     }
 
     public function has(string $date) : bool
@@ -431,7 +539,7 @@ class Calendar
         } elseif ($registration['status'] === self::REGISTRATION_OPEN) {
             $suggestions[] = [
                 'type' => 'reminder',
-                'label' => 'Me rappeler de m’inscrire avant le début de la soirée',
+                'label' => 'Me rappeler de m’inscrire avant la fermeture des inscriptions',
                 'at' => $registration['closes']->modify('-1 day')->format('c'),
                 'then' => 'Proposer de s’inscrire sur ' . self::SITE . '/event avant ' . $registration['closes']->format('c') . '.',
             ];
@@ -473,15 +581,16 @@ class Calendar
             $address = null;
         }
 
-        // Sign-ups open the days of the settings before, but not before the previous soirée is over: only the next
-        // soirée can have them open. They close when it starts
-        $opens = Event::registrationOpeningFor($day, $this->registrationDays);
+        // Sign-ups open and close as the settings say, but don't open before the previous soirée is over: only the next
+        // soirée can have them open
+        $opens = $this->opening($day);
         if ($previousEnd !== null && $previousEnd > $opens) {
             $opens = $previousEnd;
         }
+        $closes = $this->closing($start, $end);
         if ($cancelled) {
             $status = self::REGISTRATION_CANCELLED;
-        } elseif (($event && !empty($event->closed)) || $now >= $start) {
+        } elseif (($event && !empty($event->closed)) || $now >= $closes) {
             $status = self::REGISTRATION_CLOSED;
         } elseif ($now < $opens) {
             $status = self::REGISTRATION_UPCOMING;
@@ -516,7 +625,13 @@ class Calendar
             'facebookLink' => $event?->facebookLink ?: null,
             'cancelled' => $cancelled,
             'past' => $past,
-            'registration' => ['status' => $status, 'opens' => $opens, 'closes' => $start],
+            'registration' => [
+                'status' => $status,
+                'opens' => $opens,
+                'closes' => $closes,
+                // "jusqu’au début de la soirée", or "jusqu’au mardi 10 novembre à 18h"
+                'until' => self::until($closes, $start),
+            ],
             'day' => $start->format('j'),
             'weekday' => self::WEEKDAYS[$start->format('w')],
             'month' => self::MONTHS[$start->format('n') - 1],

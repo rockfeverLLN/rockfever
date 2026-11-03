@@ -10,22 +10,29 @@ use App\Main\Table\ValueTable;
  */
 class Settings
 {
-    // name => label, type (time, string, int, email, url, html), default, group
+    // name => label, type (time, optional_time, string, int, days, email, url, html), default, group, help (optional).
+    // Short labels: a long one wraps over its field
     const DEFINITIONS = [
         'SOIREE_WALTZ_TIME' => ['Heure de la valse', 'time', '20:30', 'soirees'],
         'SOIREE_ROCK_TIME' => ['Heure du rock', 'time', '21:00', 'soirees'],
-        'SOIREE_END_TIME' => ['Heure de fin (le lendemain si avant le début)', 'time', '01:00', 'soirees'],
+        'SOIREE_END_TIME' => ['Heure de fin', 'time', '01:00', 'soirees', 'Le lendemain si avant le début.'],
         'SOIREE_PLACE' => ['Lieu', 'string', 'Hall Sainte-Barbe', 'soirees'],
         'SOIREE_ADDRESS' => ['Adresse', 'string', 'Place Sainte-Barbe 1, 1348 Louvain-la-Neuve', 'soirees'],
-        'PRICE_ONLINE' => ['Prix avec inscription sur le site (€)', 'int', '3', 'soirees'],
-        'PRICE_DOOR' => ['Prix sans inscription (€)', 'int', '4', 'soirees'],
-        'REGISTRATION_DAYS' => ['Ouverture des inscriptions (jours avant, à minuit)', 'int', '7', 'soirees'],
+        'PRICE_ONLINE' => ['Prix inscrit sur le site (€)', 'int', '3', 'soirees'],
+        'PRICE_DOOR' => ['Prix sur place (€)', 'int', '4', 'soirees'],
+        'REGISTRATION_DAYS' => ['Ouverture des inscriptions : jour', 'days', '7', 'soirees'],
+        'REGISTRATION_OPEN_TIME' => ['Ouverture : heure', 'time', '00:00', 'soirees', '00:00 : à minuit.'],
+        'REGISTRATION_CLOSE_DAYS' => ['Fermeture des inscriptions : jour', 'days', '0', 'soirees'],
+        'REGISTRATION_CLOSE_TIME' => ['Fermeture : heure', 'optional_time', '', 'soirees', 'Vide : au début de la soirée.'],
         'CONTACT_EMAIL' => ['Adresse qui reçoit les messages du formulaire de contact', 'email', '', 'site'],
         'FACEBOOK_URL' => ['Page Facebook', 'url', 'https://www.facebook.com/rockfeverlln', 'site'],
         'INSTAGRAM_URL' => ['Compte Instagram', 'url', 'https://www.instagram.com/rockfeverlln/', 'site'],
         'ROI' => ['Règlement d\'ordre intérieur', 'html', '', 'site'],
         'TERMS' => ['Conditions générales', 'html', '', 'site'],
     ];
+
+    // The farthest a sign-up can open or close before its soirée
+    const MAX_DAYS = 28;
 
     /**
      * @var array<string, string>|null the saved values, once read
@@ -61,9 +68,15 @@ class Settings
     public function group(string $group) : array
     {
         $settings = [];
-        foreach (self::DEFINITIONS as $name => [$label, $type, , $of]) {
+        foreach (self::DEFINITIONS as $name => $definition) {
+            [$label, $type, , $of] = $definition;
             if ($of === $group) {
-                $settings[$name] = ['label' => $label, 'type' => $type, 'value' => $this->get($name)];
+                $settings[$name] = [
+                    'label' => $label,
+                    'type' => $type,
+                    'value' => $this->get($name),
+                    'help' => $definition[4] ?? null,
+                ];
             }
         }
         return $settings;
@@ -89,7 +102,7 @@ class Settings
                 $errors[$name] = $label . ' : ' . $error;
                 continue;
             }
-            $clean[$name] = $type === 'int' ? (string) (int) $value : $value;
+            $clean[$name] = in_array($type, ['int', 'days'], true) ? (string) (int) $value : $value;
         }
         if ($errors) {
             return $errors;
@@ -105,7 +118,9 @@ class Settings
     {
         return match ($type) {
             'time' => preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $value) ? null : 'une heure comme 20:30',
+            'optional_time' => $value === '' || preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $value) ? null : 'une heure comme 18:00, ou vide',
             'int' => preg_match('/^\d{1,3}$/', $value) ? null : 'un nombre entier',
+            'days' => preg_match('/^\d{1,2}$/', $value) && (int) $value <= self::MAX_DAYS ? null : 'entre le jour même et ' . self::MAX_DAYS . ' jours avant',
             'email' => filter_var($value, FILTER_VALIDATE_EMAIL) ? null : 'une adresse e-mail',
             'url' => $value === '' || preg_match('#^https://#', $value) ? null : 'un lien qui commence par https://',
             'string' => $value !== '' && mb_strlen($value) <= 250 ? null : 'entre 1 et 250 caractères',

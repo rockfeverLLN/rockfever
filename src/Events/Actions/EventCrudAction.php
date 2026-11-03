@@ -66,7 +66,21 @@ class EventCrudAction extends CrudAction
         $soirees = array_values(array_filter($this->calendar->all(), fn (array $soiree) => !$soiree['past']));
         $participants = $this->events->countUpcomingParticipants();
         $settings = $this->settings->group('soirees');
-        return $this->renderer->render($this->viewPath . '/index', compact('soirees', 'participants', 'settings'));
+        $registrationRule = $this->calendar->getRegistrationRule();
+        // The sign-up days to choose from, named after the soirées' weekday: "7 jours avant · le mercredi"
+        $weekday = $this->calendar->getUsualWeekday();
+        $dayChoices = [];
+        foreach (range(0, Settings::MAX_DAYS) as $days) {
+            $dayChoices[(string) $days] = match ($days) {
+                0 => 'Le jour même',
+                1 => 'La veille',
+                default => $days . ' jours avant',
+            } . ($weekday === null ? '' : ' · le ' . Calendar::weekdayName(($weekday - $days % 7 + 7) % 7));
+        }
+        return $this->renderer->render(
+            $this->viewPath . '/index',
+            compact('soirees', 'participants', 'settings', 'registrationRule', 'dayChoices')
+        );
     }
 
     public function create(ServerRequestInterface $request)
@@ -137,8 +151,8 @@ class EventCrudAction extends CrudAction
     }
 
     /**
-     * When sign-ups open for the event's date, as the site will say it (src/Main/views/registration.twig), and the
-     * soirées' ends for the form to work it out again when the date changes (www/js/script.js)
+     * When sign-ups open and close for the event's date, as the site will say it (src/Main/views/registration.twig), and
+     * the settings and soirées' ends for the form to work it out again when the date or time changes (www/js/script.js)
      */
     protected function formParams(array $params) : array
     {
@@ -146,11 +160,18 @@ class EventCrudAction extends CrudAction
         if (preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $date, $m)) {
             $date = "$m[3]-$m[2]-$m[1]";
         }
-        $params['registrationOpens'] = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)
-            ? $this->calendar->getRegistrationOpening($date)
+        $hasDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1;
+        $params['registrationOpens'] = $hasDate ? $this->calendar->getRegistrationOpening($date) : null;
+        // The waltz starts the soirée (or the rock, without one), at the usual time unless the event says otherwise
+        $start = substr((string) ($params['item']->waltzTime ?: $params['item']->rockTime ?: ''), 0, 5)
+            ?: $this->settings->get('SOIREE_WALTZ_TIME');
+        $params['registrationUntil'] = $hasDate && preg_match('/^\d{2}:\d{2}$/', $start)
+            ? $this->calendar->getRegistrationUntil($date, $start)
             : null;
+        $params['registrationRule'] = $this->calendar->getRegistrationRule();
+        $params['registrationWindow'] = $this->calendar->getRegistrationWindow()
+            + ['startTime' => $this->settings->get('SOIREE_WALTZ_TIME'), 'endTime' => $this->calendar->getEndTime()];
         $params['soireeEnds'] = $this->calendar->getEnds();
-        $params['registrationDays'] = $this->calendar->getRegistrationDays();
         $params['usualPlace'] = $this->calendar->getPlace();
         return $params;
     }

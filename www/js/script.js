@@ -544,42 +544,72 @@
         facebookPost.addEventListener('change', fillFromFacebook);
     }
 
-    // Event form: when sign-ups open for the date picked, as Calendar::getRegistrationOpening() works it out (the
-    // REGISTRATION_DAYS before at midnight, not before the soirée before it is over). Every time is Brussels' wall
-    // clock as text (Y-m-dTH:i), so they compare as strings whatever the admin's timezone
+    // Event form: when sign-ups open and close for the date and times picked, as App\Main\Calendar works it out from the
+    // settings (data-window): opening that many days before at its time, not before the soirée before it is over;
+    // closing at its time that many days before, or when the soirée starts, never after it ends. Every time is
+    // Brussels' wall clock as text (Y-m-dTH:i), so they compare as strings whatever the admin's timezone
     var eventDate = document.getElementById('date');
     var registrationHint = document.getElementById('date-registration');
     if (eventDate && registrationHint) {
         var weekdays = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
         var months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
         var ends = JSON.parse(registrationHint.dataset.ends || '{}');
-        var registrationDays = parseInt(registrationHint.dataset.days, 10);
+        var registrationWindow = JSON.parse(registrationHint.dataset.window || '{}');
         var pad = function (number) {
             return (number < 10 ? '0' : '') + number;
         };
-        eventDate.addEventListener('change', function () {
-            var parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(eventDate.value);
-            if (!parts) {
+        // The day (Y-m-d) that many days before
+        var daysBefore = function (day, days) {
+            var date = new Date(Date.UTC(+day.slice(0, 4), day.slice(5, 7) - 1, day.slice(8, 10) - days));
+            return date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1) + '-' + pad(date.getUTCDate());
+        };
+        // "mercredi 4 novembre", "vendredi 6 novembre à 12h", as Calendar::dayTimeLabel() (Y-m-dTH:i)
+        var dayLabel = function (moment) {
+            var date = new Date(Date.UTC(+moment.slice(0, 4), moment.slice(5, 7) - 1, +moment.slice(8, 10)));
+            var hours = moment.slice(11, 16).split(':');
+            return weekdays[date.getUTCDay()] + ' ' + (date.getUTCDate() === 1 ? '1er' : date.getUTCDate()) + ' '
+                + months[date.getUTCMonth()]
+                + (moment.slice(11, 16) === '00:00' ? '' : ' à\u00a0' + parseInt(hours[0], 10) + 'h' + (hours[1] === '00' ? '' : hours[1]));
+        };
+        var timeOf = function (id) {
+            var field = document.getElementById(id);
+            return field && /^\d{2}:\d{2}/.test(field.value) ? field.value.slice(0, 5) : '';
+        };
+        var sayRegistration = function () {
+            var day = eventDate.value;
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
                 return;
             }
-            var day = new Date(Date.UTC(+parts[1], parts[2] - 1, parts[3] - registrationDays));
-            var opens = day.getUTCFullYear() + '-' + pad(day.getUTCMonth() + 1) + '-' + pad(day.getUTCDate()) + 'T00:00';
+            var opens = daysBefore(day, registrationWindow.days) + 'T' + registrationWindow.openTime;
             Object.keys(ends).forEach(function (soiree) {
                 var end = ends[soiree].slice(0, 16);
-                if (soiree < eventDate.value && end > opens) {
+                if (soiree < day && end > opens) {
                     opens = end;
                 }
             });
+            var start = day + 'T' + (timeOf('waltz_time') || timeOf('rock_time') || registrationWindow.startTime);
+            var end = day + 'T' + registrationWindow.endTime;
+            if (end <= start) {
+                end = daysBefore(day, -1) + 'T' + registrationWindow.endTime;
+            }
+            var closes = daysBefore(day, registrationWindow.closeDays) + 'T'
+                + (registrationWindow.closeTime || start.slice(11, 16));
+            if (closes > end) {
+                closes = end;
+            }
+            var until = closes === start ? 'jusqu’au début de la soirée' : 'jusqu’au ' + dayLabel(closes);
             var now = new Date().toLocaleString('sv-SE', {timeZone: 'Europe/Brussels'}).replace(' ', 'T').slice(0, 16);
             if (opens <= now) {
-                registrationHint.textContent = 'Inscriptions sur le site dès l’enregistrement de l’événement, jusqu’au début de la soirée.';
+                registrationHint.textContent = 'Inscriptions sur le site dès l’enregistrement de l’événement, ' + until + '.';
                 return;
             }
-            var date = new Date(Date.UTC(+opens.slice(0, 4), opens.slice(5, 7) - 1, +opens.slice(8, 10)));
-            var time = opens.slice(11, 16);
-            registrationHint.textContent = 'Inscriptions sur le site dès le ' + weekdays[date.getUTCDay()] + ' '
-                + (date.getUTCDate() === 1 ? '1er' : date.getUTCDate()) + ' ' + months[date.getUTCMonth()]
-                + (time !== '00:00' ? ' à ' + time.replace(':', 'h') : '') + ', jusqu’au début de la soirée.';
+            registrationHint.textContent = 'Inscriptions sur le site dès le ' + dayLabel(opens) + ', ' + until + '.';
+        };
+        ['date', 'waltz_time', 'rock_time'].forEach(function (id) {
+            var field = document.getElementById(id);
+            if (field) {
+                field.addEventListener('change', sayRegistration);
+            }
         });
     }
 

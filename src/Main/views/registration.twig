@@ -8,7 +8,7 @@
     {% if link|default(false) %}<a href="{{ path('event') }}">inscris-toi</a>{% else %}inscris-toi{% endif %}
     pour payer {{ soiree.prices.online }}&nbsp;€ au lieu de {{ soiree.prices.door }}&nbsp;€ à l’entrée.
 {%- elseif registration.status == 'upcoming' -%}
-    Inscriptions sur le site dès le {{ opens|dayLabel }}{% if opens|date('H:i', false) != '00:00' %} à&nbsp;{{ opens|date('H:i', false)|replace({':': 'h'}) }}{% endif %}, jusqu’au début de la soirée.
+    Inscriptions sur le site dès le {{ opens|dayTimeLabel }}, {{ registration.until }}.
 {%- elseif registration.status == 'pending' -%}
     Les inscriptions sur le site ouvrent très bientôt.
 {%- elseif registration.status == 'cancelled' -%}

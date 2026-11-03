@@ -14,7 +14,7 @@
 {% block body %}
 
     {#- The next soirée (Calendar::getNext): its sign-up opens on its own the days of the settings before, once its event
-        exists in the admin, can be closed there, and closes when it starts. The form is only there while it's open #}
+        exists in the admin, can be closed there, and closes as the settings say (registration.until). The form is only there while it's open #}
     {%- set status = soiree.registration.status %}
     {%- set open = status == 'open' %}
     <div class="parallax-container form-parallax-container{{ open ? '' : ' form-parallax-closed' }}">
@@ -30,7 +30,7 @@
                 <p class="call-to-action" id="inscriptions" data-registration-status="{{ status }}">
                     {% if open %}
                         Inscris-toi à la soirée du {{ soiree.label|lower }} et paie {{ soiree.prices.online }}&nbsp;€ au lieu de {{ soiree.prices.door }}&nbsp;€ à l’entrée&nbsp;:
-                        <br><small>Jusqu’au début de la soirée, à&nbsp;{{ soiree.registration.closes|date('H:i', false)|replace({':': 'h'}) }}. Il suffit de ton prénom et de ton nom.</small>
+                        <br><small>{{ soiree.registration.until|capitalize }}{% if soiree.registration.closes == soiree.start %}, à&nbsp;{{ soiree.start|date('H:i', false)|replace({':': 'h'}) }}{% endif %}. Il suffit de ton prénom et de ton nom.</small>
                     {% elseif status == 'upcoming' or status == 'pending' %}
                         Les inscriptions ne sont pas encore ouvertes, mais voici la prochaine soirée&#8239;!
                         <br>{% include '@main/registration.twig' %}
