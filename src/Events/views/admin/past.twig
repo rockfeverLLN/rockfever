@@ -1,0 +1,42 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}Soirées passées - Rock Fever{% endblock %}
+{% block body %}
+    <div class="container">
+        <h1>Événements</h1>
+        {% include '@events/admin/tabs.twig' with {current: 'admin.events.past'} %}
+        {#- Links, not a select: no script needed, and back to the first page, which every count has #}
+        <p class="events-per-page">
+            Afficher
+            {% for n in choices %}
+                {% if n == perPage %}
+                    <strong aria-current="true">{{ n }}</strong>
+                {% else %}
+                    <a href="{{ path('admin.events.past') }}?n={{ n }}" aria-label="Afficher {{ n }} événements par page">{{ n }}</a>
+                {% endif %}
+            {% endfor %}
+            par page
+        </p>
+        <ul class="collapsible" style="box-shadow: none; border: none">
+            {% for event in items %}
+                <li>
+                    <div class="collapsible-header" style="position: relative;">
+                        <i class="material-icons" aria-hidden="true">event</i>{{ event.date | dateToText }}
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <strong>{{ event.title }}</strong>
+                        <div style="position: absolute; right:30px">
+                            <i class="material-icons left" aria-hidden="true">supervisor_account</i>
+                            <strong>{{ event.participantsCount }}</strong>
+                            participants
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        {% include '@events/admin/actions.twig' %}
+                    </div>
+                </li>
+            {% else %}
+                <li><p>Aucun événement passé.</p></li>
+            {% endfor %}
+        </ul>
+        {{ paginate(items, 'admin.events.past', {}, perPage == choices|first ? {} : {n: perPage}) }}
+    </div>
+{% endblock %}

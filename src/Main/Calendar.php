@@ -3,9 +3,10 @@ namespace App\Main;
 
 use App\Events\Entity\Event;
 use App\Events\Table\EventTable;
+use App\Events\Table\SoireeTable;
 
 /**
- * The soirées, each one put together in one place: its date in src/Main/config.php and its event in the admin,
+ * The soirées, each one put together in one place: its date and its event, both planned in the admin (/admin/events),
  * matched by day. The home page, /calendrier, /event and its sign-up form, the .ics files, the schema.org markup,
  * the sitemap and /api/events all read them from here, so they always give the same answer
  */
@@ -40,7 +41,7 @@ class Calendar
     private const WEEKDAYS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
     /**
-     * @var array[] the dates of src/Main/config.php, oldest first
+     * @var array[]|null the dates of the admin, oldest first, once read
      */
     private $dates;
 
@@ -50,7 +51,7 @@ class Calendar
     private $all;
 
     public function __construct(
-        array $soirees,
+        private SoireeTable $soirees,
         private string $start,
         private string $rock,
         private string $end,
@@ -59,12 +60,19 @@ class Calendar
         private array $prices,
         private EventTable $events
     ) {
-        usort($soirees, fn ($a, $b) => strcmp($a['date'], $b['date']));
-        $this->dates = $soirees;
     }
 
     /**
-     * Every soirée, oldest first: the dates of the config and the events of the admin (back to the first one)
+     * The dates planned in the admin, oldest first
+     * @return array[]
+     */
+    private function dates() : array
+    {
+        return $this->dates ??= $this->soirees->findDates();
+    }
+
+    /**
+     * Every soirée, oldest first: the dates and the events of the admin (back to the first one)
      * @return array[]
      */
     public function all(?\DateTimeImmutable $now = null) : array
@@ -72,7 +80,7 @@ class Calendar
         if ($now === null && $this->all !== null) {
             return $this->all;
         }
-        $listed = array_column($this->dates, null, 'date');
+        $listed = array_column($this->dates(), null, 'date');
         $events = [];
         foreach ($this->events->findAllByDay() as $event) {
             $events[$event->getDay()] ??= $event;
@@ -99,13 +107,13 @@ class Calendar
     }
 
     /**
-     * The soirées of /calendrier and the home page: the dates of the config, and the admin's events from the first of
-     * them on (or still to come)
+     * The soirées of /calendrier and the home page: the planned dates, and the admin's events from the first of them on
+     * (or still to come)
      * @return array[]
      */
     public function getSoirees(?\DateTimeImmutable $now = null) : array
     {
-        $first = $this->dates[0]['date'] ?? null;
+        $first = $this->dates()[0]['date'] ?? null;
         return array_values(array_filter(
             $this->all($now),
             fn (array $soiree) => $soiree['listed'] || !$soiree['past'] || ($first !== null && $soiree['date'] >= $first)
@@ -167,7 +175,8 @@ class Calendar
      */
     public function getNextSemester() : ?string
     {
-        $last = end($this->dates);
+        $dates = $this->dates();
+        $last = end($dates);
         if (!$last) {
             return null;
         }
@@ -385,7 +394,7 @@ class Calendar
     }
 
     /**
-     * One soirée, from its date in the config ($listed) and its event in the admin, either of which can be missing
+     * One soirée, from its planned date ($listed) and its event, either of which can be missing
      */
     private function build(
         string $day,
@@ -436,6 +445,8 @@ class Calendar
             'url' => self::SITE . '/calendrier/' . $day,
             'listed' => $listed !== null,
             'week' => $listed['week'] ?? null,
+            // Its row of the soirees table, for the admin
+            'soireeId' => $listed['id'] ?? null,
             'event' => $event,
             'title' => $title ?: null,
             'name' => $title ?: self::TITLE,
@@ -446,7 +457,7 @@ class Calendar
             'rockTime' => $rockTime,
             'place' => $place,
             'address' => $address,
-            // The prices of the config are those of the listed soirées and those to come; older events only have the
+            // The prices of the config are those of the planned soirées and those to come; older events only have the
             // admin's text
             'prices' => $listed !== null || !$past ? $this->prices : null,
             'priceText' => $event ? (trim((string) $event->price) ?: null) : null,

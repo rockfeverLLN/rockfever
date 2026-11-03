@@ -12,6 +12,7 @@ use App\Events\Actions\EventListAction;
 use App\Events\Actions\EventListPrintAction;
 use App\Events\Actions\EventOpenAction;
 use App\Events\Actions\FacebookPostAction;
+use App\Events\Actions\SoireeAction;
 use App\Events\Actions\EventStatisticsAction;
 use App\Events\Actions\StatisticsAction;
 use Framework\Module;
@@ -59,6 +60,32 @@ class EventsModule extends Module
                 $adminPrefix . '/events/open/{id:[0-9]+}',
                 EventOpenAction::class,
                 'admin.events.open'
+            );
+
+            // The events that are over; /admin/events lists the soirées to come
+            $router->get(
+                $adminPrefix . '/events/past',
+                EventCrudAction::class,
+                'admin.events.past'
+            );
+
+            // The planned dates of the soirées, before their event
+            $router->post(
+                $adminPrefix . '/events/dates/new',
+                SoireeAction::class,
+                'admin.events.dates.create'
+            );
+
+            $router->post(
+                $adminPrefix . '/events/dates/{id:[0-9]+}',
+                SoireeAction::class,
+                'admin.events.dates.edit'
+            );
+
+            $router->delete(
+                $adminPrefix . '/events/dates/{id:[0-9]+}',
+                SoireeAction::class,
+                'admin.events.dates.delete'
             );
 
             $router->crud(

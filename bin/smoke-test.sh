@@ -34,13 +34,13 @@ echo "Public pages"
 for path in / /calendrier /calendrier.ics /api/events /sitemap.xml /contact /music /legal /login /photos; do
     check "$path"
 done
-# The next soirée of src/Main/config.php, or home once they're all over
+# The next planned soirée, or home once they're all over
 check /event '200|302'
 check /calendrier/2000-01-01 404
 
 echo "Admin pages"
 curl -s -o /dev/null -b "$COOKIES" -c "$COOKIES" --data 'role=administrator&password=admin' "$BASE/login"
-for path in /admin /admin/events /admin/about /admin/about/gallery /admin/musics /admin/roles /admin/values /admin/photos; do
+for path in /admin /admin/events /admin/events/past /admin/about /admin/about/gallery /admin/musics /admin/roles /admin/values /admin/photos; do
     check "$path"
 done
 

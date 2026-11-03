@@ -3,97 +3,95 @@
 {% block body %}
     <div class="container">
         <h1>Événements</h1>
+        {% include '@events/admin/tabs.twig' with {current: 'admin.events.index'} %}
+
+        {#- A date first, without theme: /calendrier and the calendars show it right away. Its event (theme,
+            description, Facebook) comes later, with the sign-up, from "Créer l'événement" #}
+        <form action="{{ path('admin.events.dates.create') }}" method="post" class="row events-new-date">
+            <div class="col s12 m5">{{ field('date', '', 'Date de la soirée', {type: 'date', idSuffix: 'new', attributes: {required: true}}) }}</div>
+            <div class="col s8 m4">{{ field('week', '', 'Semaine (ex. S9)', {idSuffix: 'new', attributes: {maxlength: 10}}) }}</div>
+            <div class="col s4 m3"><button class="btn koamaru events-new-date-button">Ajouter</button></div>
+        </form>
+
         <ul class="collapsible" style="box-shadow: none; border: none">
-            {% for event in items %}
+            {% for soiree in soirees %}
+                {% set event = soiree.event %}
                 <li {% if loop.first %}class="active" {% endif %}>
                     <div class="collapsible-header" style="position: relative;">
-                        <i class="material-icons" aria-hidden="true">event</i>{{ event.date | dateToText }}
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <strong>{{ event.title }}</strong>
-                        <div style="position: absolute; right:30px">
-                            <i class="material-icons left" aria-hidden="true">supervisor_account</i>
-                            <strong>{{ event.participantsCount }}</strong>
-                            participants
-                        </div>
+                        <i class="material-icons" aria-hidden="true">event</i>{{ soiree.label }} {{ soiree.year }}
+                        {% if soiree.week %}<span class="grey-text">&nbsp;· {{ soiree.week }}</span>{% endif %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        {% if soiree.cancelled %}
+                            <strong class="red-text">Annulée</strong>
+                        {% elseif event %}
+                            <strong>{{ event.title }}</strong>
+                        {% else %}
+                            <em class="grey-text">Pas encore d'événement ni de thème</em>
+                        {% endif %}
+                        {% if event %}
+                            <div style="position: absolute; right:30px">
+                                <i class="material-icons left" aria-hidden="true">supervisor_account</i>
+                                <strong>{{ participants[event.id] | default(0) }}</strong>
+                                participants
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="collapsible-body">
-                            <div class="row" style="margin-bottom: 0">
-                                <div class="col s2">
-                                    <a href="{{ path(routePrefix ~ '.edit', {id: event.id}) }}"
-                                       class="green-text tooltipped event-button" data-position="top"
-                                       data-tooltip="Modifier l'événement" aria-label="Modifier l'événement {{ event.title }}"
-                                    >
-                                        <i class="mdi mdi-pencil" aria-hidden="true"></i>
-                                    </a>
+                        <p style="margin-top: 0">
+                            {% set registration = soiree.registration %}
+                            {% if registration.status == 'open' %}
+                                Inscriptions ouvertes jusqu'au début de la soirée.
+                            {% elseif registration.status == 'upcoming' %}
+                                Les inscriptions s'ouvriront toutes seules le {{ registration.opens | dayLabel }}{{ event ? '' : ', si son événement est créé' }}.
+                            {% elseif registration.status == 'pending' %}
+                                Les inscriptions attendent son événement : crée-le pour les ouvrir.
+                            {% elseif registration.status == 'cancelled' %}
+                                Soirée annulée : le site et les calendriers l'annoncent annulée.
+                            {% else %}
+                                Inscriptions fermées.
+                            {% endif %}
+                        </p>
+
+                        {% if event %}
+                            {% include '@events/admin/actions.twig' %}
+                        {% elseif not soiree.cancelled %}
+                            <a href="{{ path('admin.events.create') }}?date={{ soiree.date }}" class="btn koamaru">
+                                <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Créer l'événement (thème, description…)
+                            </a>
+                        {% endif %}
+
+                        {% if soiree.soireeId %}
+                            <form action="{{ path('admin.events.dates.edit', {id: soiree.soireeId}) }}" method="post" class="row events-date-form">
+                                <div class="col s6 m4">{{ field('week', soiree.week, 'Semaine', {idSuffix: soiree.soireeId, attributes: {maxlength: 10}}) }}</div>
+                                <div class="col s6 m4">
+                                    <p>
+                                        <label>
+                                            <input type="hidden" name="cancelled" value="0">
+                                            <input type="checkbox" name="cancelled" value="1" {{ soiree.cancelled ? 'checked' }}>
+                                            <span>Soirée annulée</span>
+                                        </label>
+                                    </p>
                                 </div>
-                                <div class="col s2">
-                                    {% if event.closed %}
-                                        <a href="{{ path(routePrefix ~ '.open', {id: event.id}) }}"
-                                           class="orange-text tooltipped event-button" data-position="top"
-                                           data-tooltip="Réouvrir les inscriptions" aria-label="Réouvrir les inscriptions de {{ event.title }}"
-                                        >
-                                            <i class="mdi mdi-lock" aria-hidden="true"></i>
-                                        </a>
-                                    {% else %}
-                                        <a href="{{ path(routePrefix ~ '.close', {id: event.id}) }}"
-                                           class="orange-text tooltipped event-button" data-position="top"
-                                           data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Clôturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
-                                           aria-label="{% if event.registrationUpcoming %}Garder fermées les inscriptions de {{ event.title }}, qui s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}{% else %}Clôturer les inscriptions de {{ event.title }} (vous serez redirigé vers la liste){% endif %}"
-                                        >
-                                            <i class="mdi mdi-lock-open" aria-hidden="true"></i>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                                <div class="col s2">
-                                    <a href="{{ path(routePrefix ~ '.participants', {id: event.id}) }}"
-                                       class="koamaru-text tooltipped event-button" data-position="top"
-                                       data-tooltip="Liste électronique" aria-label="Liste électronique de {{ event.title }}"
-                                    >
-                                        <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                <div class="col s2">
-                                    <a href="{{ path('admin.events.statistics', {id:event.id}) }}"
-                                       class="red-text text-darken-4 tooltipped event-button"
-                                       data-position="top" data-tooltip="Statistiques de l'événement" aria-label="Statistiques de {{ event.title }}"
-                                    >
-                                        <i class="mdi mdi-chart-bar" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                                <div class="col s2">
-                                    {% if event.facebookLink %}
-                                        <a href="{{ event.facebookLink }}"
-                                           class="blue-text text-darken-4 tooltipped event-button"
-                                           data-position="top" data-tooltip="Événement Facebook" target="_blank"
-                                           aria-label="Événement Facebook de {{ event.title }} (nouvel onglet)"
-                                        >
-                                            <i class="mdi mdi-facebook" aria-hidden="true"></i>
-                                        </a>
-                                    {% else %}
-                                        {#- No link to follow: not focusable, and said as unavailable #}
-                                        <span class="grey-text tooltipped event-button" data-position="top"
-                                              data-tooltip="Pas d'événement Facebook" role="img" aria-label="Pas d'événement Facebook"
-                                        >
-                                            <i class="mdi mdi-facebook" aria-hidden="true"></i>
-                                        </span>
-                                    {% endif %}
-                                </div>
-                                <div class="col s2">
-                                    <form style="display: inline" action="{{ path(routePrefix ~ '.delete',{id: event.id}) }}"
-                                          method="post" data-confirm="Etes-vous sûr de vouloir supprimer cet événement ?"
-                                    >
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement" aria-label="Supprimer l'événement {{ event.title }}">
-                                            <i class="mdi mdi-delete" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                                <div class="col s12 m4"><button class="btn-flat koamaru-text">Enregistrer</button></div>
+                            </form>
+                            <form action="{{ path('admin.events.dates.delete', {id: soiree.soireeId}) }}" method="post"
+                                  data-confirm="Supprimer cette date du calendrier ? Pour une soirée qui n'aura pas lieu, coche plutôt « Soirée annulée » : les calendriers qui l'ont l'annonceront annulée.">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn-flat red-text"><i class="mdi mdi-delete left" aria-hidden="true"></i>Supprimer la date</button>
+                            </form>
+                        {% else %}
+                            {#- An event created for a day without a planned date: the site shows it all the same #}
+                            <form action="{{ path('admin.events.dates.create') }}" method="post">
+                                <input type="hidden" name="date" value="{{ soiree.date }}">
+                                <button type="submit" class="btn-flat koamaru-text">Ajouter ce jour aux dates planifiées</button>
+                            </form>
+                        {% endif %}
                     </div>
                 </li>
+            {% else %}
+                <li><p>Aucune soirée à venir : ajoute les dates du prochain quadrimestre ci-dessus.</p></li>
             {% endfor %}
         </ul>
-        {{ paginate(items, routePrefix ~ '.index') }}
     </div>
 
     <div class="fixed-action-btn">

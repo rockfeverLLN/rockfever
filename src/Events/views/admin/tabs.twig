@@ -1,0 +1,8 @@
+{#- The two lists of /admin/events: the soirées to come (their dates, then their events) and the events that are over #}
+{#- Not a <nav>: Materialize paints those as its colored top bar #}
+<div class="events-tabs" role="navigation" aria-label="Soirées">
+    {% for route, label in {'admin.events.index': 'À venir', 'admin.events.past': 'Passées'} %}
+        <a href="{{ path(route) }}" class="{{ route == current ? 'btn koamaru' : 'btn-flat' }}"
+           {% if route == current %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+</div>

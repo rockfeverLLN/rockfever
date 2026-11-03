@@ -1,0 +1,74 @@
+{#- The buttons of an event, on both lists #}
+<div class="row" style="margin-bottom: 0">
+    <div class="col s2">
+        <a href="{{ path('admin.events.edit', {id: event.id}) }}"
+           class="green-text tooltipped event-button" data-position="top"
+           data-tooltip="Modifier l'événement" aria-label="Modifier l'événement {{ event.title }}"
+        >
+            <i class="mdi mdi-pencil" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="col s2">
+        {#- Forms, not links: the routes only take POST, which CsrfMiddleware checks #}
+        {% if event.closed %}
+            <form style="display: inline" action="{{ path('admin.events.open', {id: event.id}) }}" method="post">
+                <button type="submit" class="orange-text tooltipped event-button" data-position="top"
+                        data-tooltip="Réouvrir les inscriptions" aria-label="Réouvrir les inscriptions de {{ event.title }}">
+                    <i class="mdi mdi-lock" aria-hidden="true"></i>
+                </button>
+            </form>
+        {% else %}
+            <form style="display: inline" action="{{ path('admin.events.close', {id: event.id}) }}" method="post">
+                <button type="submit" class="orange-text tooltipped event-button" data-position="top"
+                        data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Clôturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
+                        aria-label="{% if event.registrationUpcoming %}Garder fermées les inscriptions de {{ event.title }}, qui s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}{% else %}Clôturer les inscriptions de {{ event.title }} (vous serez redirigé vers la liste){% endif %}">
+                    <i class="mdi mdi-lock-open" aria-hidden="true"></i>
+                </button>
+            </form>
+        {% endif %}
+    </div>
+    <div class="col s2">
+        <a href="{{ path('admin.events.participants', {id: event.id}) }}"
+           class="koamaru-text tooltipped event-button" data-position="top"
+           data-tooltip="Liste électronique" aria-label="Liste électronique de {{ event.title }}"
+        >
+            <i class="mdi mdi-format-list-bulleted" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="col s2">
+        <a href="{{ path('admin.events.statistics', {id:event.id}) }}"
+           class="red-text text-darken-4 tooltipped event-button"
+           data-position="top" data-tooltip="Statistiques de l'événement" aria-label="Statistiques de {{ event.title }}"
+        >
+            <i class="mdi mdi-chart-bar" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="col s2">
+        {% if event.facebookLink %}
+            <a href="{{ event.facebookLink }}"
+               class="blue-text text-darken-4 tooltipped event-button"
+               data-position="top" data-tooltip="Événement Facebook" target="_blank"
+               aria-label="Événement Facebook de {{ event.title }} (nouvel onglet)"
+            >
+                <i class="mdi mdi-facebook" aria-hidden="true"></i>
+            </a>
+        {% else %}
+            {#- No link to follow: not focusable, and said as unavailable #}
+            <span class="grey-text tooltipped event-button" data-position="top"
+                  data-tooltip="Pas d'événement Facebook" role="img" aria-label="Pas d'événement Facebook"
+            >
+                <i class="mdi mdi-facebook" aria-hidden="true"></i>
+            </span>
+        {% endif %}
+    </div>
+    <div class="col s2">
+        <form style="display: inline" action="{{ path('admin.events.delete', {id: event.id}) }}"
+              method="post" data-confirm="Etes-vous sûr de vouloir supprimer cet événement ?"
+        >
+            <input type="hidden" name="_method" value="DELETE">
+            <button type="submit" class="red-text tooltipped event-button" data-position="top" data-tooltip="Supprimer l'événement" aria-label="Supprimer l'événement {{ event.title }}">
+                <i class="mdi mdi-delete" aria-hidden="true"></i>
+            </button>
+        </form>
+    </div>
+</div>
