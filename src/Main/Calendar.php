@@ -198,6 +198,14 @@ class Calendar
     }
 
     /**
+     * "mercredi" for 3 (0 is Sunday, as date('w'))
+     */
+    public static function weekdayName(int $weekday) : string
+    {
+        return mb_strtolower(self::WEEKDAYS[$weekday]);
+    }
+
+    /**
      * "Mercredi 11 novembre", "Mercredi 1er octobre"
      */
     public static function label(\DateTimeInterface $date) : string
@@ -266,6 +274,17 @@ class Calendar
             'closeDays' => $this->closeDays,
             'closeTime' => $this->closeTime,
         ];
+    }
+
+    /**
+     * The weekday of the soirées (0 for Sunday), from the next one, or the last one: "7 jours avant" is then "le
+     * mercredi" in the settings. Null without any soirée
+     */
+    public function getUsualWeekday() : ?int
+    {
+        $soirees = array_values(array_filter($this->all(), fn (array $soiree) => !$soiree['cancelled']));
+        $next = array_values(array_filter($soirees, fn (array $soiree) => !$soiree['past']))[0] ?? end($soirees);
+        return $next ? (int) $next['start']->format('w') : null;
     }
 
     /**

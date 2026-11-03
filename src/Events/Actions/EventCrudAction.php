@@ -67,9 +67,19 @@ class EventCrudAction extends CrudAction
         $participants = $this->events->countUpcomingParticipants();
         $settings = $this->settings->group('soirees');
         $registrationRule = $this->calendar->getRegistrationRule();
+        // The sign-up days to choose from, named after the soirées' weekday: "7 jours avant · le mercredi"
+        $weekday = $this->calendar->getUsualWeekday();
+        $dayChoices = [];
+        foreach (range(0, Settings::MAX_DAYS) as $days) {
+            $dayChoices[(string) $days] = match ($days) {
+                0 => 'Le jour même',
+                1 => 'La veille',
+                default => $days . ' jours avant',
+            } . ($weekday === null ? '' : ' · le ' . Calendar::weekdayName(($weekday - $days % 7 + 7) % 7));
+        }
         return $this->renderer->render(
             $this->viewPath . '/index',
-            compact('soirees', 'participants', 'settings', 'registrationRule')
+            compact('soirees', 'participants', 'settings', 'registrationRule', 'dayChoices')
         );
     }
 

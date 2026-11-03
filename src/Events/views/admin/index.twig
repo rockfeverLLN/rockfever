@@ -20,10 +20,25 @@
             </summary>
             {% if isAdmin() %}
                 <form action="{{ path('admin.events.settings') }}" method="post" class="row">
+                    {#- A titled row each: the times, the place, the prices, the sign-up window. The titles, full width, also
+                        keep a field with a helper text from pushing the next row aside #}
+                    {%- set titles = {SOIREE_WALTZ_TIME: 'Horaire', SOIREE_PLACE: 'Lieu', PRICE_ONLINE: 'Prix', REGISTRATION_DAYS: 'Inscriptions sur le site'} %}
                     {% for name, setting in settings %}
-                        {#- A row each: the times, the place, the prices, the sign-up window #}
-                        <div class="col s12 {{ name starts with 'REGISTRATION' ? 'm3' : (setting.type == 'string' or name starts with 'PRICE' ? 'm6' : 'm4') }}">
-                            {%- if setting.type == 'time' %}
+                        {% if titles[name] is defined %}
+                            <div class="col s12"><h2 class="events-settings-title">{{ titles[name] }}</h2></div>
+                        {% endif %}
+                        <div class="col s12 {{ name starts with 'REGISTRATION' ? 'm6 l3' : (setting.type == 'string' or name starts with 'PRICE' ? 'm6' : 'm4') }}">
+                            {%- if setting.type == 'days' %}
+                                {#- The browser's own select: Materialize's needs its script #}
+                                <div class="events-settings-select">
+                                    <label for="{{ name }}">{{ setting.label }}</label>
+                                    <select id="{{ name }}" name="{{ name }}" class="browser-default">
+                                        {% for value, choice in dayChoices %}
+                                            <option value="{{ value }}" {% if value == setting.value %}selected{% endif %}>{{ choice }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {%- elseif setting.type == 'time' %}
                                 {{ field(name, setting.value, setting.label, {type: 'time', attributes: {required: true}}) }}
                             {%- elseif setting.type == 'optional_time' %}
                                 {{ field(name, setting.value, setting.label, {type: 'time'}) }}
@@ -32,6 +47,7 @@
                             {%- else %}
                                 {{ field(name, setting.value, setting.label, {attributes: {required: true, maxlength: 250}}) }}
                             {%- endif %}
+                            {% if setting.help %}<span class="helper-text">{{ setting.help }}</span>{% endif %}
                         </div>
                     {% endfor %}
                     <div class="col s12">
