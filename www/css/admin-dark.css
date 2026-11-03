@@ -332,6 +332,30 @@ html[data-theme="dark"] .photos-admin-albums .meta {
     color: var(--admin-muted);
 }
 
+/* The bar above an album's photos stays at the top while scrolling: the card's colour, so the photos pass under it */
+html[data-theme="dark"] .photos-toolbar {
+    background-color: var(--admin-surface);
+}
+
+html[data-theme="dark"] .photos-toolbar .count,
+html[data-theme="dark"] .photos-describe-intro,
+html[data-theme="dark"] .photos-describe label {
+    color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .photos-describe-intro b,
+html[data-theme="dark"] .photos-describe-intro strong {
+    color: var(--admin-text);
+}
+
+html[data-theme="dark"] .photos-describe-status {
+    color: #81c784;
+}
+
+html[data-theme="dark"] .photos-describe-status.is-error {
+    color: #ff8a80;
+}
+
 /* The editor's frame while TinyMCE starts (it then draws its own dark skin, script.js) */
 html[data-theme="dark"] .tox-tinymce {
     border-color: var(--admin-line);
