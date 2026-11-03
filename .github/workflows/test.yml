@@ -71,6 +71,12 @@ jobs:
           site vendor/bin/phinx seed:run
       - name: Test
         run: bin/test.sh
+      # The cjxl the deploy would upload (bin/cjxl.version), tested as the site runs it
+      - name: Test the JPEG XL encoder
+        run: |
+          APT="sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o DPkg::Lock::Timeout=120"
+          command -v lzip > /dev/null || { timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lzip; }
+          bin/fetch-cjxl.sh
 
   # Dependabot's pull requests that passed go live. Merged here rather than with GitHub's auto-merge, which needs a
   # branch protection rule; and a merge made with this job's token doesn't start deploy.yml on its own, so it's
