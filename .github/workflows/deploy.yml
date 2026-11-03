@@ -79,7 +79,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/app" -w /app "php:${PHP_VERSION}-cli" \
             sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 -P$(nproc) php -l > /dev/null"
-      # The same checks as before a package update goes live (bin/auto-update.sh): a push that calls a method that
+      # The same checks as on every pull request (bin/test.sh): a push that calls a method that
       # doesn't exist or breaks a page stops here instead of going live
       - name: PHPStan
         run: |

@@ -1,0 +1,42 @@
+# Package updates, major versions included, within a day of their release. Dependabot opens a pull request for each;
+# .github/workflows/test.yml tests it on a copy of the site and, if it passes, merges and deploys it. One that fails
+# stays open with its test output, on the previous version, until a newer release or a change to the code.
+version: 2
+updates:
+  # The PHP packages, for the PHP version in composer.json's config.platform (the server's, in .ovhconfig)
+  - package-ecosystem: composer
+    directory: /
+    schedule:
+      interval: daily
+      # At night in Belgium, at a quiet minute
+      time: "04:17"
+      timezone: Europe/Brussels
+    # The packages composer.json requires and the ones they bring in (filp/whoops comes with middlewares/whoops)
+    allow:
+      - dependency-type: all
+    # composer.json changes only when a new version is outside its range: a minor release only updates composer.lock
+    versioning-strategy: increase-if-necessary
+    # Every minor and patch release in one pull request, each new major version in its own, so one that breaks the
+    # site doesn't hold back the others
+    groups:
+      composer:
+        update-types: [minor, patch]
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: Update
+
+  # The JavaScript libraries loaded from jsDelivr: TinyMCE and its French translation, clipboard.js, Masonry. Their
+  # versions are in package.json, which Framework\Twig\CdnExtension reads to build their URLs
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+      time: "04:17"
+      timezone: Europe/Brussels
+    versioning-strategy: increase
+    groups:
+      javascript:
+        update-types: [minor, patch]
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: Update

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Loads the main public and admin pages of a running site and fails if any of them answers an error.
-# Used by .github/workflows/deploy.yml before every upload, and by bin/auto-update.sh before package updates go live.
+# Used by .github/workflows/deploy.yml before every upload, and by bin/test.sh on every pull request.
 #
 # Expects a database filled by `composer migrate && composer seed` (the admin login comes from RolesSeeder).
 # Usage: bin/smoke-test.sh [base-url]   (default http://127.0.0.1:8000, as started by `composer serve`)

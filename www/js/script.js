@@ -552,7 +552,7 @@
         skin: document.documentElement.getAttribute('data-theme') === 'dark' ? 'oxide-dark' : 'oxide',
         content_css: document.documentElement.getAttribute('data-theme') === 'dark' ? ['/css/base.css', 'dark'] : '/css/base.css',
         language: 'fr_FR',
-        language_url: 'https://cdn.jsdelivr.net/npm/tinymce-i18n@26.10.26/langs7/fr_FR.js',
+        language_url: document.getElementById('tinymce-script').dataset.languageUrl,
         branding: false,
         promotion: false,
         plugins: 'image link table lists code',

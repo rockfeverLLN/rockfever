@@ -1,7 +1,7 @@
 // Opens the pages that use JavaScript in headless Chrome and fails if a script throws, logs an error, doesn't
 // load, or if a widget doesn't work. bin/smoke-test.sh only checks the HTML answers, this checks that the site's
 // own widgets (www/js/script.js, guests.js) and TinyMCE, clipboard.js and Masonry still work after an update.
-// Used by .github/workflows/update-dependencies.yml, with no npm packages: Node talks to Chrome over its
+// Used by bin/test.sh on every pull request, with no npm packages: Node talks to Chrome over its
 // DevTools protocol.
 //
 // Expects a database filled by `composer migrate && composer seed` (the admin login comes from RolesSeeder).

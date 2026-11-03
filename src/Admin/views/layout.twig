@@ -38,7 +38,9 @@
     {% block body %}{% endblock %}
 </main>
 
-<script nonce="{{ csp_nonce }}" src="https://cdn.jsdelivr.net/npm/tinymce@8.10.1/tinymce.min.js"></script>
+{#- script.js reads the French translation's URL here: www/js has no template to give it package.json's version #}
+<script nonce="{{ csp_nonce }}" src="{{ cdn('tinymce', 'tinymce.min.js') }}" id="tinymce-script"
+        data-language-url="{{ cdn('tinymce-i18n', 'langs7/fr_FR.js') }}"></script>
 {% block js %}{% endblock %}
 <script nonce="{{ csp_nonce }}" type="text/javascript" src="{{ asset('/js/script.js') }}"></script>
 </body>

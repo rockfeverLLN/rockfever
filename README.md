@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://rockfever.be"><img src="https://img.shields.io/badge/live-rockfever.be-072d55?style=flat-square" alt="Live site: rockfever.be"></a>
   <a href="https://github.com/rockfeverLLN/rockfever/actions/workflows/deploy.yml"><img src="https://github.com/rockfeverLLN/rockfever/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy to OVH"></a>
-  <a href="https://github.com/rockfeverLLN/rockfever/actions/workflows/update-dependencies.yml"><img src="https://github.com/rockfeverLLN/rockfever/actions/workflows/update-dependencies.yml/badge.svg?branch=main" alt="Package updates"></a>
+  <a href="https://github.com/rockfeverLLN/rockfever/actions/workflows/test.yml"><img src="https://github.com/rockfeverLLN/rockfever/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <br>
   <img src="https://img.shields.io/badge/PHP-8.5-777bb4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.5">
   <img src="https://img.shields.io/badge/Twig-3-bacf29?style=flat-square&logo=symfony&logoColor=white" alt="Twig 3">
@@ -148,7 +148,9 @@ The PHP version on OVH is set in [`.ovhconfig`](.ovhconfig).
 
 ## Package updates
 
-Updates install themselves within a day of their release, major versions included, with no one needing to do anything. Every night, [`.github/workflows/update-dependencies.yml`](.github/workflows/update-dependencies.yml) looks for new versions of the Composer packages (for the PHP version in `.ovhconfig`) and of the JavaScript libraries (`bin/update-js.sh`: TinyMCE, its French translation, clipboard.js and Masonry, loaded from jsDelivr; the site's own scripts and styles use no library, so there's no jQuery or Materialize to update). When there's one, `bin/auto-update.sh` tests it on a copy of the site before it goes live: PHP syntax, PHPStan, every main page answering (`bin/smoke-test.sh`) and their scripts working in Chrome (`bin/browser-test.mjs`: the side menu, dropdown, tooltips, collapsibles, modals, the date fields, the list at the door, TinyMCE, the gallery). Minor and patch releases are tested together, each major version on its own. What passes is committed and deployed; what fails stays on the previous version and is listed in an "Automatic package update failed" issue, then tried again when a newer version comes out. You can also start it by hand from the Actions tab.
+Updates install themselves within a day of their release, major versions included, with no one needing to do anything. Every night, Dependabot ([`.github/dependabot.yml`](.github/dependabot.yml)) looks for new versions of the Composer packages (for the PHP version in `composer.json`'s `config.platform`, the server's) and of the JavaScript libraries: TinyMCE, its French translation, clipboard.js and Masonry, loaded from jsDelivr at the versions in [`package.json`](package.json), which `cdn()` in the templates reads (nothing is installed with npm; the site's own scripts and styles use no library). Minor and patch releases come in one pull request per ecosystem, each major version in its own.
+
+Every pull request is tested on a copy of the site by [`.github/workflows/test.yml`](.github/workflows/test.yml) (`bin/test.sh`): PHP syntax, PHPStan, every main page answering (`bin/smoke-test.sh`) and their scripts working in Chrome (`bin/browser-test.mjs`: the side menu, dropdown, tooltips, collapsibles, modals, the date fields, the list at the door, TinyMCE, the gallery). A Dependabot pull request that passes is merged and deployed; one that fails stays open with its test output and the site stays on the previous version, until a newer release replaces it or the code is changed to work with it.
 
 To run the same checks locally: `composer migrate && composer seed`, `composer serve`, then in another terminal `bin/smoke-test.sh`, `node --experimental-websocket bin/browser-test.mjs` (Node 20; plain `node` from 22) and `composer analyse`.
 

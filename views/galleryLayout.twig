@@ -23,8 +23,8 @@
     {% endblock %}
 </main>
 
-<script nonce="{{ csp_nonce }}" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
-<script nonce="{{ csp_nonce }}" src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
+<script nonce="{{ csp_nonce }}" src="{{ cdn('clipboard', 'dist/clipboard.min.js') }}"></script>
+<script nonce="{{ csp_nonce }}" src="{{ cdn('masonry-layout', 'dist/masonry.pkgd.min.js') }}"></script>
 {#- script.js copies the URLs with clipboard.js and lays the images out with Masonry #}
 <script nonce="{{ csp_nonce }}" type="text/javascript" src="{{ asset('/js/script.js') }}"></script>
 </body>
