@@ -41,6 +41,10 @@ const PAGES = [
     // The browser's date and time pickers, with the event's values
     ['/admin/events/1', "/^\\d{4}-\\d{2}-\\d{2}$/.test(document.querySelector('input[type=date][name=date]').value)"
         + " && /^\\d{2}:\\d{2}$/.test(document.querySelector('input[type=time][name=waltz_time]').value)"],
+    // A new event says when its sign-ups open, again when its date changes (7 days before by default)
+    ['/admin/events/new', "(() => { const date = document.getElementById('date');"
+        + " date.value = '2030-01-16'; date.dispatchEvent(new Event('change'));"
+        + " return document.getElementById('date-registration').textContent.includes('dès le mercredi 9 janvier'); })()"],
     // The list and the numbers load, and the search filters the list
     ['/admin/events/list/1', "(() => {"
         + " const items = document.querySelectorAll('#guests-list .collection-item');"
@@ -54,10 +58,8 @@ const PAGES = [
         + " !!document.querySelector('.card-reveal.open'))"],
     ['/admin/about/1', "tinymce.get().length > 0 && tinymce.get()[0].initialized"
         + " && !!tinymce.get()[0].ui.registry.getAll().buttons.imageuploader"],
-    // TinyMCE in the modals, and a modal opens
-    ['/admin/values', "tinymce.get().length > 0 && tinymce.get().every(e => e.initialized)"
-        + " && (document.querySelector('dialog.modal[open]') || document.querySelector('.modal-trigger').click(),"
-        + " !!document.querySelector('dialog.modal[open]') && !!document.querySelector('.modal-overlay.open'))"],
+    // The settings page: TinyMCE on the R.O.I. and the conditions
+    ['/admin/values', "tinymce.get().length === 2 && tinymce.get().every(e => e.initialized)"],
     ['/admin/about/gallery', "new ClipboardJS('.to-clipboard') && !!Masonry.data(document.querySelector('.grid'))"],
 ];
 // Analytics can fail in a test run without the site being broken
