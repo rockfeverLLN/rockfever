@@ -1,0 +1,63 @@
+<div class="col s12">
+    <section class="dashboard-card dashboard-jxl" id="jxl-progress" data-url="{{ path('admin.jpeg-xl') }}">
+        <h2>Images en JPEG XL</h2>
+        <p class="dashboard-jxl-count"><b>{{ done }}</b> image{{ done > 1 ? 's' }} sur {{ total }}</p>
+        <div class="progress" role="progressbar" aria-label="Images en JPEG XL" aria-valuemin="0" aria-valuemax="100"
+             aria-valuenow="{{ percent }}">
+            <div class="determinate" style="width: {{ percent }}%"></div>
+        </div>
+        <p class="dashboard-empty" aria-live="polite">
+            {%- if done < total -%}
+                Conversion en cours, en arrière-plan : la page peut être fermée
+            {%- else -%}
+                Toutes les images sont converties
+            {%- endif -%}
+        </p>
+    </section>
+</div>
+<style>
+    .dashboard-jxl .progress { height: 10px; border-radius: 5px; margin: 4px 0 12px; }
+    .dashboard-jxl-count { margin: 0; }
+</style>
+<script nonce="{{ csp_nonce }}">
+    (function () {
+        // Asked again every few seconds: photos being uploaded add images, and each answer makes the server
+        // convert the missing ones for a while
+        var card = document.getElementById('jxl-progress');
+        var count = card.querySelector('.dashboard-jxl-count');
+        var bar = card.querySelector('.progress');
+        var fill = card.querySelector('.determinate');
+        var text = card.querySelector('.dashboard-empty');
+
+        function show(status) {
+            count.innerHTML = '';
+            var done = document.createElement('b');
+            done.textContent = status.done;
+            count.appendChild(done);
+            count.appendChild(document.createTextNode(' image' + (status.done > 1 ? 's' : '') + ' sur ' + status.total));
+            fill.style.width = status.percent + '%';
+            bar.setAttribute('aria-valuenow', status.percent);
+            text.textContent = status.done < status.total
+                ? 'Conversion en cours, en arrière-plan : la page peut être fermée'
+                : 'Toutes les images sont converties';
+        }
+
+        function poll() {
+            fetch(card.dataset.url, {headers: {'Accept': 'application/json'}, credentials: 'same-origin'})
+                .then(function (response) {
+                    return response.ok ? response.json() : null;
+                })
+                .then(function (status) {
+                    if (status) {
+                        show(status);
+                    }
+                    setTimeout(poll, status && status.done < status.total ? 3000 : 15000);
+                })
+                .catch(function () {
+                    setTimeout(poll, 15000);
+                });
+        }
+
+        setTimeout(poll, {{ done < total ? 0 : 15000 }});
+    })();
+</script>

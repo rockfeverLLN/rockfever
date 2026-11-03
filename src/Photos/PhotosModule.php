@@ -10,6 +10,7 @@ use App\Photos\Actions\AlbumShowAction;
 use App\Photos\Actions\AlbumZipAction;
 use App\Photos\Actions\DeletionRequestAction;
 use App\Photos\Actions\DeletionRequestDismissAction;
+use App\Photos\Actions\JxlProgressAction;
 use App\Photos\Actions\PhotoAdminAction;
 use App\Photos\Actions\PhotoDeleteAction;
 use App\Photos\Actions\PhotoDescriptionAction;
@@ -47,6 +48,8 @@ class PhotosModule extends Module
             $adminPrefix = $container->get('admin.prefix');
 
             $router->get($adminPrefix . '/photos', PhotoAdminAction::class, 'admin.photos.index');
+            // Outside /photos, so the photographers' login can't open it (PhotographerMiddleware)
+            $router->get($adminPrefix . '/jpeg-xl', JxlProgressAction::class, 'admin.jpeg-xl');
             $router->post($adminPrefix . '/photos/albums/new', AlbumCreateAction::class, 'admin.photos.album.create');
             $router->get($adminPrefix . '/photos/albums/{id:\d+}', AlbumAdminAction::class, 'admin.photos.album');
             $router->post($adminPrefix . '/photos/albums/{id:\d+}', AlbumAdminAction::class);
