@@ -64,10 +64,14 @@ class PhotoFileAction
         if (!is_file($file)) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Photo introuvable');
         }
-        // Browsers that can show JPEG XL get its copy when there is one. A download is always the photo as uploaded
-        $jxl = PhotoUpload::getJxlPath($file);
-        if (!$download && str_contains($request->getHeaderLine('Accept'), 'image/jxl') && is_file($jxl)) {
-            $file = $jxl;
+        // Browsers that can show JPEG XL get its copy when there is one: photos uploaded before the copies were made
+        // at upload get theirs the first time one of those browsers asks. A download is always the photo as uploaded
+        if (!$download && str_contains($request->getHeaderLine('Accept'), 'image/jxl')) {
+            $jxl = PhotoUpload::getJxlPath($file);
+            $this->upload->saveJxl($file);
+            if (is_file($jxl)) {
+                $file = $jxl;
+            }
         }
         $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         $headers = [

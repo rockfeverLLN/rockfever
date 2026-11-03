@@ -52,12 +52,21 @@ class Upload
             $file->moveTo($targetPath);
 
             $this->shrink($targetPath);
+            $this->clean($targetPath);
             $this->generateFormats($targetPath);
             $this->generateWidths($targetPath);
+            $this->generateJxl($targetPath);
 
             return pathinfo($targetPath)['basename'];
         }
         return null;
+    }
+
+    /**
+     * Changes the saved file before its copies are made from it
+     */
+    protected function clean(string $targetPath) : void
+    {
     }
 
     /**
@@ -165,6 +174,61 @@ class Upload
         } catch (\Throwable $e) {
             // Pages fall back to the original image
         }
+    }
+
+    /**
+     * Saves the JPEG XL copies of an image and of its smaller copies. Existing copies are kept
+     */
+    public function generateJxl(string $targetPath) : void
+    {
+        $this->saveJxl($targetPath);
+        foreach ($this->widths as $width) {
+            $this->saveJxl(self::getResizedPath($targetPath, $width));
+        }
+    }
+
+    /**
+     * Saves the JPEG XL copy of an image (see getJxlPath) if it has none: a JPEG repacked without loss, the same
+     * picture bit for bit and about 20% smaller, or a lossless PNG. Kept only when smaller than the image, or the
+     * browser would download more for the same picture. The server's PHP can't write JPEG XL, so this runs cjxl
+     */
+    public function saveJxl(string $path) : void
+    {
+        $options = ['jpg' => '--lossless_jpeg=1', 'jpeg' => '--lossless_jpeg=1', 'png' => '-d 0'];
+        $option = $options[strtolower(pathinfo($path, PATHINFO_EXTENSION))] ?? null;
+        $jxl = self::getJxlPath($path);
+        $cjxl = self::getCjxl();
+        if (!$option || !$cjxl || !is_file($path) || file_exists($jxl)) {
+            return;
+        }
+        // Written under another name first: www/.htaccess sends the copy as soon as it exists
+        $tmp = $jxl . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        // Without worker threads: the server refuses them (cjxl stops with "Resource temporarily unavailable")
+        exec(
+            escapeshellarg($cjxl) . ' ' . escapeshellarg($path) . ' ' . escapeshellarg($tmp) . " $option --num_threads=0 --quiet 2>&1",
+            $output,
+            $status
+        );
+        if ($status === 0 && is_file($tmp) && filesize($tmp) < filesize($path)) {
+            rename($tmp, $jxl);
+        } elseif (file_exists($tmp)) {
+            unlink($tmp);
+        }
+    }
+
+    /**
+     * libjxl's cjxl: on the server the one deploy.yml uploads to bin/cjxl, elsewhere the one installed, if any
+     */
+    private static function getCjxl() : ?string
+    {
+        static $cjxl = false;
+        if ($cjxl === false) {
+            $cjxl = dirname(__DIR__, 2) . '/bin/cjxl';
+            if (!is_executable($cjxl)) {
+                $cjxl = function_exists('exec') ? trim((string) @exec('command -v cjxl 2>/dev/null')) ?: null : null;
+            }
+        }
+        return $cjxl;
     }
 
     /**

@@ -51,7 +51,6 @@ class PhotoUpload extends Upload
             return null;
         }
         $path = $this->path . '/' . $filename;
-        $this->removeMetadata($path);
         [$width, $height] = getimagesize($path);
         return [$filename, $width, $height];
     }
@@ -67,9 +66,10 @@ class PhotoUpload extends Upload
 
     /**
      * Phones write where and when a photo was taken in it: saving it again through GD turns it upright and drops
-     * that. Photos larger than $maxSize were already saved again when scaled down
+     * that, before the copies are made (a JPEG XL copy keeps what's in the JPEG). Photos larger than $maxSize were
+     * already saved again when scaled down
      */
-    private function removeMetadata(string $path) : void
+    protected function clean(string $path) : void
     {
         $exif = function_exists('exif_read_data') ? @exif_read_data($path) : false;
         if (!$exif || !array_intersect_key($exif, ['Orientation' => 1, 'GPSLatitude' => 1, 'Make' => 1, 'DateTimeOriginal' => 1])) {
