@@ -1,4 +1,6 @@
-# Package updates, major versions included, within a day of their release. Dependabot opens a pull request for each;
+# Package updates, major versions included. Dependabot looks every night but offers a release only a few days after
+# it came out (its default cooldown, kept on purpose: a broken or hijacked release is usually withdrawn by then). It
+# opens a pull request for each;
 # .github/workflows/test.yml tests it on a copy of the site and, if it passes, merges and deploys it. One that fails
 # stays open with its test output, on the previous version, until a newer release or a change to the code.
 version: 2
