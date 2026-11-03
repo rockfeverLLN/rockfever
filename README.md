@@ -152,6 +152,8 @@ Updates install themselves within a day of their release, major versions include
 
 Every pull request is tested on a copy of the site by [`.github/workflows/test.yml`](.github/workflows/test.yml) (`bin/test.sh`): PHP syntax, PHPStan, every main page answering (`bin/smoke-test.sh`) and their scripts working in Chrome (`bin/browser-test.mjs`: the side menu, dropdown, tooltips, collapsibles, modals, the date fields, the list at the door, TinyMCE, the gallery). A Dependabot pull request that passes is merged and deployed; one that fails stays open with its test output and the site stays on the previous version, until a newer release replaces it or the code is changed to work with it.
 
+The JPEG XL encoder the server uses (`cjxl`, from libjxl's GitHub releases, which Dependabot can't follow) is pinned in [`bin/cjxl.version`](bin/cjxl.version). Every Monday, [`.github/workflows/update-cjxl.yml`](.github/workflows/update-cjxl.yml) raises it to libjxl's newest release, checked against the SHA-256 GitHub gives for the file, and deploys it once `bin/fetch-cjxl.sh` has tested that it makes JPEG XL copies the way the site does.
+
 To run the same checks locally: `composer migrate && composer seed`, `composer serve`, then in another terminal `bin/smoke-test.sh`, `node --experimental-websocket bin/browser-test.mjs` (Node 20; plain `node` from 22) and `composer analyse`.
 
 ## README screenshots
