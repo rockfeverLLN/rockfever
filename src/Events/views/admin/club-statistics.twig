@@ -1,0 +1,296 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}Statistiques - Rock Fever{% endblock %}
+
+{#- A percentage like "12 %", a dash when there's nothing to count #}
+{% macro percent(rate) %}{% if rate is null %}–{% else %}{{ rate|number_format(0, ',', ' ') }}&nbsp;%{% endif %}{% endmacro %}
+{% import _self as format %}
+
+{% block body %}
+    <div class="container club-stats">
+        <div class="club-stats-header">
+            <h1>Statistiques</h1>
+            <form method="get" action="{{ path('admin.statistics') }}" class="club-stats-season">
+                <label for="saison">Période</label>
+                <select id="saison" name="saison" class="browser-default">
+                    <option value="">Depuis le début</option>
+                    {% for year, label in seasons %}
+                        <option value="{{ year }}" {% if year == season %}selected{% endif %}>Saison {{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn koamaru">Afficher</button>
+            </form>
+        </div>
+
+        {% if totals.events == 0 %}
+            <section class="dashboard-card">
+                <p class="dashboard-empty">Pas encore de soirée passée sur cette période.</p>
+            </section>
+        {% else %}
+            <p class="club-stats-intro">
+                {{ totals.events }} soirée{{ totals.events > 1 ? 's' }} passée{{ totals.events > 1 ? 's' }}
+                {%- if season is not null %} pendant la saison {{ seasons[season] }}{% else %} depuis le début{% endif %}.
+                Un danseur est reconnu à son prénom et son nom.
+            </p>
+
+            <div class="row stat-grid">
+                <div class="col s6 l3">
+                    <div class="card card-statistics koamaru white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">groups</i>
+                        <span class="stat">{{ totals.average|number_format(0, ',', ' ') }}</span>
+                        <p>Présents en moyenne par soirée<br><small>{{ totals.attendances|number_format(0, ',', ' ') }} présences en tout</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics red white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">event_busy</i>
+                        <span class="stat">{{ format.percent(totals.noShowRate) }}</span>
+                        <p>De no-shows<br><small>{{ totals.noShows }} inscrits sur {{ totals.registered }} ne sont pas venus</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics stat-teal white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">replay</i>
+                        <span class="stat">{{ format.percent(totals.repeaterRate) }}</span>
+                        <p>Des danseurs sont venus plusieurs fois<br><small>{{ totals.repeaters }} sur {{ totals.dancers }} danseurs différents</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics green white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">person_add</i>
+                        <span class="stat">{{ totals.newcomers }}</span>
+                        <p>Nouveaux danseurs<br><small>{{ format.percent(totals.newcomerRate) }} des danseurs de la période</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics purple white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">favorite</i>
+                        <span class="stat">{{ format.percent(totals.newcomersBackRate) }}</span>
+                        <p>Des nouveaux sont revenus<br><small>au moins une fois, après leur première soirée</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics stat-indigo white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">loyalty</i>
+                        <span class="stat">{{ format.percent(totals.returningRate) }}</span>
+                        <p>Des présences viennent d'habitués<br><small>{{ totals.visitsPerDancer|number_format(1, ',', ' ') }} soirées par danseur en moyenne</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics orange white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">add</i>
+                        <span class="stat">{{ format.percent(totals.walkInRate) }}</span>
+                        <p>Sont venus sans s'inscrire<br><small>{{ totals.walkIns }} entrées à la porte, {{ totals.vip }} VIP</small></p>
+                    </div>
+                </div>
+                <div class="col s6 l3">
+                    <div class="card card-statistics stat-slate white-text">
+                        <i class="material-icons stat-back" aria-hidden="true">emoji_events</i>
+                        <span class="stat">{{ totals.record.came }}</span>
+                        <p>Record de présents<br><small>{{ totals.record.title|excerpt(30) }}, {{ totals.record.date|date('d/m/Y') }}</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="dashboard-card dashboard-chart">
+                <h2>Présences par soirée</h2>
+                <div class="club-stats-chart club-stats-chart-tall">
+                    <canvas id="eventsChart" aria-hidden="true"></canvas>
+                </div>
+                <p class="club-stats-note">
+                    Les barres : les nouveaux et les habitués présents. La ligne : la part des inscrits qui ne sont pas venus.
+                    Le tableau en bas de la page a les mêmes chiffres.
+                </p>
+            </section>
+
+            <div class="row club-stats-pair">
+                <div class="col s12 l6">
+                    <section class="dashboard-card dashboard-chart">
+                        <h2>Fidélité</h2>
+                        <div class="club-stats-chart">
+                            <canvas id="loyaltyChart" aria-hidden="true"></canvas>
+                        </div>
+                        <table class="sr-only">
+                            <caption>Nombre de danseurs selon le nombre de soirées où ils sont venus</caption>
+                            <thead><tr><th scope="col">Venus</th><th scope="col">Danseurs</th></tr></thead>
+                            <tbody>
+                            {% for bucket, amount in loyalty %}
+                                <tr><th scope="row">{{ bucket }}</th><td>{{ amount }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+                <div class="col s12 l6">
+                    <section class="dashboard-card dashboard-chart">
+                        <h2>Heures d'arrivée</h2>
+                        {% if arrivals.slots %}
+                            <p class="club-stats-note">
+                                La moitié des danseurs arrive avant <strong>{{ arrivals.median }}</strong>,
+                                le plus d'arrivées entre {{ arrivals.peak }} et le quart d'heure suivant.
+                            </p>
+                            <div class="club-stats-chart">
+                                <canvas id="arrivalsChart" aria-hidden="true"></canvas>
+                            </div>
+                            <table class="sr-only">
+                                <caption>Arrivées par quart d'heure</caption>
+                                <thead><tr><th scope="col">Heure</th><th scope="col">Arrivées</th></tr></thead>
+                                <tbody>
+                                {% for time, amount in arrivals.slots %}
+                                    <tr><th scope="row">{{ time }}</th><td>{{ amount }}</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="dashboard-empty">Pas d'heure d'arrivée enregistrée sur cette période.</p>
+                        {% endif %}
+                    </section>
+                </div>
+            </div>
+
+            <div class="row club-stats-pair">
+                <div class="col s12 l6">
+                    <section class="dashboard-card">
+                        <h2>Les plus fidèles</h2>
+                        {% if regulars %}
+                            <table class="dashboard-table">
+                                <thead><tr><th scope="col">Danseur</th><th scope="col" class="right-align">Soirées</th></tr></thead>
+                                <tbody>
+                                {% for person in regulars %}
+                                    <tr><td>{{ person.name }}</td><td class="right-align">{{ person.periodVisits }}</td></tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="dashboard-empty">Personne n'est encore venu deux fois.</p>
+                        {% endif %}
+                    </section>
+                </div>
+                <div class="col s12 l6">
+                    <section class="dashboard-card">
+                        <h2>Absences répétées</h2>
+                        {% if noShowers %}
+                            <table class="dashboard-table">
+                                <thead><tr><th scope="col">Danseur</th><th scope="col" class="right-align">Absences</th><th scope="col" class="right-align">Des inscriptions</th></tr></thead>
+                                <tbody>
+                                {% for person in noShowers %}
+                                    <tr>
+                                        <td>{{ person.name }}</td>
+                                        <td class="right-align">{{ person.periodNoShows }}</td>
+                                        <td class="right-align">{{ format.percent(person.noShowRate) }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p class="dashboard-empty">Personne ne s'est inscrit deux fois sans venir.</p>
+                        {% endif %}
+                    </section>
+                </div>
+            </div>
+
+            <section class="dashboard-card">
+                <h2>Soirée par soirée</h2>
+                <div class="club-stats-scroll">
+                    <table class="dashboard-table club-stats-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Soirée</th>
+                            <th scope="col" class="right-align">Inscrits</th>
+                            <th scope="col" class="right-align">Présents</th>
+                            <th scope="col" class="right-align">No-shows</th>
+                            <th scope="col" class="right-align">Sans inscription</th>
+                            <th scope="col" class="right-align">Nouveaux</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for event in events|reverse %}
+                            <tr>
+                                <td>{{ event.date|date('d/m/Y') }}</td>
+                                <td><a href="{{ path('admin.events.statistics', {id: event.id}) }}">{{ event.title }}</a></td>
+                                <td class="right-align">{{ event.registered }}</td>
+                                <td class="right-align">{{ event.came }}</td>
+                                <td class="right-align">{{ event.noShows }} <small>({{ format.percent(event.registered ? 100 * event.noShows / event.registered : null) }})</small></td>
+                                <td class="right-align">{{ event.walkIns }}</td>
+                                <td class="right-align">{{ event.newcomers }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block js %}
+    {% if totals.events > 0 %}
+    <script nonce="{{ csp_nonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+    <script nonce="{{ csp_nonce }}">
+        (function () {
+            var events = {{ events|map(e => {
+                label: e.date|date('d/m') ~ ' ' ~ e.title|excerpt(20),
+                newcomers: e.newcomers,
+                regulars: e.came - e.newcomers,
+                noShowRate: e.registered ? (100 * e.noShows / e.registered)|round : null
+            })|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP'))|raw }};
+            var loyalty = {{ loyalty|json_encode|raw }};
+            var arrivals = {{ arrivals.slots|json_encode|raw }};
+
+            // Text and grid in the colors of the admin's theme (admin-dark.css)
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                Chart.defaults.global.defaultFontColor = '#9aa7b4';
+                Chart.defaults.scale.gridLines.color = '#2d3640';
+                Chart.defaults.scale.gridLines.zeroLineColor = '#2d3640';
+            }
+            Chart.defaults.global.maintainAspectRatio = false;
+            var pluck = function (key) { return events.map(function (e) { return e[key]; }); };
+
+            new Chart(document.getElementById('eventsChart'), {
+                type: 'bar',
+                data: {
+                    labels: pluck('label'),
+                    datasets: [
+                        {type: 'line', label: 'No-shows (%)', data: pluck('noShowRate'), yAxisID: 'rate',
+                            borderColor: '#e5664a', backgroundColor: '#e5664a', fill: false, lineTension: 0.2, spanGaps: true},
+                        {label: 'Habitués', data: pluck('regulars'), backgroundColor: '#1d4f86', yAxisID: 'count'},
+                        {label: 'Nouveaux', data: pluck('newcomers'), backgroundColor: '#00897b', yAxisID: 'count'}
+                    ]
+                },
+                options: {
+                    tooltips: {mode: 'index', intersect: false},
+                    scales: {
+                        xAxes: [{stacked: true, ticks: {autoSkip: true, maxRotation: 60}}],
+                        yAxes: [
+                            {id: 'count', stacked: true, position: 'left', ticks: {beginAtZero: true},
+                                scaleLabel: {display: true, labelString: 'Présents'}},
+                            {id: 'rate', position: 'right', ticks: {beginAtZero: true, max: 100},
+                                gridLines: {drawOnChartArea: false}, scaleLabel: {display: true, labelString: 'No-shows (%)'}}
+                        ]
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('loyaltyChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(loyalty),
+                    datasets: [{label: 'Danseurs', data: Object.values(loyalty), backgroundColor: '#00897b'}]
+                },
+                options: {legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true, precision: 0}}]}}
+            });
+
+            if (document.getElementById('arrivalsChart')) {
+                new Chart(document.getElementById('arrivalsChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(arrivals),
+                        datasets: [{label: 'Arrivées', data: Object.values(arrivals), backgroundColor: '#1d4f86'}]
+                    },
+                    options: {legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true, precision: 0}}]}}
+                });
+            }
+        })();
+    </script>
+    {% endif %}
+{% endblock %}

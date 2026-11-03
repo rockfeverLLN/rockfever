@@ -13,6 +13,7 @@ use App\Events\Actions\EventListPrintAction;
 use App\Events\Actions\EventOpenAction;
 use App\Events\Actions\FacebookPostAction;
 use App\Events\Actions\EventStatisticsAction;
+use App\Events\Actions\StatisticsAction;
 use Framework\Module;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
@@ -70,6 +71,12 @@ class EventsModule extends Module
                 $adminPrefix . '/events/statistics/{id:[0-9]+}',
                 EventStatisticsAction::class,
                 'admin.events.statistics'
+            );
+
+            $router->get(
+                $adminPrefix . '/statistics',
+                StatisticsAction::class,
+                'admin.statistics'
             );
 
             $router->post(

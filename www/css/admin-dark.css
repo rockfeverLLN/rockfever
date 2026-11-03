@@ -285,6 +285,18 @@ html[data-theme="dark"] .dashboard-alert {
     color: var(--admin-text) !important;
 }
 
+/* The club's statistics (style.css, "The club's statistics") */
+html[data-theme="dark"] .club-stats-intro,
+html[data-theme="dark"] .club-stats-note {
+    color: var(--admin-muted);
+}
+
+html[data-theme="dark"] .club-stats-season select {
+    background-color: var(--admin-surface-2);
+    border-color: var(--admin-line);
+    color: var(--admin-text);
+}
+
 /* Statistics cards on the event pages */
 html[data-theme="dark"] .card-statistics .material-icons.stat-back {
     opacity: .15;

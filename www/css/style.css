@@ -1282,6 +1282,100 @@ button.dashboard-pill {
     color: #52606d;
 }
 
+/* The club's statistics (src/Events/views/admin/club-statistics.twig): the dashboard's cards and the tiles of a soirée's statistics */
+.club-stats-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.club-stats-season {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.club-stats-season label {
+    font-size: 15px;
+    color: inherit;
+}
+
+.club-stats-season select {
+    width: auto;
+    height: 36px;
+    border-radius: 6px;
+}
+
+.club-stats-intro,
+.club-stats-note {
+    color: #52606d;
+}
+
+.club-stats-note {
+    margin: 12px 0 0 0;
+    font-size: 14px;
+}
+
+/* Tile colors Materialize's subset (base.css) doesn't have: !important like its own, over the dark theme's cards */
+.club-stats .stat-teal {
+    background-color: #00796b !important;
+}
+
+.club-stats .stat-indigo {
+    background-color: #3949ab !important;
+}
+
+.club-stats .stat-slate {
+    background-color: #546e7a !important;
+}
+
+.club-stats .card-statistics .stat {
+    font-size: 44px;
+    white-space: nowrap;
+}
+
+.club-stats .card-statistics p small {
+    display: block;
+    opacity: .85;
+    line-height: 1.3;
+}
+
+/* The two cards of a row as tall as each other */
+.club-stats-pair {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.club-stats-pair > .col {
+    display: flex;
+    flex-direction: column;
+}
+
+.club-stats-pair .dashboard-card {
+    flex: 1 0 auto;
+}
+
+.club-stats-chart {
+    position: relative;
+    height: 280px;
+}
+
+.club-stats-chart-tall {
+    height: 380px;
+}
+
+/* The table of every soirée scrolls on its own on a phone, not the page */
+.club-stats-scroll {
+    overflow-x: auto;
+}
+
+.club-stats-table {
+    min-width: 640px;
+}
+
 /* Photo deletion requests waiting: the same card, with a red edge */
 .dashboard-alert {
     display: flex;
