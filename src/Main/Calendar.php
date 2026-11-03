@@ -50,16 +50,27 @@ class Calendar
      */
     private $all;
 
-    public function __construct(
-        private SoireeTable $soirees,
-        private string $start,
-        private string $rock,
-        private string $end,
-        private string $place,
-        private string $address,
-        private array $prices,
-        private EventTable $events
-    ) {
+    private string $start;
+    private string $rock;
+    private string $end;
+    private string $place;
+    private string $address;
+    /** @var array{online: int, door: int} */
+    private array $prices;
+    private int $registrationDays;
+
+    /**
+     * The usual times, place, prices and sign-up opening: the settings of /admin/events (App\Main\Settings)
+     */
+    public function __construct(private SoireeTable $soirees, private EventTable $events, Settings $settings)
+    {
+        $this->start = $settings->get('SOIREE_WALTZ_TIME');
+        $this->rock = $settings->get('SOIREE_ROCK_TIME');
+        $this->end = $settings->get('SOIREE_END_TIME');
+        $this->place = $settings->get('SOIREE_PLACE');
+        $this->address = $settings->get('SOIREE_ADDRESS');
+        $this->prices = ['online' => $settings->getInt('PRICE_ONLINE'), 'door' => $settings->getInt('PRICE_DOOR')];
+        $this->registrationDays = $settings->getInt('REGISTRATION_DAYS');
     }
 
     /**
@@ -118,6 +129,39 @@ class Calendar
             $this->all($now),
             fn (array $soiree) => $soiree['listed'] || !$soiree['past'] || ($first !== null && $soiree['date'] >= $first)
         ));
+    }
+
+    /**
+     * When sign-ups open for a soirée on that day (Y-m-d), planned or not, as build() works it out: the days of the settings
+     * before, but not before the soirée before it is over
+     */
+    public function getRegistrationOpening(string $day) : \DateTimeImmutable
+    {
+        $opens = Event::registrationOpeningFor($day, $this->registrationDays);
+        foreach ($this->all() as $soiree) {
+            if ($soiree['date'] >= $day) {
+                break;
+            }
+            if (!$soiree['cancelled'] && $soiree['end'] > $opens) {
+                $opens = $soiree['end'];
+            }
+        }
+        return $opens;
+    }
+
+    /**
+     * When each soirée not cancelled ends (day Y-m-d => c), for the event form to work out the opening of another date
+     * @return string[]
+     */
+    public function getEnds() : array
+    {
+        $ends = [];
+        foreach ($this->all() as $soiree) {
+            if (!$soiree['cancelled']) {
+                $ends[$soiree['date']] = $soiree['end']->format('c');
+            }
+        }
+        return $ends;
     }
 
     /**
@@ -200,6 +244,14 @@ class Calendar
     public function getPrices() : array
     {
         return $this->prices;
+    }
+
+    /**
+     * How many days before a soirée its sign-up opens, at midnight
+     */
+    public function getRegistrationDays() : int
+    {
+        return $this->registrationDays;
     }
 
     public function has(string $date) : bool
@@ -421,9 +473,9 @@ class Calendar
             $address = null;
         }
 
-        // Sign-ups open Event::REGISTRATION_DAYS before, but not before the previous soirée is over: only the next
+        // Sign-ups open the days of the settings before, but not before the previous soirée is over: only the next
         // soirée can have them open. They close when it starts
-        $opens = Event::registrationOpeningFor($day);
+        $opens = Event::registrationOpeningFor($day, $this->registrationDays);
         if ($previousEnd !== null && $previousEnd > $opens) {
             $opens = $previousEnd;
         }
@@ -462,7 +514,6 @@ class Calendar
             'prices' => $listed !== null || !$past ? $this->prices : null,
             'priceText' => $event ? (trim((string) $event->price) ?: null) : null,
             'facebookLink' => $event?->facebookLink ?: null,
-            'coveventLink' => $event->coveventLink ?? null,
             'cancelled' => $cancelled,
             'past' => $past,
             'registration' => ['status' => $status, 'opens' => $opens, 'closes' => $start],

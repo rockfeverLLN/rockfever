@@ -1,5 +1,5 @@
 {#- Card under the header that features the next soirée (Calendar::getNext), and changes on its own when its sign-up
-    opens (Event::REGISTRATION_DAYS before it, once the event exists in the admin) or closes. Past soirées never show here.
+    opens (the days of the settings before it, once the event exists in the admin) or closes. Past soirées never show here.
     Takes signUpOnly to show it only while sign-ups are open #}
 {%- set soiree = nextSoiree() %}
 {%- if soiree %}

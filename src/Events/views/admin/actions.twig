@@ -1,4 +1,5 @@
-{#- The buttons of an event, on both lists #}
+{#- The buttons of an event, on both lists (soiree, its App\Main\Calendar soirée, on the list to come) #}
+{%- set upcoming = soiree is defined and soiree and soiree.registration.status == 'upcoming' %}
 <div class="row" style="margin-bottom: 0">
     <div class="col s2">
         <a href="{{ path('admin.events.edit', {id: event.id}) }}"
@@ -20,8 +21,8 @@
         {% else %}
             <form style="display: inline" action="{{ path('admin.events.close', {id: event.id}) }}" method="post">
                 <button type="submit" class="orange-text tooltipped event-button" data-position="top"
-                        data-tooltip="{% if event.registrationUpcoming %}Les inscriptions s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Clôturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
-                        aria-label="{% if event.registrationUpcoming %}Garder fermées les inscriptions de {{ event.title }}, qui s'ouvriront toutes seules le {{ event.registrationOpening | dayLabel }}{% else %}Clôturer les inscriptions de {{ event.title }} (vous serez redirigé vers la liste){% endif %}">
+                        data-tooltip="{% if upcoming %}Les inscriptions s'ouvriront toutes seules le {{ soiree.registration.opens | dayLabel }}<br>Cliquer pour les garder fermées{% else %}Clôturer les inscriptions<br>(vous serez redirigé vers la liste){% endif %}"
+                        aria-label="{% if upcoming %}Garder fermées les inscriptions de {{ event.title }}, qui s'ouvriront toutes seules le {{ soiree.registration.opens | dayLabel }}{% else %}Clôturer les inscriptions de {{ event.title }} (vous serez redirigé vers la liste){% endif %}">
                     <i class="mdi mdi-lock-open" aria-hidden="true"></i>
                 </button>
             </form>

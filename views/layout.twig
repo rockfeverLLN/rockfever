@@ -109,10 +109,10 @@
                 name: 'Rock Fever',
                 url: 'https://rockfever.be/',
                 logo: 'https://rockfever.be/images/favicon.png',
-                description: 'Soirées rock et valse ouvertes aux 18-35 ans à Louvain-la-Neuve, au Hall Sainte-Barbe.',
+                description: 'Soirées rock et valse ouvertes aux 18-35 ans à Louvain-la-Neuve, au ' ~ setting('SOIREE_PLACE') ~ '.',
                 address: {'@type': 'PostalAddress', addressLocality: 'Louvain-la-Neuve', postalCode: '1348', addressCountry: 'BE'},
                 contactPoint: {'@type': 'ContactPoint', contactType: 'customer service', url: 'https://rockfever.be/contact', availableLanguage: 'fr'},
-                sameAs: ['https://www.facebook.com/rockfeverlln', 'https://www.instagram.com/rockfeverlln/']
+                sameAs: [setting('FACEBOOK_URL'), setting('INSTAGRAM_URL')]
             },
             {
                 '@type': 'WebSite',

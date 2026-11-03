@@ -13,7 +13,7 @@
 
 {% block body %}
 
-    {#- The next soirée (Calendar::getNext): its sign-up opens on its own Event::REGISTRATION_DAYS before, once its event
+    {#- The next soirée (Calendar::getNext): its sign-up opens on its own the days of the settings before, once its event
         exists in the admin, can be closed there, and closes when it starts. The form is only there while it's open #}
     {%- set status = soiree.registration.status %}
     {%- set open = status == 'open' %}
@@ -104,15 +104,10 @@
     </div>
 
     <div class="event-links">
-    {% if soiree.coveventLink %}
+    {% if soiree.facebookLink %}
         <a href="{{ soiree.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
-        <a href="{{ soiree.coveventLink }}" class="event-link red darken-3" target="_blank">Covevent</a>
     {% else %}
-        {% if soiree.facebookLink %}
-            <a href="{{ soiree.facebookLink }}" class="event-link blue darken-4" target="_blank">Événement Facebook</a>
-        {% else %}
-            <a href="https://www.facebook.com/rockfeverlln/" class="event-link blue darken-4" target="_blank">Notre page Facebook</a>
-        {% endif %}
+        <a href="{{ setting('FACEBOOK_URL') }}" class="event-link blue darken-4" target="_blank">Notre page Facebook</a>
     {% endif %}
     </div>
 
@@ -146,12 +141,4 @@
         </dialog>
     {% endif %}
 
-    <div id="nextEventInfos" class="modal">
-        <div class="modal-footer">
-            {% if soiree.coveventLink %}
-                <a href="{{ soiree.coveventLink }}" class="modal-action waves-effect btn red darken-4" target="_blank">Covevent</a>
-            {% endif %}
-            <a href="{{ soiree.facebookLink }}" class="modal-action waves-effect btn blue darken-4" target="_blank">Événement Facebook</a>
-        </div>
-    </div>
 {% endblock %}

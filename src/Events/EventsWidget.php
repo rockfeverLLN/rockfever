@@ -55,9 +55,10 @@ class EventsWidget implements AdminWidgetInterface
         }
 
         $nextEvent = $this->eventTable->findNext();
-        // Its sign-up as the site shows it
-        $registration = $nextEvent ? $this->calendar->find($nextEvent->getDay())['registration'] : null;
-        return $this->renderer->render('@events/admin/widget', compact('countForChart', 'nextEvent', 'registration'));
+        // Its soirée and sign-up as the site shows them: times, place and prices of the settings unless the event changes them
+        $soiree = $nextEvent ? $this->calendar->find($nextEvent->getDay()) : null;
+        $registration = $soiree['registration'] ?? null;
+        return $this->renderer->render('@events/admin/widget', compact('countForChart', 'nextEvent', 'soiree', 'registration'));
     }
 
     /**

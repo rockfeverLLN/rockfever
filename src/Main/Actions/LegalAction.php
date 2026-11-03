@@ -7,7 +7,7 @@
 
 namespace App\Main\Actions;
 
-use App\Main\Table\ValueTable;
+use App\Main\Settings;
 use Framework\Renderer\RendererInterface;
 
 class LegalAction
@@ -17,20 +17,20 @@ class LegalAction
      */
     private $renderer;
     /**
-     * @var ValueTable
+     * @var Settings
      */
-    private $valueTable;
+    private $settings;
 
-    public function __construct(RendererInterface $renderer, ValueTable $valueTable)
+    public function __construct(RendererInterface $renderer, Settings $settings)
     {
         $this->renderer = $renderer;
-        $this->valueTable = $valueTable;
+        $this->settings = $settings;
     }
 
     public function __invoke()
     {
-        $roi = $this->valueTable->getValue('ROI');
-        $terms = $this->valueTable->getValue('TERMS');
+        $roi = $this->settings->get('ROI');
+        $terms = $this->settings->get('TERMS');
         return $this->renderer->render('@main/legal', compact('roi', 'terms'));
     }
 }

@@ -67,7 +67,7 @@ class Validator
     public function length(string $key, ?int $min, ?int $max = null) : self
     {
         $value = $this->getValue($key);
-        $length = mb_strlen($value);
+        $length = mb_strlen((string) $value);
 
         if (!is_null($min) && !is_null($max) && ($length < $min || $length > $max)) {
             $this->addError($key, 'betweenLength', [$min, $max]);

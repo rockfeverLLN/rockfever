@@ -5,6 +5,18 @@
         </div>
         <div class="col s12 m6">
             {{ field('date', item.date, 'Date de l\'événement', {type: 'date'}) }}
+            {#- When sign-ups open, said as on the site (src/Main/views/registration.twig); www/js/script.js says it again
+                when the date changes #}
+            <span class="helper-text" id="date-registration" data-ends="{{ soireeEnds|default({})|json_encode }}"
+                  data-days="{{ registrationDays }}" aria-live="polite">
+                {%- if registrationOpens|default(null) is null -%}
+                    Inscriptions sur le site {{ registrationDays }} jours avant, à minuit, jusqu’au début de la soirée.
+                {%- elseif registrationOpens|date('U') > 'now'|date('U') -%}
+                    Inscriptions sur le site dès le {{ registrationOpens|dayLabel }}{% if registrationOpens|date('H:i', false) != '00:00' %} à&nbsp;{{ registrationOpens|date('H:i', false)|replace({':': 'h'}) }}{% endif %}, jusqu’au début de la soirée.
+                {%- else -%}
+                    Inscriptions sur le site dès l’enregistrement de l’événement, jusqu’au début de la soirée.
+                {%- endif -%}
+            </span>
         </div>
     </div>
 </div>
@@ -16,25 +28,19 @@
         <div class="col s12 m3">
             {{ field('rock_time', item.rockTime, 'Heure du rock', {type: 'time'}) }}
         </div>
-        <div class="col s12 m3">
-            {{ field('place', item.place, 'Lieu') }}
-        </div>
-        <div class="col s12 m3">
-            {{ field('price', item.price, 'Prix') }}
-            <span class="helper-text">Pour les soirées planifiées, le site affiche les prix de src/Main/config.php.</span>
+        <div class="col s12 m6">
+            {{ field('place', item.place, 'Lieu, si ce n\'est pas le ' ~ usualPlace) }}
+            <span class="helper-text">Vide : {{ usualPlace }}. Les heures, le lieu et les prix habituels se règlent sur la page Événements.</span>
         </div>
     </div>
 </div>
 <div class="col s12">
     <div class="row">
         <div class="col s12 m6">
-            {{ field('covevent_link', item.coveventLink, 'Lien vers le covevent') }}
+            {{ field('facebook_link', item.facebookLink, 'Lien vers l\'événement Facebook (facultatif)') }}
         </div>
         <div class="col s12 m6">
-            {{ field('facebook_link', item.facebookLink, 'Lien vers l\'événement Facebook') }}
-        </div>
-        <div class="col s12 m6">
-            {{ field('photos_password', item.photosPassword, 'Mot de passe des photos') }}
+            {{ field('photos_password', item.photosPassword, 'Mot de passe des photos (facultatif)') }}
             <span class="helper-text">Donné aux danseurs de la soirée : il ouvre son album sur /photos. Vide, seule l'équipe voit l'album.</span>
         </div>
     </div>

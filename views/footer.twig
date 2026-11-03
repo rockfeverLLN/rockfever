@@ -5,13 +5,13 @@
             <p class="grey-text text-lighten-4">
                 Vous désirez retrouver les photos de nos événements, voir qui compte se rendre à notre prochain événement parmi vos amis,
                 partager votre passion pour le rock ?
-                Alors <a href="https://www.facebook.com/rockfeverlln" class="underlined-link" target="_blank" rel="noopener">rejoignez notre page Facebook</a>
-                et <a href="https://www.instagram.com/rockfeverlln/" class="underlined-link" target="_blank" rel="noopener">suivez-nous sur Instagram</a> !
+                Alors <a href="{{ setting('FACEBOOK_URL') }}" class="underlined-link" target="_blank" rel="noopener">rejoignez notre page Facebook</a>
+                et <a href="{{ setting('INSTAGRAM_URL') }}" class="underlined-link" target="_blank" rel="noopener">suivez-nous sur Instagram</a> !
             </p>
             {#- A div, not a p: a short paragraph in large type reads as a heading to accessibility checkers #}
             <div class="footer-social-icons">
-                <a href="https://www.facebook.com/rockfeverlln" class="white-text" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook"><i class="mdi mdi-facebook-box" aria-hidden="true"></i></a>
-                <a href="https://www.instagram.com/rockfeverlln/" class="white-text" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram"><i class="mdi mdi-instagram" aria-hidden="true"></i></a>
+                <a href="{{ setting('FACEBOOK_URL') }}" class="white-text" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook"><i class="mdi mdi-facebook-box" aria-hidden="true"></i></a>
+                <a href="{{ setting('INSTAGRAM_URL') }}" class="white-text" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram"><i class="mdi mdi-instagram" aria-hidden="true"></i></a>
             </div>
         </div>
     </div>

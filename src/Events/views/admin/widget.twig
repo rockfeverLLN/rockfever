@@ -48,13 +48,13 @@
                 <b>Date :</b> {{ nextEvent.date | default('--/--/--') }}
             </li>
             <li>
-                <b>Heure :</b> {{ nextEvent.waltzTime | default('--:--') }} (valse) et {{ nextEvent.rockTime | default('--:--') }} (rock)
+                <b>Heure :</b> {{ soiree.waltzTime | default('--:--') }} (valse) et {{ soiree.rockTime | default('--:--') }} (rock)
             </li>
             <li>
-                <b>Lieu :</b> {{ nextEvent.place | default('---') }}
+                <b>Lieu :</b> {{ soiree.place | default('---') }}
             </li>
             <li>
-                <b>Prix :</b> {{ nextEvent.price | default('--€') }}
+                <b>Prix :</b> {% if soiree.prices|default(null) %}{{ soiree.prices.online }}&nbsp;€ inscrit, {{ soiree.prices.door }}&nbsp;€ sur place{% else %}--&nbsp;€{% endif %}
             </li>
             {% if nextEvent %}
             <li>
@@ -73,11 +73,6 @@
             {% if nextEvent.facebookLink %}
             <li>
                 <b><a href="{{ nextEvent.facebookLink | default('#') }}" target="_blank" class="underlined-link">Lien vers l'évènement facebook<span class="sr-only"> (nouvel onglet)</span></a></b>
-            </li>
-            {% endif %}
-            {% if nextEvent.coveventLink %}
-            <li>
-                <b><a href="{{ nextEvent.coveventLink | default('#') }}" target="_blank" class="underlined-link">Lien vers le covevent<span class="sr-only"> (nouvel onglet)</span></a></b>
             </li>
             {% endif %}
         </ul>

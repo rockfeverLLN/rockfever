@@ -2,7 +2,7 @@
 
 namespace App\Photos\Actions;
 
-use App\Main\Table\ValueTable;
+use App\Main\Settings;
 use App\Photos\PhotoAccess;
 use App\Photos\Table\AlbumTable;
 use App\Photos\Table\DeletionRequestTable;
@@ -55,9 +55,9 @@ class DeletionRequestAction
     private $flash;
 
     /**
-     * @var ValueTable
+     * @var Settings
      */
-    private $valueTable;
+    private $settings;
 
     /**
      * @var PHPMailer
@@ -71,7 +71,7 @@ class DeletionRequestAction
         DeletionRequestTable $requestTable,
         PhotoAccess $access,
         FlashService $flash,
-        ValueTable $valueTable,
+        Settings $settings,
         PHPMailer $mailer
     ) {
         $this->router = $router;
@@ -80,7 +80,7 @@ class DeletionRequestAction
         $this->requestTable = $requestTable;
         $this->access = $access;
         $this->flash = $flash;
-        $this->valueTable = $valueTable;
+        $this->settings = $settings;
         $this->mailer = $mailer;
     }
 
@@ -151,7 +151,7 @@ class DeletionRequestAction
     private function notify(Request $request, array $params) : void
     {
         try {
-            $email = $this->valueTable->getValue('CONTACT_EMAIL');
+            $email = $this->settings->get('CONTACT_EMAIL');
             $uri = $request->getUri();
             $link = $uri->getScheme() . '://' . $uri->getAuthority() . $this->router->generateUri('admin.photos.index');
             $this->mailer->CharSet = 'UTF-8';
