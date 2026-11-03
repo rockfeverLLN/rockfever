@@ -43,9 +43,9 @@ const PAGES = [
     ['/admin/events/list/1', "(() => {"
         + " const items = document.querySelectorAll('#guests-list .collection-item');"
         + " const search = document.getElementById('guest-search');"
-        + " search.value = 'zzzz'; search.dispatchEvent(new KeyboardEvent('keyup'));"
+        + " search.value = 'zzzz'; search.dispatchEvent(new Event('input'));"
         + " const hidden = [...items].every(item => item.style.display === 'none');"
-        + " search.value = ''; search.dispatchEvent(new KeyboardEvent('keyup'));"
+        + " search.value = ''; search.dispatchEvent(new Event('input'));"
         + " return items.length > 0 && hidden && document.getElementById('attendees').textContent !== '-'; })()"],
     // Card reveal
     ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
