@@ -6,7 +6,8 @@ use App\Admin\AdminWidgetInterface;
 use Framework\Renderer\RendererInterface;
 
 /**
- * The progress bar of the JPEG XL copies on the dashboard, which the photographers' login never opens
+ * The progress bar of the JPEG XL copies on the dashboard, which the photographers' login never opens. Only while some
+ * are missing: uploads make their own copy (Framework\Upload), the card catches up the ones that failed
  */
 class JxlWidget implements AdminWidgetInterface
 {
@@ -28,7 +29,11 @@ class JxlWidget implements AdminWidgetInterface
 
     public function render() : string
     {
-        return $this->renderer->render('@photos/admin/jxl-widget', $this->progress->status());
+        $status = $this->progress->status();
+        if ($status['done'] >= $status['total']) {
+            return '';
+        }
+        return $this->renderer->render('@photos/admin/jxl-widget', $status);
     }
 
     public function renderMenu() : string
