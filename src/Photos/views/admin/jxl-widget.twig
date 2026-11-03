@@ -1,4 +1,5 @@
-<div class="col s12">
+{#- Only while images are missing (App\Photos\JxlWidget): it goes away once they're all converted #}
+<div class="col s12" id="jxl-progress-col">
     <section class="dashboard-card dashboard-jxl" id="jxl-progress" data-url="{{ path('admin.jpeg-xl') }}">
         <h2>Images en JPEG XL</h2>
         <p class="dashboard-jxl-count"><b>{{ done }}</b> image{{ done > 1 ? 's' }} sur {{ total }}</p>
@@ -6,13 +7,7 @@
              aria-valuenow="{{ percent }}">
             <div class="determinate" style="width: {{ percent }}%"></div>
         </div>
-        <p class="dashboard-empty" aria-live="polite">
-            {%- if done < total -%}
-                Conversion en cours, en arrière-plan : la page peut être fermée
-            {%- else -%}
-                Toutes les images sont converties
-            {%- endif -%}
-        </p>
+        <p class="dashboard-empty" aria-live="polite">Conversion en cours, en arrière-plan : la page peut être fermée</p>
     </section>
 </div>
 <style>
@@ -51,13 +46,20 @@
                     if (status) {
                         show(status);
                     }
-                    setTimeout(poll, status && status.done < status.total ? 3000 : 15000);
+                    if (status && status.done >= status.total) {
+                        // All converted: said for a few seconds, then the card goes, as on the next visit
+                        setTimeout(function () {
+                            document.getElementById('jxl-progress-col').remove();
+                        }, 5000);
+                        return;
+                    }
+                    setTimeout(poll, status ? 3000 : 15000);
                 })
                 .catch(function () {
                     setTimeout(poll, 15000);
                 });
         }
 
-        setTimeout(poll, {{ done < total ? 0 : 15000 }});
+        poll();
     })();
 </script>
