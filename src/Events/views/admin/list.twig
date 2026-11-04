@@ -1,8 +1,10 @@
 {% extends '@admin/layout.twig' %}
 {% block title %}Liste de l'événement {{ id }} - Rock Fever{% endblock %}
 
+{% block bodyColor %}event-list-page{% endblock %}
+
 {% block body %}
-    <div class="row" style="height: calc(85% - 64px); margin-bottom: 0;">
+    <div class="row event-list-main">
         <div class="col s12 m7 l8 dancers-list dancers-list-background white-text">
             <div class="container">
                 <div class="row">
@@ -46,7 +48,7 @@
         </div>
     </div>
 
-    <div class="row koamaru dancers-list white-text" style="height: 15%; width: 100%; margin-bottom: 0;">
+    <div class="row koamaru dancers-list white-text event-list-add">
         <div class="container">
             <div class="row">
                 <div class="col s12" style="margin-top: 8px; margin-bottom: 3px">
