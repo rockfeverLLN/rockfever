@@ -18,9 +18,6 @@ class Calendar
 
     const SITE = 'https://rockfever.be';
 
-    // What a soirée's entry starts with in a dancer's calendar, or all it says when the soirée has no title
-    const CALENDAR_NAME = 'rockfever';
-
     // Where a soirée's sign-up stands (registration.status)
     const REGISTRATION_OPEN = 'open';
     // Opens on its own at registration.opens
@@ -408,11 +405,12 @@ class Calendar
     }
 
     /**
-     * The soirée's name in a dancer's calendar, next to the entries of their other calendars: rockfever•Rock Wars
+     * The soirée's name in a dancer's calendar, next to the entries of their other calendars: rockfever•Rock Wars, or Soirée Rock Fever
+     * when it has no title
      */
     private static function calendarName(array $soiree) : string
     {
-        return self::CALENDAR_NAME . ($soiree['title'] ? '•' . $soiree['title'] : '');
+        return $soiree['title'] ? 'rockfever•' . $soiree['title'] : $soiree['name'];
     }
 
     /**
