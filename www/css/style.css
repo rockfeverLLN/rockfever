@@ -4,7 +4,7 @@
     font-style: normal;
     font-weight: 400;
     font-display: block;
-    src: url(/fonts/material-icons.woff2?v=4c26ce59) format('woff2');
+    src: url(/fonts/material-icons.woff2?v=5eaf69cb) format('woff2');
 }
 
 .material-icons {
@@ -2077,8 +2077,21 @@ table tbody tr td .input-field {
 .guests-list .collection .collection-item {
     padding: 0 !important;
     width: 100%;
-    display: block;
+    display: flex;
     height: 40px;
+}
+
+/* A long name is cut, for its row's buttons to stay on the row */
+.guests-list .collection .collection-item > span:first-child {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.guests-list .collection .collection-item > button {
+    flex: none;
 }
 
 .guests-list .collection .collection-item > span, .guests-list .collection .collection-item > button {

@@ -52,7 +52,8 @@ const PAGES = [
         + " search.value = 'zzzz'; search.dispatchEvent(new Event('input'));"
         + " const hidden = [...items].every(item => item.style.display === 'none');"
         + " search.value = ''; search.dispatchEvent(new Event('input'));"
-        + " return items.length > 0 && hidden && document.getElementById('attendees').textContent !== '-'; })()"],
+        + " return items.length > 0 && hidden && !!items[0].querySelector('[data-remove]')"
+        + " && document.getElementById('attendees').textContent !== '-'; })()"],
     // Card reveal
     ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
         + " !!document.querySelector('.card-reveal.open'))"],

@@ -18,15 +18,15 @@
             <div class="indeterminate"></div>
         </div>
 
-        {% if dancer.status == 0 %}
-            <button
-                    class="transparent green-text waves-green waves-effect secondary-content tab-highlighted"
-                    data-dancer="{{ dancer.id }}" data-status="1"
-                    aria-label="Marquer {{ dancer.firstname }} {{ dancer.lastname }} présent"
-            >
-                <i class="material-icons left" aria-hidden="true">check</i> Ajouter
-            </button>
-        {% endif %}
+        {#- First, so it stays away from the button used all evening #}
+        <button
+                class="transparent red-text waves-red waves-effect secondary-content tab-highlighted"
+                style="border-radius: 50%"
+                data-dancer="{{ dancer.id }}" data-remove
+                aria-label="Supprimer {{ dancer.firstname }} {{ dancer.lastname }} de la liste" title="Supprimer de la liste"
+        >
+            <i class="material-icons" aria-hidden="true">delete</i>
+        </button>
 
         {% if dancer.status == 0 %}
             <button
@@ -36,6 +36,16 @@
                     aria-label="Marquer {{ dancer.firstname }} {{ dancer.lastname }} présent en VIP" title="VIP"
             >
                 <i class="material-icons" aria-hidden="true">star</i>
+            </button>
+        {% endif %}
+
+        {% if dancer.status == 0 %}
+            <button
+                    class="transparent green-text waves-green waves-effect secondary-content tab-highlighted"
+                    data-dancer="{{ dancer.id }}" data-status="1"
+                    aria-label="Marquer {{ dancer.firstname }} {{ dancer.lastname }} présent"
+            >
+                <i class="material-icons left" aria-hidden="true">check</i> Ajouter
             </button>
         {% endif %}
 
