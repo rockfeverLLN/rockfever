@@ -13,6 +13,9 @@
     <a href="{{ path('event') }}" class="next-event-link next-event-open koamaru">
         <span class="next-event-text">
             <span class="next-event-note">Les inscriptions sont ouvertes pour la prochaine soirée&nbsp;:</span>
+            {%- if soiree.title %}
+            <span>«&nbsp;{{ soiree.title|e|typography }}&nbsp;»</span>
+            {%- endif %}
             <span>{{ when|capitalize }} à&nbsp;{{ time|replace({':': 'h'}) }}</span>
             <span class="next-event-signup">Je m'inscris</span>
         </span>
