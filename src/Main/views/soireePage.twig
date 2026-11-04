@@ -22,64 +22,84 @@
 {% endblock %}
 
 {% block body %}
-    <div class="parallax-container home-parallax-container home-parallax-compact">
+    {#- Sign-ups open: the card of the home page over the bottom of the header, as on /calendrier. Only the next soirée can
+        have them open, so its "Je m'inscris" is for this one #}
+    {%- set open = status == 'open' %}
+    <div class="parallax-container home-parallax-container soiree-hero{{ open ? '' : ' home-parallax-compact' }}">
         <div class="container">
             <div class="center">
-                <h1 class="white-text home-title">{{ label }}</h1>
+                <h1 class="white-text home-title">{% if soiree.title %}{{ soiree.title|e|typography }}{% else %}{{ soiree.name }}{% endif %}</h1>
+                <p class="white-text soiree-hero-date">
+                    {{ label }}
+                    {% if soiree.cancelled %}<span class="soiree-badge soiree-badge-past">Annulée</span>
+                    {%- elseif soiree.past %}<span class="soiree-badge soiree-badge-past">Passée</span>
+                    {%- elseif soiree.next and not open %}<span class="soiree-badge">Prochaine soirée</span>{% endif %}
+                </p>
             </div>
         </div>
         <div class="parallax">
             <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="" width="1412" height="796" fetchpriority="high"></picture>
         </div>
     </div>
+    {% if open %}{% include '@main/nextSoiree.twig' with {signUpOnly: true} %}{% endif %}
 
-    <div class="container calendar-page">
-        <h2 class="calendar-semester">
-            {% if soiree.title %}{{ soiree.title|e|typography }}{% else %}{{ soiree.name }}{% endif %}
-            {% if soiree.cancelled %}<span class="soiree-badge soiree-badge-past">Annulée</span>
-            {%- elseif soiree.past %}<span class="soiree-badge soiree-badge-past">Passée</span>
-            {%- elseif soiree.next %}<span class="soiree-badge">Prochaine soirée</span>{% endif %}
-        </h2>
+    <div class="container calendar-page soiree-page">
+        <h2 class="calendar-semester">Infos pratiques</h2>
 
         <ul class="soiree-facts">
-            <li><strong>Date&nbsp;:</strong> <time datetime="{{ soiree.start|date('c', false) }}">{{ label }}</time></li>
-            <li><strong>Heures&nbsp;:</strong>
-                <time datetime="{{ soiree.start|date('c', false) }}">{{ soiree.start|date(hour, false)|replace({':': 'h'}) }}</time>
-                à <time datetime="{{ soiree.end|date('c', false) }}">{{ soiree.end|date(hour, false)|replace({':': 'h'}) }}</time>, heure de Bruxelles
-                {%- if soiree.waltzTime and soiree.rockTime %} (valse à {{ soiree.waltzTime|replace({':': 'h'}) }}, rock dès {{ soiree.rockTime|replace({':': 'h'}) }}){% endif %}
+            <li>
+                <i class="mdi mdi-calendar" aria-hidden="true"></i>
+                <div>
+                    <strong>Date et heures&nbsp;:</strong>
+                    <time datetime="{{ soiree.start|date('c', false) }}">{{ label }}</time>,
+                    <time datetime="{{ soiree.start|date('c', false) }}">{{ soiree.start|date(hour, false)|replace({':': 'h'}) }}</time>
+                    à <time datetime="{{ soiree.end|date('c', false) }}">{{ soiree.end|date(hour, false)|replace({':': 'h'}) }}</time>, heure de Bruxelles
+                    {%- if soiree.waltzTime and soiree.rockTime %} (valse à {{ soiree.waltzTime|replace({':': 'h'}) }}, rock dès {{ soiree.rockTime|replace({':': 'h'}) }}){% endif %}
+                </div>
+            </li>
+            <li>
+                <i class="mdi mdi-map-marker" aria-hidden="true"></i>
+                <div>
+                    <strong>Lieu&nbsp;:</strong>
+                    {{ soiree.place }}{% if soiree.address %}, {{ soiree.address }}{% endif %}
+                </div>
+            </li>
+            <li>
+                <i class="mdi mdi-credit-card" aria-hidden="true"></i>
+                <div>
+                    <strong>Prix&nbsp;:</strong>
+                    {% if soiree.prices %}
+                        {{ soiree.prices.online }}&nbsp;€ en t’inscrivant sur le site, {{ soiree.prices.door }}&nbsp;€ sans inscription, payé à l’entrée
+                    {%- else %}
+                        {{ soiree.priceText|default('—') }}
+                    {%- endif -%}
+                </div>
+            </li>
+            <li>
+                <i class="mdi mdi-account-multiple" aria-hidden="true"></i>
+                <div>
+                    <strong>Pour qui&nbsp;:</strong>
+                    Les 18-35 ans, avec leur carte d’identité ou d’étudiant
+                </div>
             </li>
             {#- The note is a sentence of its own ("Thème annoncé à l’ouverture des inscriptions, le …"), without the label #}
-            {% if soiree.title %}
-                <li><strong>Thème&nbsp;:</strong> {{ soiree.title|e|typography }}</li>
-            {% elseif soiree.themeNote %}
-                <li>{{ soiree.themeNote }}</li>
+            {% if not soiree.title and soiree.themeNote %}
+                <li class="soiree-fact-wide">
+                    <i class="mdi mdi-music" aria-hidden="true"></i>
+                    <div>{{ soiree.themeNote }}</div>
+                </li>
             {% endif %}
-            <li><strong>Lieu&nbsp;:</strong> {{ soiree.place }}{% if soiree.address %}, {{ soiree.address }}{% endif %}</li>
-            <li><strong>Prix&nbsp;:</strong>
-                {% if soiree.prices %}
-                    {{ soiree.prices.online }}&nbsp;€ en t’inscrivant sur le site, {{ soiree.prices.door }}&nbsp;€ sans inscription, payé à l’entrée
-                {%- else %}
-                    {{ soiree.priceText|default('—') }}
-                {%- endif -%}
-            </li>
-            <li><strong>Pour qui&nbsp;:</strong> Les 18-35 ans, avec leur carte d’identité ou d’étudiant</li>
             {% if not soiree.past %}
-                <li id="inscriptions" data-registration-status="{{ status }}"><strong>Inscription&nbsp;:</strong>
-                    {% include '@main/registration.twig' %}
-                    {% if status == 'open' %}
-                        Il suffit de ton prénom et de ton nom, sur la page <a href="{{ path('event') }}" class="underlined-link">Prochain événement</a>.
-                    {% endif %}
+                <li class="soiree-fact-wide" id="inscriptions" data-registration-status="{{ status }}">
+                    <i class="mdi mdi-pencil" aria-hidden="true"></i>
+                    <div>
+                        <strong>Inscription&nbsp;:</strong>
+                        {% include '@main/registration.twig' %}
+                        {% if open %}Il suffit de ton prénom et de ton nom.{% endif %}
+                    </div>
                 </li>
             {% endif %}
         </ul>
-
-        {% if status == 'open' %}
-            <p><a href="{{ path('event') }}" class="btn koamaru waves-effect waves-light">M’inscrire à la soirée</a></p>
-        {% endif %}
-
-        {% if soiree.description %}
-            <div class="soiree-description">{{ soiree.description|e|typography|nl2br }}</div>
-        {% endif %}
 
         {% if not soiree.past and not soiree.cancelled %}
             <div class="soiree-actions">
@@ -90,6 +110,11 @@
                     <i class="mdi mdi-google left" aria-hidden="true"></i>Google Agenda
                 </a>
             </div>
+        {% endif %}
+
+        {% if soiree.description %}
+            <h2 class="calendar-semester">La soirée</h2>
+            <div class="soiree-description">{{ soiree.description|e|typography|nl2br }}</div>
         {% endif %}
 
         <p class="soiree-back">

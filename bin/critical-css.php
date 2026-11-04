@@ -79,10 +79,15 @@ foreach ($bases as $base) {
             exit(1);
         }
         $documents[] = $document = Dom\HTMLDocument::createFromString($pages[$url], LIBXML_NOERROR);
-        // The page of one soirée (/calendrier/2026-11-11), whose date changes: the first one /calendrier links to
-        $soiree = $path === '/calendrier' ? $document->querySelector('a.soiree-link')?->getAttribute('href') : null;
-        if ($soiree) {
-            $soirees[] = rtrim($base, '/') . $soiree;
+        // The pages of one soirée (/calendrier/2026-11-11), whose dates change: the first one /calendrier links to, and
+        // the next one, whose header differs (the sign-up card)
+        if ($path === '/calendrier') {
+            foreach (['a.soiree-link', '.soiree-next a.soiree-link'] as $link) {
+                $soiree = $document->querySelector($link)?->getAttribute('href');
+                if ($soiree) {
+                    $soirees[] = rtrim($base, '/') . $soiree;
+                }
+            }
         }
     }
 }
