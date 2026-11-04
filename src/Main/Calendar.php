@@ -392,7 +392,7 @@ class Calendar
                 'DTSTAMP:' . $stamp,
                 'DTSTART:' . self::utc($soiree['start']),
                 'DTEND:' . self::utc($soiree['end']),
-                'SUMMARY:' . self::escape($soiree['name']),
+                'SUMMARY:' . self::escape(self::calendarName($soiree)),
                 'LOCATION:' . self::escape(self::location($soiree)),
                 'DESCRIPTION:' . self::escape(self::description($soiree)),
                 'URL:' . $soiree['url'],
@@ -402,6 +402,15 @@ class Calendar
         }
         $lines[] = 'END:VCALENDAR';
         return implode("\r\n", array_map([self::class, 'fold'], $lines)) . "\r\n";
+    }
+
+    /**
+     * The soirée's name in a dancer's calendar, next to the entries of their other calendars: rockfever•Rock Wars, or Soirée Rock Fever
+     * when it has no title
+     */
+    private static function calendarName(array $soiree) : string
+    {
+        return $soiree['title'] ? 'rockfever•' . $soiree['title'] : $soiree['name'];
     }
 
     /**
@@ -768,7 +777,7 @@ class Calendar
     {
         return 'https://calendar.google.com/calendar/render?' . http_build_query([
             'action' => 'TEMPLATE',
-            'text' => $soiree['name'],
+            'text' => self::calendarName($soiree),
             'dates' => self::utc($soiree['start']) . '/' . self::utc($soiree['end']),
             'location' => self::location($soiree),
             'details' => self::description($soiree),
