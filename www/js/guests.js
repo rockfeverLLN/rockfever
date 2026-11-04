@@ -1,5 +1,5 @@
 // Sign-up list at the door (src/Events/views/admin/list.twig): search a dancer, mark them here, VIP or not here,
-// add someone who didn't sign up, and the evening's numbers. The page gives the URLs in data- attributes.
+// remove them from the list, add someone who didn't sign up, and the evening's numbers. The page gives the URLs in data- attributes.
 (function () {
     var list = document.getElementById('guests-list');
     if (!list) {
@@ -205,10 +205,21 @@
         if (!button) {
             return;
         }
+        var name = button.parentElement.dataset.name;
+        var remove = button.hasAttribute('data-remove');
+        if (remove && !confirm('Supprimer définitivement ' + name + ' de la liste ?')) {
+            return;
+        }
         var loader = button.parentElement.querySelector('.loader');
         loader.style.display = 'block';
-        post(list.dataset.statusUrl, {id: button.dataset.dancer, status: button.dataset.status}).then(function (data) {
+        var request = remove
+            ? post(list.dataset.removeUrl, {id: button.dataset.dancer})
+            : post(list.dataset.statusUrl, {id: button.dataset.dancer, status: button.dataset.status});
+        request.then(function (data) {
             if (data === 'OK') {
+                if (remove) {
+                    toast(escapeHtml(name) + ' supprimé de la liste');
+                }
                 loadList();
             } else {
                 // The list isn't reloaded, so the spinner would keep turning

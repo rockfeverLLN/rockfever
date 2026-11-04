@@ -5,6 +5,7 @@ namespace App\Events;
 use App\Events\Actions\Ajax\AddImprovisedDancerAction;
 use App\Events\Actions\Ajax\LoadDancersListAction;
 use App\Events\Actions\Ajax\LoadDancersStatsAction;
+use App\Events\Actions\Ajax\RemoveDancerAction;
 use App\Events\Actions\Ajax\UpdateDancerStatusAction;
 use App\Events\Actions\EventCloseAction;
 use App\Events\Actions\EventCrudAction;
@@ -142,6 +143,12 @@ class EventsModule extends Module
                 $adminPrefix . '/ajax/dancers/add-improvised',
                 AddImprovisedDancerAction::class,
                 'admin.ajax.dancer.add-improvised'
+            );
+
+            $router->post(
+                $adminPrefix . '/ajax/dancers/remove',
+                RemoveDancerAction::class,
+                'admin.ajax.dancer.remove'
             );
         }
     }
