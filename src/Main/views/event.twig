@@ -17,7 +17,7 @@
         exists in the admin, can be closed there, and closes as the settings say (registration.until). The form is only there while it's open #}
     {%- set status = soiree.registration.status %}
     {%- set open = status == 'open' %}
-    <div class="parallax-container form-parallax-container{{ open ? '' : ' form-parallax-closed' }}">
+    <div class="parallax-container form-parallax-container event-parallax{{ open ? '' : ' form-parallax-closed' }}">
         <div class="container">
             {#- After a sign-up, the popup below says it's done: the green message only without JavaScript, which opens it #}
             {% if flash('event') == 'sign_up' %}
@@ -27,6 +27,7 @@
             {% endif %}
             <div class="center">
                 <h1 class="white-text home-title">Rock Fever</h1>
+                <h2 class="white-text event-title">{% if soiree.title %}«&nbsp;{{ soiree.title | e | typography }}&nbsp;»{% else %}{{ soiree.name }}{% endif %}</h2>
                 <p class="call-to-action" id="inscriptions" data-registration-status="{{ status }}">
                     {% if open %}
                         Inscris-toi à la soirée du {{ soiree.label|lower }} et paie {{ soiree.prices.online }}&nbsp;€ au lieu de {{ soiree.prices.door }}&nbsp;€ à l’entrée&nbsp;:
@@ -52,7 +53,6 @@
 
     {%- set time = soiree.start|date('H:i', false)|replace({':': 'h'}) %}
     <div class="container center white-text event-details">
-        <h2>{% if soiree.title %}«&nbsp;{{ soiree.title | e | typography }}&nbsp;»{% else %}{{ soiree.name }}{% endif %}</h2>
         <span class="spaced-item">
             <nobr>
                 <i class="mdi mdi-calendar" aria-hidden="true"></i> <time datetime="{{ soiree.start|date('c', false) }}">{{ soiree.label }} {{ soiree.year }}</time>
