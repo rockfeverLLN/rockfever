@@ -10,6 +10,7 @@ use App\Main\Actions\CalendarAction;
 use App\Main\Actions\ContactAction;
 use App\Main\Actions\EventAction;
 use App\Main\Actions\LegalAction;
+use App\Main\Actions\McpAction;
 use App\Main\Actions\MusicAction;
 use App\Main\Actions\SitemapAction;
 use App\Main\Actions\SoireesApiAction;
@@ -66,6 +67,11 @@ class MainModule extends Module
         // The soirées as JSON, for programs and AI agents, and the pages for search engines
         $router->get('/api/events', SoireesApiAction::class, 'api.events');
         $router->get('/sitemap.xml', SitemapAction::class, 'sitemap');
+
+        // The tools of AI assistants (Model Context Protocol). Only POST works: the others answer 405
+        $router->post('/mcp', McpAction::class, 'mcp');
+        $router->get('/mcp', McpAction::class);
+        $router->delete('/mcp', McpAction::class);
 
 
         if ($container->has('admin.prefix')) {

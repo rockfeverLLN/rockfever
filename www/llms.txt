@@ -19,6 +19,7 @@ Inscriptions : seule la prochaine soirée peut les avoir ouvertes. Elles ouvrent
 - [Calendrier](https://rockfever.be/calendrier): toutes les dates des soirées du quadrimestre
 - Page d'une soirée, `https://rockfever.be/calendrier/AAAA-MM-JJ` (par exemple [/calendrier/2026-11-11](https://rockfever.be/calendrier/2026-11-11)): son adresse de référence, avec ses heures, son lieu, ses prix et ses inscriptions, et ses données schema.org `DanceEvent`
 - [Soirées en JSON](https://rockfever.be/api/events): toutes les soirées, passées et à venir, avec l'état de leurs inscriptions
+- [Serveur MCP](https://rockfever.be/mcp): pour les assistants, voir les soirées et inscrire ou désinscrire la personne (`POST` uniquement, sans authentification)
 - [Calendrier iCalendar](https://rockfever.be/calendrier.ics): les mêmes dates au format .ics
 - [Plan du site](https://rockfever.be/sitemap.xml)
 - [Proposer un rock](https://rockfever.be/music): proposer une musique pour les soirées
