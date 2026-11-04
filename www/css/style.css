@@ -1509,15 +1509,22 @@ table tbody tr td .input-field {
     margin-top: 88px;
 }
 
+.event-parallax .home-title {
+    margin-top: 56px;
+}
+
+/* The soirée's title, between the site's name and the sign-up sentence */
+.event-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 16px 0 0 0;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+}
+
 .event-details {
     max-width: 880px;
     padding: 48px 16px 40px 16px;
-}
-
-.event-details h2 {
-    font-size: 2.4rem;
-    font-weight: 800;
-    margin: 0 0 24px 0;
 }
 
 .event-details p {
@@ -1866,12 +1873,16 @@ table tbody tr td .input-field {
         margin-top: 56px;
     }
 
-    .event-details {
-        padding-top: 40px;
+    .event-parallax .home-title {
+        margin-top: 36px;
     }
 
-    .event-details h2 {
+    .event-title {
         font-size: 1.9rem;
+    }
+
+    .event-details {
+        padding-top: 40px;
     }
 
     .event-links {
