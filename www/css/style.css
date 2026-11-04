@@ -2020,6 +2020,61 @@ table tbody tr td .input-field {
     color: #ffffff;
 }
 
+/* The list at the door: the form to add a participant stays at the bottom of the window. main has to be given a
+   height for that, percentages on the rows would only follow their content */
+.event-list-page {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.event-list-page main {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+}
+
+.event-list-main {
+    flex: 1 0 auto;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.event-list-add {
+    flex: none;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* Side by side, the page is the window's height and the dancers scroll inside it. On a phone the columns are stacked
+   and the page scrolls as usual */
+@media (min-width: 601px) {
+    .event-list-page {
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    .event-list-page > nav {
+        flex: none;
+    }
+
+    .event-list-page main {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .event-list-main {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .event-list-main .dancers-list-background {
+        overflow-y: auto;
+    }
+}
+
 .dancers-list-background {
     background-image: url("/images/body/bg.webp");
     background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
