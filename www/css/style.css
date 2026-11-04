@@ -2200,11 +2200,12 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
 }
 
 .event-list-stat {
-    margin-top: 80px;
+    margin-top: 24px;
 }
 
 .event-list-stat strong {
     font-size: 80px;
+    line-height: 1;
 }
 
 /* The evening's total on the door list opens the event's statistics page */
