@@ -774,7 +774,8 @@ main:focus {
     background-color: #e8eef5;
 }
 
-/* The popup after a sign-up on /event: add the soirée to a calendar (event.twig) */
+/* The popup after a sign-up on /event: add the soirée to a calendar (event.twig). The help for Instagram's browser
+   looks the same (inAppBrowser.twig) */
 dialog.modal.signup-calendar {
     top: 50%;
     transform: translateY(-50%);

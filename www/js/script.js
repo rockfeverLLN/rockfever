@@ -338,6 +338,52 @@
         showModal(onLoad, null);
     }
 
+    // Instagram's and Facebook's own browser don't hand a .ics file or a webcal: link over to the phone, and Google
+    // refuses to sign in there: a tap on "add to my calendar" does nothing. The tap opens the link in the phone's real
+    // browser instead. The apps can block that too: if the page is still on screen shortly after, #inAppBrowser says how
+    // to do it by hand
+    var inAppHelp = document.getElementById('inAppBrowser');
+    if (inAppHelp && /Instagram|FBAN|FBAV|FB_IAB/.test(navigator.userAgent)) {
+        var leftApp = false;
+        var helpTimer = null;
+        var leaveApp = function () {
+            leftApp = true;
+        };
+        // These apps only run on phones and tablets: Safari's own scheme on iOS, an Android intent otherwise
+        var inRealBrowser = function (url) {
+            return /iPhone|iPad|iPod/.test(navigator.userAgent)
+                ? url.replace(/^(https?):/, 'x-safari-$1:')
+                : url.replace(/^(https?):\/\/(.*)$/, 'intent://$2#Intent;scheme=$1;end');
+        };
+
+        window.addEventListener('blur', leaveApp);
+        document.addEventListener('visibilitychange', leaveApp);
+        document.addEventListener('click', function (event) {
+            var link = event.target.closest('a[href$=".ics"], a[href^="webcal:"], a[href^="https://calendar.google.com/"]');
+            if (!link) {
+                return;
+            }
+            event.preventDefault();
+            leftApp = false;
+            // A browser can't be sent to a webcal: link from here: it gets this page, whose button then subscribes
+            window.location.href = inRealBrowser(link.protocol === 'webcal:' ? window.location.href.split('#')[0] : link.href);
+            clearTimeout(helpTimer);
+            helpTimer = setTimeout(function () {
+                if (!leftApp) {
+                    showModal(inAppHelp, link);
+                }
+            }, 1500);
+        });
+
+        var copyLink = inAppHelp.querySelector('.in-app-copy');
+        copyLink.addEventListener('click', function () {
+            navigator.clipboard.writeText(window.location.href).then(function () {
+                copyLink.textContent = 'Lien copié';
+            }, function () {
+            });
+        });
+    }
+
     // Collapsibles: a click on an item's header opens it and closes the others. The headers are buttons for the
     // keyboard and screen readers, which hear whether their item is open
     all('.collapsible').forEach(function (collapsible) {
