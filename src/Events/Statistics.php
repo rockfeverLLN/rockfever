@@ -5,7 +5,7 @@ namespace App\Events;
 /**
  * The figures of the club's statistics page (Actions\StatisticsAction), over the past soirées of a season or of all time.
  *
- * A dancer is recognised by their first and last name (lower case, spaces trimmed): the sign-ups have no other id.
+ * A dancer is recognised by their name, with the spellings the team matched (DancerNames): the sign-ups have no other id.
  * Statuses of a sign-up: 0 = registered (after the soirée: didn't come), 1 = came, 2 = came as VIP, 3 = came without
  * registering. The VIPs are registered dancers marked at the door, so they count as registered too (as in guests.js).
  */
@@ -16,7 +16,7 @@ class Statistics
      */
     private const SEASON_START_MONTH = 9;
 
-    public function __construct(private \PDO $pdo)
+    public function __construct(private \PDO $pdo, private DancerNames $names)
     {
     }
 
@@ -53,12 +53,11 @@ class Statistics
              ORDER BY e.date ASC, e.id ASC, d.id ASC"
         )->fetchAll(\PDO::FETCH_OBJ);
 
+        $keys = $this->names->identify($rows);
+        $labels = $this->names->labels($rows, $keys);
         foreach ($rows as $row) {
-            $row->firstname = $this->repair(trim($row->firstname));
-            $row->lastname = $this->repair(trim($row->lastname));
-            $row->title = $this->repair($row->title);
+            $row->title = $this->names->repair($row->title);
         }
-        $keys = $this->personKeys($rows);
 
         $events = [];
         $people = [];
@@ -66,19 +65,14 @@ class Statistics
             $inPeriod = $from === null || ($row->event_date >= $from && $row->event_date < $to);
             $key = $keys[$i];
             $came = (int)$row->status > 0;
-            $name = $row->firstname . ' ' . $row->lastname;
 
             $people[$key] ??= [
-                'name' => $name,
+                'name' => $labels[$key],
                 'visits' => [],       // the soirées they came to, in order
                 'periodVisits' => 0,
                 'periodNoShows' => 0,
                 'periodRegistered' => 0,
             ];
-            // Shown with a spelling that lost no letter, when one of their sign-ups has it
-            if ($this->hasLostLetters($people[$key]['name']) && !$this->hasLostLetters($name)) {
-                $people[$key]['name'] = $name;
-            }
             if ($came) {
                 $people[$key]['visits'][] = (int)$row->event_id;
             }
@@ -285,92 +279,6 @@ class Statistics
         $id = $this->pdo->query('SELECT id FROM events WHERE date < CURDATE() ORDER BY date DESC, id DESC LIMIT 1')
             ->fetchColumn();
         return $id === false ? null : (int)$id;
-    }
-
-    /**
-     * The dancer of each sign-up. A name whose letters were lost to "?" goes to the one dancer it can be the
-     * spelling of ("Zo? Dupont" to "Zoé Dupont"), and stays apart when it could be several of them.
-     */
-    private function personKeys(array $rows): array
-    {
-        $keys = array_map(fn ($row) => $this->personKey($row->firstname, $row->lastname), $rows);
-
-        $complete = array_filter(array_unique($keys), fn ($key) => !$this->hasLostLetters($key));
-        $matches = [];
-        foreach (array_unique($keys) as $key) {
-            if (!$this->hasLostLetters($key)) {
-                continue;
-            }
-            // A lost letter left 1 or 2 "?" (one a byte): n of them stand for n/2 to n letters
-            $pattern = '/^' . preg_replace_callback(
-                '/(?:\\\\\?|\x{FFFD})+/u',
-                function ($run) {
-                    $lost = mb_strlen(str_replace('\\', '', $run[0]));
-                    return '.{' . (int)ceil($lost / 2) . ',' . $lost . '}';
-                },
-                preg_quote($key, '/')
-            ) . '$/u';
-            $candidates = preg_grep($pattern, $complete);
-            if (count($candidates) === 1) {
-                $matches[$key] = reset($candidates);
-            }
-        }
-
-        return array_map(fn ($key) => $matches[$key] ?? $key, $keys);
-    }
-
-    /**
-     * A name as it compares to its other spellings: lower case, no accents, hyphens and apostrophes as spaces
-     */
-    private function personKey(string $firstname, string $lastname): string
-    {
-        $key = mb_strtolower($firstname . '|' . $lastname);
-        if (class_exists(\Normalizer::class)) {
-            $key = preg_replace('/\p{Mn}+/u', '', \Normalizer::normalize($key, \Normalizer::FORM_D));
-        }
-        $key = preg_replace(['/[-\'’.]+/u', '/\s+/u'], ' ', $key);
-        return preg_replace('/ ?\| ?/', '|', trim($key));
-    }
-
-    private function hasLostLetters(string $name): bool
-    {
-        return str_contains($name, '?') || str_contains($name, "\u{FFFD}");
-    }
-
-    /**
-     * Text saved double-encoded ("ZoÃ©" for "Zoé") back to what was typed, as bin/fix-double-utf8.php does in the
-     * database: only when every character is one of latin1's and their bytes make valid UTF-8. Twice for the
-     * names encoded twice over.
-     */
-    private function repair(string $text): string
-    {
-        static $latin1 = null;
-        if ($latin1 === null) {
-            // MySQL's latin1 is Windows-1252, with its 5 unassigned bytes mapped to the C1 controls of the same number
-            $latin1 = [];
-            for ($byte = 0x80; $byte <= 0xFF; $byte++) {
-                $char = mb_convert_encoding(chr($byte), 'UTF-8', 'Windows-1252');
-                $latin1[$char === '?' ? mb_chr($byte) : $char] = chr($byte);
-            }
-        }
-
-        for ($pass = 0; $pass < 2 && preg_match('/[^\x00-\x7F]/', $text); $pass++) {
-            $bytes = '';
-            foreach (mb_str_split($text) as $char) {
-                if (strlen($char) === 1) {
-                    $bytes .= $char;
-                } elseif (isset($latin1[$char])) {
-                    $bytes .= $latin1[$char];
-                } else {
-                    return $text;
-                }
-            }
-            if (!mb_check_encoding($bytes, 'UTF-8')) {
-                return $text;
-            }
-            $text = $bytes;
-        }
-        return $text;
     }
 
     /**

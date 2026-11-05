@@ -1,0 +1,106 @@
+{% extends '@admin/layout.twig' %}
+{% block title %}Noms des danseurs - Rock Fever{% endblock %}
+
+{% block body %}
+    <div class="container club-stats">
+        <div class="club-stats-header">
+            <h1>Noms des danseurs</h1>
+            <a href="{{ path('admin.statistics') }}" class="btn-flat">Retour aux statistiques</a>
+        </div>
+        <p class="club-stats-intro">
+            Un danseur inscrit sous deux orthographes compte pour deux dans les statistiques. Dites ici quels noms sont
+            la même personne : seules les statistiques changent, les listes des soirées gardent ce qui a été écrit, et
+            chaque choix peut être annulé.
+        </p>
+
+        <section class="dashboard-card">
+            <h2>À vérifier</h2>
+            {% if suggestions.pairs %}
+                <p class="club-stats-note">
+                    {% if suggestions.total > suggestions.pairs|length %}
+                        Les {{ suggestions.pairs|length }} premiers noms sur {{ suggestions.total }} qui se ressemblent :
+                        les suivants arrivent une fois ceux-ci réglés.
+                    {% else %}
+                        {{ suggestions.total }} paire{{ suggestions.total > 1 ? 's' }} de noms qui se ressemblent.
+                    {% endif %}
+                    Choisissez le nom à garder. Ceux sans réponse restent ici pour plus tard.
+                </p>
+                <form method="post" action="{{ path('admin.statistics.names.save') }}">
+                    {% for pair in suggestions.pairs %}
+                        <fieldset class="name-pair">
+                            <legend class="sr-only">{{ pair.a.name }} ou {{ pair.b.name }}</legend>
+                            <input type="hidden" name="pairs[{{ loop.index0 }}][a]" value="{{ pair.a.key }}">
+                            <input type="hidden" name="pairs[{{ loop.index0 }}][b]" value="{{ pair.b.key }}">
+                            <span class="name-pair-reason">{{ pair.reason }}</span>
+                            {% for side in ['a', 'b'] %}
+                                <label class="name-pair-choice">
+                                    <input type="radio" class="browser-default" name="pairs[{{ loop.parent.loop.index0 }}][choice]" value="{{ side }}">
+                                    <span><strong>{{ pair[side].name }}</strong> <small>{{ pair[side].signUps }} inscription{{ pair[side].signUps > 1 ? 's' }}</small></span>
+                                </label>
+                            {% endfor %}
+                            <label class="name-pair-choice">
+                                <input type="radio" class="browser-default" name="pairs[{{ loop.index0 }}][choice]" value="different">
+                                <span>Deux personnes</span>
+                            </label>
+                        </fieldset>
+                    {% endfor %}
+                    <button type="submit" class="btn koamaru">Enregistrer</button>
+                </form>
+            {% else %}
+                <p class="dashboard-empty">Aucun nom ne se ressemble assez pour être vérifié.</p>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-card">
+            <h2>Rapprocher deux noms</h2>
+            <p class="club-stats-note">Pour ceux que la page ne trouve pas seule, comme un surnom.</p>
+            <form method="post" action="{{ path('admin.statistics.names.save') }}" class="name-match-form">
+                <div>
+                    <label for="name-wrong">Le nom à corriger</label>
+                    <input type="text" id="name-wrong" name="wrong" list="dancer-names" autocomplete="off" required>
+                </div>
+                <div>
+                    <label for="name-right">Le nom à garder</label>
+                    <input type="text" id="name-right" name="right" list="dancer-names" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn koamaru">Rapprocher</button>
+                <datalist id="dancer-names">
+                    {% for dancer in dancers %}
+                        <option value="{{ dancer.name }}"></option>
+                    {% endfor %}
+                </datalist>
+            </form>
+        </section>
+
+        {% for kind, title in {same: 'Noms rapprochés', different: 'Gardés séparés'} %}
+            {% if choices[kind] %}
+                <section class="dashboard-card">
+                    <h2>{{ title }}</h2>
+                    <table class="dashboard-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">{{ kind == 'same' ? 'Ce nom' : 'Ces deux noms' }}</th>
+                            <th scope="col">{{ kind == 'same' ? 'Compte pour' : 'Sont deux personnes' }}</th>
+                            <th scope="col" class="right-align">Annuler</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for choice in choices[kind] %}
+                            <tr>
+                                <td>{{ choice.name }}</td>
+                                <td>{{ choice.other }}</td>
+                                <td class="right-align">
+                                    <form method="post" action="{{ path('admin.statistics.names.save') }}">
+                                        <input type="hidden" name="undo" value="{{ choice.id }}">
+                                        <button type="submit" class="btn-flat" aria-label="Annuler le choix pour {{ choice.name }} et {{ choice.other }}">Annuler</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
