@@ -1374,39 +1374,87 @@ button.dashboard-pill {
     gap: 12px;
 }
 
-/* /admin/statistics/names: a pair of names to settle, then the form to match two by hand */
-.name-pair {
+/* /admin/statistics/names: a pair of names to answer, then the form to match two by hand */
+.name-pairs-sure {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px 24px;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin: 16px 0 8px;
+    padding: 12px 16px;
+    background-color: #e8eef5;
+    border-radius: 8px;
+}
+
+.name-pairs-sure p {
+    flex: 1 1 320px;
     margin: 0;
-    padding: 12px 0;
-    border: 0;
+}
+
+.name-pair {
+    padding: 14px 0;
     border-bottom: 1px solid #e3e8ef;
 }
 
-.name-pair:last-of-type {
-    margin-bottom: 16px;
+.name-pair:last-child {
+    border-bottom: 0;
 }
 
+/* While its answer is saved (script.js) */
+.name-pair.saving {
+    opacity: .5;
+    pointer-events: none;
+}
+
+.name-pair-names {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+/* The name that will be kept */
+.name-pair-names strong {
+    font-weight: 800;
+}
+
+.name-pair-names small,
 .name-pair-reason {
-    flex: 0 0 100%;
     color: #52606d;
     font-size: 13px;
 }
 
-.name-pair-choice {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: inherit;
-    font-size: 15px;
-    cursor: pointer;
+.name-pair-and {
+    margin: 0 6px;
+    color: #52606d;
 }
 
-.name-pair-choice small {
+.name-pair-reason {
+    margin: 2px 0 10px;
+}
+
+.name-pair-answers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+.name-pair-answers .btn-flat {
+    border: 1px solid currentColor;
+    line-height: 34px;
+}
+
+.name-pair-other {
+    padding: 4px 0;
     color: #52606d;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    text-decoration: underline;
+    background: none;
+    border: 0;
+    cursor: pointer;
 }
 
 .name-match-form {
