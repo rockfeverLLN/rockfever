@@ -61,6 +61,16 @@ class Router
     }
 
     /**
+     * @param string $path
+     * @param string|callable $callable
+     * @param string $name
+     */
+    public function options(string $path, $callable, ?string $name = null)
+    {
+        $this->router->addRoute(new MezzioRoute($path, new MiddlewareCallback($callable), ['OPTIONS'], $name));
+    }
+
+    /**
      * @param string $prefixPath
      * @param string|callable $callable
      * @param string $prefixName

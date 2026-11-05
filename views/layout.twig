@@ -19,7 +19,8 @@
         });
         gtag('js', new Date());
 
-        gtag('config', 'G-MKKLSTRX4W');
+        {#- Without the fragment: an assistant's link to /event can carry the visitor's name there (script.js) #}
+        gtag('config', 'G-MKKLSTRX4W', {'page_location': location.href.split('#')[0]});
         {#- What the visitor just did (a sign-up, a message...), queued by the action with FlashService::event() #}
         {%- set analytics_event = flash('event') %}
         {%- if analytics_event %}

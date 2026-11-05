@@ -72,6 +72,7 @@ class MainModule extends Module
         $router->post('/mcp', McpAction::class, 'mcp');
         $router->get('/mcp', McpAction::class);
         $router->delete('/mcp', McpAction::class);
+        $router->options('/mcp', McpAction::class);
 
 
         if ($container->has('admin.prefix')) {

@@ -30,6 +30,19 @@
         });
     });
 
+    // /event#firstname=...&lastname=...: an assistant that can't sign the person up gives this link, which fills the form
+    // for them to send. In the fragment, so that their name reaches neither the server nor Analytics (see the layout)
+    var prefill = new URLSearchParams(location.hash.slice(1));
+    if (prefill.has('firstname') || prefill.has('lastname')) {
+        ['firstname', 'lastname'].forEach(function (name) {
+            var input = document.querySelector('form[toolname] input[name="' + name + '"]');
+            if (input && prefill.has(name)) {
+                input.value = prefill.get(name).slice(0, 100);
+            }
+        });
+        history.replaceState(null, '', location.pathname + location.search);
+    }
+
     // The menus' link to the page we're on says so to screen readers, as its highlight does on screen
     all('nav li.active > a, .sidenav li.active > a').forEach(function (link) {
         if (!link.hasAttribute('aria-current') && !link.classList.contains('dropdown-trigger')) {
