@@ -24,8 +24,10 @@
                 {% if suggestions.sure > 0 %}
                     <form method="post" action="{{ path('admin.statistics.names.save') }}" class="name-pairs-sure">
                         <p>
-                            <strong>{{ suggestions.sure }} paire{{ suggestions.sure > 1 ? 's' }} {{ suggestions.sure > 1 ? 'ont' : 'a' }} exactement les mêmes lettres</strong> :
-                            seuls les espaces ou la coupure entre prénom et nom changent. C'est presque toujours la même personne.
+                            <strong>{{ suggestions.sure }} paire{{ suggestions.sure > 1 ? 's' }} sans grand doute</strong> :
+                            les mêmes lettres coupées autrement, ou un prénom et un nom inversés, quand un seul des deux
+                            est le prénom d'autres danseurs. Le prénom est alors gardé devant. Une paire comme
+                            Thomas Martin et Martin Thomas, deux prénoms possibles, reste à vérifier ci-dessous.
                         </p>
                         <button type="submit" name="sure" value="1" class="btn koamaru">Tout regrouper ({{ suggestions.sure }})</button>
                     </form>
