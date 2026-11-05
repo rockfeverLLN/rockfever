@@ -29,7 +29,7 @@
             <p class="club-stats-intro">
                 {{ totals.events }} soirée{{ totals.events > 1 ? 's' }} passée{{ totals.events > 1 ? 's' }}
                 {%- if season is not null %} pendant la saison {{ seasons[season] }}{% else %} depuis le début{% endif %}.
-                Un danseur est reconnu à son prénom et son nom.
+                Un danseur est reconnu à son prénom et son nom : <a href="{{ path('admin.statistics.names') }}">corriger les noms</a>.
             </p>
 
             <div class="row stat-grid">

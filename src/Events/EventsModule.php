@@ -17,6 +17,7 @@ use App\Events\Actions\SoireeAction;
 use App\Events\Actions\SoireeSettingsAction;
 use App\Events\Actions\EventStatisticsAction;
 use App\Events\Actions\StatisticsAction;
+use App\Events\Actions\StatisticsNamesAction;
 use Framework\Module;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
@@ -113,6 +114,19 @@ class EventsModule extends Module
                 $adminPrefix . '/statistics',
                 StatisticsAction::class,
                 'admin.statistics'
+            );
+
+            // Which names are one dancer in the statistics
+            $router->get(
+                $adminPrefix . '/statistics/names',
+                StatisticsNamesAction::class,
+                'admin.statistics.names'
+            );
+
+            $router->post(
+                $adminPrefix . '/statistics/names',
+                StatisticsNamesAction::class,
+                'admin.statistics.names.save'
             );
 
             $router->post(

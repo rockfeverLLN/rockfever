@@ -1373,6 +1373,56 @@ button.dashboard-pill {
     gap: 12px;
 }
 
+/* /admin/statistics/names: a pair of names to settle, then the form to match two by hand */
+.name-pair {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 24px;
+    margin: 0;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid #e3e8ef;
+}
+
+.name-pair:last-of-type {
+    margin-bottom: 16px;
+}
+
+.name-pair-reason {
+    flex: 0 0 100%;
+    color: #52606d;
+    font-size: 13px;
+}
+
+.name-pair-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.name-pair-choice small {
+    color: #52606d;
+}
+
+.name-match-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 24px;
+}
+
+.name-match-form > div {
+    flex: 1 1 240px;
+}
+
+.name-match-form input {
+    margin-bottom: 0;
+}
+
 .club-stats-season {
     display: flex;
     align-items: center;

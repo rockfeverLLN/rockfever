@@ -41,7 +41,7 @@ PHP 8.5, Twig 3, PHP-DI 7, Mezzio router, on OVH web hosting. Every push to `mai
 
 ### Contents
 
-[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Photos](#photos) · [Facebook posts](#facebook-posts) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates) · [README screenshots](#readme-screenshots)
+[Layout](#layout) · [Run it locally](#run-it-locally) · [Calendar](#calendar) · [Home page](#home-page) · [Statistics](#statistics) · [Photos](#photos) · [Facebook posts](#facebook-posts) · [Page speed](#page-speed) · [Search engines and AI agents](#search-engines-and-ai-agents) · [Deploy](#deploy) · [Package updates](#package-updates) · [README screenshots](#readme-screenshots)
 
 ## Layout
 
@@ -89,6 +89,12 @@ The home page shows the sections of the admin's "À propos" in order. The sectio
 Text written in the admin (these sections, the events' title and description) goes through the `typography` Twig filter ([`TextExtension`](src/Framework/Twig/TextExtension.php)), so it follows French typography whatever was typed: no-break spaces before `:` and inside `« »`, narrow ones before `; ! ?`, and `’` apostrophes. Use it on any new admin text (`|e|typography` for plain text).
 
 **Emojis:** the production tables were created in `utf8` (utf8mb3), which saves emojis as `?`. [`src/Main/db/fix-home-copy.sql`](src/Main/db/fix-home-copy.sql) converts `aboutSections` and `events` to utf8mb4, puts `[dates]` in the dates section and fixes the spelling of the home page. Run it once in phpMyAdmin after deploying; running it again changes nothing.
+
+## Statistics
+
+`/admin/statistics` counts the dancers of the past soirées, over all time or one season. The sign-ups have no id but the typed name, so [`DancerNames`](src/Events/DancerNames.php) decides who is who: the same name whatever its case, accents, hyphens or apostrophes is one dancer.
+
+**Matching names:** **corriger les noms**, on that page, opens `/admin/statistics/names`. It lists the pairs that look like one dancer (same letters, first and last name swapped, a typo, a shortened name), surest first: pick the name to keep, or **Deux personnes** to stop suggesting the pair. A nickname it can't find goes in **Rapprocher deux noms**. Only the statistics change: the sign-ups and the soirées' lists keep what was typed, and every choice can be undone at the bottom of the page. The choices are in the `dancer_matches` table: on OVH, run [`src/Events/db/create-dancer-matches-table.sql`](src/Events/db/create-dancer-matches-table.sql) once in phpMyAdmin **before deploying**.
 
 ## Photos
 
