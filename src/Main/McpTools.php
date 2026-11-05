@@ -1,9 +1,7 @@
 <?php
 namespace App\Main;
 
-use App\Events\Table\AgentRegistrationTable;
 use App\Events\Table\DancerTable;
-use App\Events\Table\EventTable;
 use Framework\Database\NoRecordException;
 use Framework\SpamGuard;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,13 +10,9 @@ use Psr\Http\Message\ServerRequestInterface;
  * What an AI assistant can do through /mcp (App\Main\Actions\McpAction): read the soirées, and sign someone up in two
  * steps, the way the form of /event does.
  *
- * Visitors have no accounts, so nothing here identifies the person. As on the form, anyone can put a name on the list;
- * what's added is the registration's reference, a secret given to whoever made the sign-up, and the only way to see or
- * cancel it.
- *
- * A sign-up only ever cancels the name it added itself, or anyone could remove a dancer by signing them up again. And as
- * on the form, no answer shows whether a name was already on the list, or anyone could find out who is coming: a sign-up
- * of a name already there looks the same at every step (see describe() and cancel()).
+ * Visitors have no accounts, so nothing here identifies the person. A sign-up is an ordinary line of the door list, like
+ * one from the form: nothing else is kept, so assistants can't cancel it, the team does. And as on the form, the answer is
+ * the same whether or not the name was already on the list, or anyone could find out who is coming.
  */
 class McpTools
 {
@@ -34,14 +28,12 @@ class McpTools
     const INSTRUCTIONS = 'Soirées rock et valse du Rock Fever (18-35 ans, Louvain-la-Neuve). Pour inscrire quelqu\'un : '
         . 'prepare_registration, montre le résumé à la personne, puis confirm_registration seulement après son accord '
         . 'explicite. N\'inscris que la personne qui le demande, avec son propre nom : l\'inscription met un vrai nom sur '
-        . 'la liste d\'entrée et vaut acceptation du R.O.I. On paie à l\'entrée. Donne-lui le registration_id : lui seul '
-        . 'permet d\'annuler.';
+        . 'la liste d\'entrée et vaut acceptation du R.O.I. On paie à l\'entrée. Pour annuler, la personne écrit à '
+        . 'l\'équipe sur ' . Calendar::SITE . '/contact.';
 
     public function __construct(
         private Calendar $calendar,
-        private EventTable $events,
         private DancerTable $dancers,
-        private AgentRegistrationTable $registrations,
         private SpamGuard $spamGuard
     ) {
     }
@@ -56,7 +48,6 @@ class McpTools
             'pattern' => '^\d{4}-\d{2}-\d{2}$',
             'description' => 'Le jour de la soirée (AAAA-MM-JJ), son id dans list_events.',
         ];
-        $registrationId = ['type' => 'string', 'description' => 'Le registration_id donné par confirm_registration.'];
         $read = ['readOnlyHint' => true, 'destructiveHint' => false, 'openWorldHint' => false];
         return [
             [
@@ -114,30 +105,6 @@ class McpTools
                 ],
                 'annotations' => ['readOnlyHint' => false, 'destructiveHint' => false, 'idempotentHint' => true, 'openWorldHint' => false],
             ],
-            [
-                'name' => 'get_registration',
-                'title' => 'Voir une inscription',
-                'description' => 'Où en est une inscription faite avec confirm_registration.',
-                'inputSchema' => [
-                    'type' => 'object',
-                    'properties' => ['registration_id' => $registrationId],
-                    'required' => ['registration_id'],
-                    'additionalProperties' => false,
-                ],
-                'annotations' => $read,
-            ],
-            [
-                'name' => 'cancel_registration',
-                'title' => 'Annuler une inscription',
-                'description' => 'Retire la personne de la liste d\'entrée. À n\'appeler que si elle l\'a demandé.',
-                'inputSchema' => [
-                    'type' => 'object',
-                    'properties' => ['registration_id' => $registrationId],
-                    'required' => ['registration_id'],
-                    'additionalProperties' => false,
-                ],
-                'annotations' => ['readOnlyHint' => false, 'destructiveHint' => true, 'idempotentHint' => true, 'openWorldHint' => false],
-            ],
         ];
     }
 
@@ -156,8 +123,6 @@ class McpTools
             'get_event' => $this->getEvent($arguments),
             'prepare_registration' => $this->prepare($arguments),
             'confirm_registration' => $this->confirm($arguments, $request),
-            'get_registration' => $this->describe($this->findRegistration($arguments)),
-            'cancel_registration' => $this->cancel($arguments),
             default => throw new \DomainException('Outil inconnu : ' . $name),
         };
     }
@@ -216,14 +181,7 @@ class McpTools
 
     private function confirm(array $arguments, ServerRequestInterface $request) : array
     {
-        $token = self::text($arguments, 'confirmation_token');
-        $data = self::decode($token);
-        // Sent twice: the same answer, whatever has changed since
-        $reference = substr(hash('sha256', $token), 0, 32);
-        $registration = $this->registrations->findByReference($reference);
-        if ($registration !== null) {
-            return $this->describe($registration);
-        }
+        $data = self::decode(self::text($arguments, 'confirmation_token'));
         if ($data['expires'] < time()) {
             throw new \DomainException('Ce résumé a expiré : appelle à nouveau prepare_registration.');
         }
@@ -238,101 +196,17 @@ class McpTools
         $this->spamGuard->sent($request, 'mcp-sign-up', self::MAX_SIGN_UPS_DELAY);
 
         $eventId = (int) $soiree['event']->id;
-        $pdo = $this->registrations->getPdo();
-        $pdo->beginTransaction();
-        try {
-            $this->registrations->insert([
-                'reference' => $reference,
-                'event_id' => $eventId,
-                'firstname' => $firstname,
-                'lastname' => $lastname,
-                'client' => mb_substr($request->getHeaderLine('User-Agent'), 0, 255),
-            ]);
-            $id = (int) $pdo->lastInsertId();
-            if (!$this->isOnList($firstname, $lastname, $eventId)) {
-                $this->dancers->insert(['firstname' => $firstname, 'lastname' => $lastname, 'event_id' => $eventId]);
-                $this->registrations->update($id, ['added' => 1, 'dancer_id' => (int) $pdo->lastInsertId()]);
-            }
-            $pdo->commit();
-        } catch (\PDOException $e) {
-            $pdo->rollBack();
-            // The same token, sent twice at the same moment: the other request signed up
-            $registration = $e->getCode() === '23000' ? $this->registrations->findByReference($reference) : null;
-            if ($registration === null) {
-                throw $e;
-            }
-            return $this->describe($registration);
+        // Sent twice, or already signed up on the form: on the list once
+        if (!$this->isOnList($firstname, $lastname, $eventId)) {
+            $this->dancers->insert(['firstname' => $firstname, 'lastname' => $lastname, 'event_id' => $eventId]);
         }
-        return $this->describe($this->registrations->find($id));
-    }
-
-    private function cancel(array $arguments) : array
-    {
-        $registration = $this->findRegistration($arguments);
-        $state = $this->describe($registration);
-        if ($state['status'] === 'cancelled') {
-            return $state;
-        }
-        $dancerId = $registration->dancerId === null ? null : (int) $registration->dancerId;
-        if (!$state['cancellable'] || ($dancerId !== null && $this->hasArrived($dancerId))) {
-            throw new \DomainException('Cette inscription ne peut plus être annulée ici : écris à l\'équipe sur '
-                . Calendar::SITE . '/contact.');
-        }
-        $pdo = $this->registrations->getPdo();
-        $pdo->beginTransaction();
-        try {
-            $now = new \DateTimeImmutable('now', new \DateTimeZone(Calendar::TIMEZONE));
-            $this->registrations->update((int) $registration->id, ['cancelled_at' => $now->format('Y-m-d H:i:s')]);
-            // Nothing to remove for a name that was already on the list: it stays, and the answer doesn't tell
-            if ($dancerId !== null) {
-                $this->dancers->delete($dancerId);
-            }
-            $pdo->commit();
-        } catch (\PDOException $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
-        return $this->describe($this->registrations->find((int) $registration->id));
-    }
-
-    /**
-     * Where a registration stands: `confirmed`, `cancelled` by the person, or `removed` from the list by the team.
-     * Reads nothing of the list but the dancer it added, so a name that was already there gives the same answer
-     */
-    private function describe(object $registration) : array
-    {
-        $soiree = $this->calendar->find($this->events->find((int) $registration->eventId)->getDay());
-        $status = 'confirmed';
-        if ($registration->cancelledAt !== null) {
-            $status = 'cancelled';
-        } elseif ($registration->added && $registration->dancerId === null) {
-            $status = 'removed';
-        }
-        $started = $soiree['start'] <= new \DateTimeImmutable('now', new \DateTimeZone(Calendar::TIMEZONE));
         return [
-            'status' => $status,
-            'registration_id' => $registration->reference,
+            'status' => 'confirmed',
             'event' => ['id' => $soiree['date'], 'name' => $soiree['name'], 'summary' => $soiree['summary'], 'url' => $soiree['url']],
-            'participant' => ['firstname' => $registration->firstname, 'lastname' => $registration->lastname],
-            'cancellable' => $status === 'confirmed' && !$started,
-            'note' => match ($status) {
-                'cancelled' => 'Cette inscription est annulée. Si ce nom a aussi été inscrit autrement, par exemple sur le '
-                    . 'site, il reste sur la liste : pour l\'en retirer, écris à l\'équipe sur ' . Calendar::SITE . '/contact.',
-                'removed' => 'L\'équipe a retiré ce nom de la liste.',
-                default => 'Ce nom est sur la liste d\'entrée. Garde le registration_id : lui seul permet de voir ou '
-                    . 'd\'annuler cette inscription. On paie à l\'entrée.',
-            },
+            'participant' => ['firstname' => $firstname, 'lastname' => $lastname],
+            'note' => 'Ce nom est sur la liste d\'entrée. On paie à l\'entrée. Pour annuler, écris à l\'équipe sur '
+                . Calendar::SITE . '/contact.',
         ];
-    }
-
-    private function findRegistration(array $arguments) : object
-    {
-        $reference = self::text($arguments, 'registration_id');
-        $registration = preg_match('/^[a-f0-9]{32}$/', $reference) ? $this->registrations->findByReference($reference) : null;
-        if ($registration === null) {
-            throw new \DomainException('Inscription introuvable : vérifie le registration_id.');
-        }
-        return $registration;
     }
 
     private function findSoiree(string $date) : array
@@ -358,11 +232,6 @@ class McpTools
             $message .= ' Elles ouvrent le ' . $registration['opens']->format('c') . '.';
         }
         throw new \DomainException($message);
-    }
-
-    private function hasArrived(int $dancerId) : bool
-    {
-        return (int) $this->dancers->find($dancerId)->status !== 0;
     }
 
     private function isOnList(string $firstname, string $lastname, int $eventId) : bool
