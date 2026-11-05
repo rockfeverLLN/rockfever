@@ -498,7 +498,8 @@ h6 {
 }
 
 /* Hidden on screen, still read by screen readers. The label of a field TinyMCE replaced names its editing area
-   (script.js) */
+   (script.js). Around a table rather than on it: a table ignores this height and stays as tall as its rows, which then
+   add empty space to the end of the page */
 .sr-only,
 .input-field > .tox-tinymce ~ label {
     position: absolute;
@@ -2166,8 +2167,13 @@ table tbody tr td .input-field {
 }
 
 .dancers-list-background {
-    background-image: url("/images/body/bg.webp");
-    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
+    /* ?v=2: the browsers keep images for a year, and the earlier picture ended in a white line */
+    background-image: url("/images/body/bg.webp?v=2");
+    background-image: image-set(url("/images/body/bg.jxl?v=2") type("image/jxl"), url("/images/body/bg.webp?v=2") type("image/webp"));
+    /* One picture over the whole column: tiled, it repeats once a zoomed-out window is larger than it */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100%;
 }
 
