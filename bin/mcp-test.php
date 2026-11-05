@@ -109,21 +109,54 @@ try {
     $check('get_registration', ($tool('get_registration', $id)['structuredContent']['cancellable'] ?? false) === true);
     $check('a wrong id is refused', ($tool('get_registration', ['registration_id' => str_repeat('0', 32)])['isError'] ?? false) === true);
 
-    // The heart of it: signing someone up again must not give a way to remove them
-    $other = $tool('prepare_registration', ['firstname' => 'ZOÉ', 'lastname' => 'test'])['structuredContent'] ?? [];
-    $second = $tool('confirm_registration', ['confirmation_token' => $other['confirmation_token'] ?? ''])['structuredContent'] ?? [];
+    // Signing someone up again must neither give a way to remove them, nor show that they were on the list
+    $signUp = function (string $firstname, string $lastname) use ($tool) : array {
+        $preview = $tool('prepare_registration', compact('firstname', 'lastname'))['structuredContent'] ?? [];
+        return $tool('confirm_registration', ['confirmation_token' => $preview['confirmation_token'] ?? ''])['structuredContent'] ?? [];
+    };
+    // What's the same for everyone, once the name and the reference are taken out
+    $shape = fn (array $answer) => array_diff_key($answer, ['participant' => 0, 'registration_id' => 0]);
+    $second = $signUp('ZOÉ', 'test');
+    $third = $signUp('Zoé', 'TEST');
     $check('a name already on the list is added once', ($second['status'] ?? '') === 'confirmed' && $dancers($eventId) === 1);
-    $check('and can\'t be cancelled', ($tool('cancel_registration', ['registration_id' => $second['registration_id'] ?? ''])['isError'] ?? false) === true && $dancers($eventId) === 1);
+    $fresh = $signUp('Nouveau', 'Test');
+    $check('and looks like a new one', $shape($second) === $shape($fresh) && $dancers($eventId) === 2);
+    $againId = ['registration_id' => $second['registration_id'] ?? ''];
+    $freshId = ['registration_id' => $fresh['registration_id'] ?? ''];
+    $check('also when read', $shape($tool('get_registration', $againId)['structuredContent'] ?? []) === $shape($tool('get_registration', $freshId)['structuredContent'] ?? []));
+    $doubled = $tool('cancel_registration', $againId)['structuredContent'] ?? [];
+    $check('cancelling it leaves the dancer', ($doubled['status'] ?? '') === 'cancelled' && $dancers($eventId) === 2);
+    $cancelled = $tool('cancel_registration', $freshId)['structuredContent'] ?? [];
+    $check('and looks like any other cancelling', $shape($doubled) === $shape($cancelled) && $dancers($eventId) === 1);
 
     // At the door
     $pdo->exec("UPDATE dancers SET status = 1 WHERE event_id = $eventId");
-    $check('nor once arrived', ($tool('cancel_registration', $id)['isError'] ?? false) === true && $dancers($eventId) === 1);
+    $check('not once arrived', ($tool('cancel_registration', $id)['isError'] ?? false) === true && $dancers($eventId) === 1);
     $pdo->exec("UPDATE dancers SET status = 0 WHERE event_id = $eventId");
 
     $check('cancel_registration', ($tool('cancel_registration', $id)['structuredContent']['status'] ?? '') === 'cancelled' && $dancers($eventId) === 0);
+    // Cancelling the first sign-up can't be used to learn what a later one found
+    $check('a sign-up that added nothing stays the same', ($tool('get_registration', ['registration_id' => $third['registration_id'] ?? ''])['structuredContent']['status'] ?? '') === 'confirmed');
     $check('cancelling twice is fine', ($tool('cancel_registration', $id)['structuredContent']['status'] ?? '') === 'cancelled');
     $check('its token doesn\'t sign up again', ($tool('confirm_registration', $token)['structuredContent']['status'] ?? '') === 'cancelled' && $dancers($eventId) === 0);
-    $check('the log keeps it', (int) $pdo->query("SELECT COUNT(*) FROM agent_registrations WHERE event_id = $eventId AND client = 'mcp-test'")->fetchColumn() === 2);
+    $check('the log keeps it', (int) $pdo->query("SELECT COUNT(*) FROM agent_registrations WHERE event_id = $eventId AND client = 'mcp-test'")->fetchColumn() === 4);
+
+    // Removed by the team
+    $removed = $signUp('Retiré', 'Test');
+    $pdo->exec("DELETE FROM dancers WHERE event_id = $eventId");
+    $removedId = ['registration_id' => $removed['registration_id'] ?? ''];
+    $check('a dancer the team removed', ($tool('get_registration', $removedId)['structuredContent']['status'] ?? '') === 'removed');
+    $check('can\'t be cancelled', ($tool('cancel_registration', $removedId)['isError'] ?? false) === true);
+
+    // Names and tokens that aren't right
+    $check('no control characters in a name', ($tool('prepare_registration', ['firstname' => "A\nB", 'lastname' => 'Test'])['isError'] ?? false) === true);
+    $check('no name over 100 characters', ($tool('prepare_registration', ['firstname' => str_repeat('é', 101), 'lastname' => 'Test'])['isError'] ?? false) === true);
+    $data = json_decode(base64_decode(strtr(substr($token['confirmation_token'], 4), '-_', '+/')), true);
+    $forge = fn (array $changes) => 'rf1.' . rtrim(strtr(base64_encode(json_encode($changes + $data)), '+/', '-_'), '=');
+    $nonce = fn () => bin2hex(random_bytes(16));
+    $check('an expired token is refused', ($tool('confirm_registration', ['confirmation_token' => $forge(['expires' => time() - 1, 'nonce' => $nonce()])])['isError'] ?? false) === true);
+    $check('a token isn\'t a way around the name rules', ($tool('confirm_registration', ['confirmation_token' => $forge(['firstname' => '', 'nonce' => $nonce()])])['isError'] ?? false) === true);
+    $check('nor around the dates', ($tool('confirm_registration', ['confirmation_token' => $forge(['event' => '2000-01-01', 'nonce' => $nonce()])])['isError'] ?? false) === true && $dancers($eventId) === 0);
 
     // Closed by the team, after the preview
     $late = $tool('prepare_registration', $names)['structuredContent'] ?? [];

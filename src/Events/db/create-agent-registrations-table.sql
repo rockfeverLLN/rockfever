@@ -4,6 +4,7 @@ CREATE TABLE `agent_registrations` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `reference` char(32) NOT NULL,
     `event_id` int(11) NOT NULL,
+    `added` tinyint(1) NOT NULL DEFAULT 0,
     `dancer_id` int(11) DEFAULT NULL,
     `firstname` varchar(255) NOT NULL,
     `lastname` varchar(255) NOT NULL,

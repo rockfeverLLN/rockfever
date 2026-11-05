@@ -17,7 +17,9 @@ class CreateAgentRegistrationsTable extends AbstractMigration
             ->addIndex('reference', ['unique' => true])
             ->addColumn('event_id', 'integer')
             ->addForeignKey('event_id', 'events', ['id'], ['delete' => 'CASCADE'])
-            // Empty if the name was already on the list (this sign-up didn't add it), or the team removed it since
+            // Whether this sign-up put the name on the list. If it was already there, it isn't this sign-up's to cancel
+            ->addColumn('added', 'boolean', ['default' => 0])
+            // The dancer it added: empty once the team removes them
             ->addColumn('dancer_id', 'integer', ['null' => true])
             ->addForeignKey('dancer_id', 'dancers', ['id'], ['delete' => 'SET_NULL'])
             ->addColumn('firstname', 'string')
