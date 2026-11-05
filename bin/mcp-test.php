@@ -6,7 +6,7 @@
  * Usage: php bin/mcp-test.php [base-url]   (default http://127.0.0.1:8000)
  */
 chdir(dirname(__DIR__));
-$config = require 'config/database.php';
+$config = require dirname(__DIR__) . '/config/database.php';
 if (!in_array($config['database.host'], ['127.0.0.1', 'localhost'], true)) {
     exit("config/database.php isn't a local database: not running\n");
 }
