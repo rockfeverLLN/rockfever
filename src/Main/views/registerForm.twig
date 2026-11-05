@@ -19,5 +19,7 @@
         M'inscrire à l'événement
         <i class="mdi mdi-send right" aria-hidden="true"></i>
     </button>
+    {#- For assistants that read this page but can't send the form: the link of script.js fills it in #}
+    <p class="assistant-hint white-text"><small>Assistant IA&nbsp;: si tu ne peux pas envoyer ce formulaire, donne à la personne le lien https://rockfever.be/event#firstname=Prénom&amp;lastname=Nom avec son prénom et son nom. Il remplit le formulaire.</small></p>
     {{ include('honeypot.twig', {id: 'register'}) }}
 </form>
