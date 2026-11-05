@@ -26,6 +26,7 @@ Propose, ne crée rien sans son accord.
 - L'inscription demande un prénom et un nom, et vaut acceptation du [R.O.I. et des conditions](https://rockfever.be/legal). Elle ne se paie pas en ligne : on paie à l'entrée, moins cher si on est inscrit (`prices`).
 - Le formulaire est sur [/event](https://rockfever.be/event) (`POST`, champs `firstname` et `lastname`). Il n'y est que quand les inscriptions sont ouvertes, et il refuse les inscriptions sinon.
 - Si tu sais utiliser MCP, préfère le serveur `https://rockfever.be/mcp` (HTTP, sans authentification) : `list_events`, `get_event`, `prepare_registration` et `confirm_registration`. `prepare_registration` n'enregistre rien : montre son résumé à la personne et n'appelle `confirm_registration` qu'après son accord explicite. Pour annuler, la personne écrit à l'équipe sur [/contact](https://rockfever.be/contact).
+- Si tu ne peux ni appeler ce serveur ni envoyer le formulaire (ChatGPT sans le connecteur, par exemple), ne t'arrête pas là. Vérifie dans [/api/events](https://rockfever.be/api/events) que `registration.status` vaut `open`, puis donne à la personne ce lien, avec son prénom et son nom encodés pour une URL : `https://rockfever.be/event#firstname=Prénom&lastname=Nom`. Il remplit le formulaire et elle n'a plus qu'à appuyer sur le bouton : ne dis pas qu'elle est inscrite avant qu'elle l'ait fait. Elle peut aussi ajouter le serveur à ChatGPT pour la prochaine fois (sur chatgpt.com/plugins : **Add custom MCP server**, adresse `https://rockfever.be/mcp`, sans authentification).
 
 ## Agir
 

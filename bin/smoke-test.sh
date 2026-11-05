@@ -47,6 +47,13 @@ else
     FAILED=1
 fi
 
+if [ "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/mcp/")" = 308 ]; then
+    echo "  ok   /mcp/ keeps its POST"
+else
+    echo "  FAIL /mcp/ keeps its POST"
+    FAILED=1
+fi
+
 echo "Admin pages"
 curl -s -o /dev/null -b "$COOKIES" -c "$COOKIES" --data 'role=administrator&password=admin' "$BASE/login"
 for path in /admin /admin/events /admin/events/past /admin/statistics /admin/statistics/names /admin/about /admin/about/gallery /admin/musics /admin/roles /admin/values /admin/photos; do

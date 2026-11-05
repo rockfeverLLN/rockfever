@@ -13,7 +13,8 @@ use Psr\Http\Message\ServerRequestInterface;
  * all a shared host can do. Speaks the stateless revision (2026-07-28: each request carries its version in `_meta` and
  * the headers, server/discover) and the earlier ones, with their `initialize`, which clients such as ChatGPT may still use.
  *
- * Forms from other sites are refused before this by CsrfMiddleware, which is the check of the Origin header MCP asks for.
+ * Requests from a browser must come from one of ORIGINS, the check of the Origin header MCP asks for: CsrfMiddleware leaves
+ * it to this class, so that the sites of assistants can call it and other sites can't send sign-ups from their visitors.
  */
 class McpAction
 {
@@ -22,6 +23,9 @@ class McpAction
     const OLDER_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26'];
 
     const META = 'io.modelcontextprotocol/';
+
+    // The assistants' sites. Their servers, like any program, send no Origin at all
+    const ORIGINS = ['https://chatgpt.com', 'https://chat.openai.com', 'https://platform.openai.com', 'https://claude.ai'];
 
     private const SERVER_INFO = ['name' => 'rockfever', 'title' => 'Rock Fever', 'version' => '1.0.0'];
 
@@ -42,9 +46,30 @@ class McpAction
 
     public function __invoke(ServerRequestInterface $request) : ResponseInterface
     {
+        $origin = $request->getHeaderLine('Origin');
+        if ($origin === '') {
+            return $this->answer($request);
+        }
+        if (!in_array($origin, self::ORIGINS, true) && parse_url($origin, PHP_URL_HOST) !== $request->getUri()->getHost()) {
+            return self::error(null, self::INVALID_REQUEST, 'Origin not allowed', 403);
+        }
+        return $this->answer($request)->withHeader('Access-Control-Allow-Origin', $origin)->withHeader('Vary', 'Origin');
+    }
+
+    private function answer(ServerRequestInterface $request) : ResponseInterface
+    {
+        // What a browser asks before a POST from another site
+        if ($request->getMethod() === 'OPTIONS') {
+            return new Response(204, [
+                'Allow' => 'POST, OPTIONS',
+                'Access-Control-Allow-Methods' => 'POST, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Accept, Content-Type, MCP-Protocol-Version, Mcp-Method, Mcp-Name',
+                'Access-Control-Max-Age' => '86400',
+            ]);
+        }
         // There's nothing to stream or to close
         if ($request->getMethod() !== 'POST') {
-            return new Response(405, ['Allow' => 'POST']);
+            return new Response(405, ['Allow' => 'POST, OPTIONS']);
         }
         $message = json_decode((string) $request->getBody(), true);
         if ($message === null) {

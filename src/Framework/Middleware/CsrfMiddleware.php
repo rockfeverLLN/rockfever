@@ -27,6 +27,10 @@ class CsrfMiddleware implements MiddlewareInterface
         if (in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS'])) {
             return $handler->handle($request);
         }
+        // Assistants call it from their own sites: it has its own list of them (McpAction::ORIGINS)
+        if ($request->getUri()->getPath() === '/mcp') {
+            return $handler->handle($request);
+        }
         $site = $request->getHeaderLine('Sec-Fetch-Site');
         if ($site !== '') {
             // "none": typed in the address bar or opened from a bookmark

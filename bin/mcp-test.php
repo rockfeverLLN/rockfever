@@ -87,6 +87,27 @@ try {
     [$status, $answer] = $post(['id' => 1, 'method' => 'tools/list'], ['MCP-Protocol-Version: 1900-01-01']);
     $check('an unknown version gets 400', $status === 400 && ($answer['error']['code'] ?? 0) === -32022);
 
+    // As ChatGPT needs them
+    $body = ['id' => 1, 'method' => 'tools/list'];
+    foreach (['https://chatgpt.com', 'https://claude.ai'] as $origin) {
+        [$status] = $post($body, ['Origin: ' . $origin]);
+        $check('the site of an assistant: ' . $origin, $status === 200);
+    }
+    [$status] = $post($body, ['Origin: https://elsewhere.example', 'Sec-Fetch-Site: cross-site']);
+    $check('another site gets 403', $status === 403);
+    [$status] = $post($body, ['Origin: null']);
+    $check('and so does a sandboxed page', $status === 403);
+    $preflight = stream_context_create(['http' => ['method' => 'OPTIONS', 'ignore_errors' => true, 'header' => "Origin: https://chatgpt.com\r\nUser-Agent: mcp-test"]]);
+    file_get_contents($url, false, $preflight);
+    $headers = implode("\n", http_get_last_response_headers() ?? []);
+    $check('the browser may ask first', str_contains($headers, ' 204') && stripos($headers, 'Access-Control-Allow-Origin: https://chatgpt.com') !== false);
+    foreach ($post($body)[1]['result']['tools'] ?? [] as $definition) {
+        $annotations = $definition['annotations'] ?? [];
+        $check($definition['name'] . ' says what it does and gives', is_bool($annotations['readOnlyHint'] ?? null)
+            && is_bool($annotations['destructiveHint'] ?? null) && is_bool($annotations['openWorldHint'] ?? null)
+            && isset($definition['outputSchema']) && ($definition['securitySchemes'][0]['type'] ?? '') === 'noauth');
+    }
+
     // Reading
     $events = $tool('list_events')['structuredContent'] ?? [];
     $check('list_events has the soirée', ($events['next'] ?? '') === $day);

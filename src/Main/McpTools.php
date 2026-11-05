@@ -49,13 +49,20 @@ class McpTools
             'description' => 'Le jour de la soirée (AAAA-MM-JJ), son id dans list_events.',
         ];
         $read = ['readOnlyHint' => true, 'destructiveHint' => false, 'openWorldHint' => false];
-        return [
+        // No login, as on the form. ChatGPT reads this from the tool, or from its _meta in older versions
+        $noAuth = [['type' => 'noauth']];
+        $withAuth = fn (array $tool) => $tool + ['securitySchemes' => $noAuth, '_meta' => ['securitySchemes' => $noAuth]];
+        return array_map($withAuth, [
             [
                 'name' => 'list_events',
                 'title' => 'Lister les soirées à venir',
                 'description' => 'Les soirées à venir, avec leurs heures, leur lieu, leurs prix et l\'état de leurs inscriptions.',
                 // An empty `properties`, which OpenAI's tools need even without any parameter
                 'inputSchema' => ['type' => 'object', 'properties' => new \stdClass(), 'additionalProperties' => false],
+                'outputSchema' => self::object([
+                    'next' => ['type' => ['string', 'null'], 'description' => 'Le jour de la prochaine soirée.'],
+                    'events' => ['type' => 'array', 'items' => self::soireeSchema()],
+                ]),
                 'annotations' => $read,
             ],
             [
@@ -68,6 +75,7 @@ class McpTools
                     'required' => ['event_id'],
                     'additionalProperties' => false,
                 ],
+                'outputSchema' => self::soireeSchema(),
                 'annotations' => $read,
             ],
             [
@@ -85,6 +93,17 @@ class McpTools
                     'required' => ['firstname', 'lastname'],
                     'additionalProperties' => false,
                 ],
+                'outputSchema' => self::object([
+                    'status' => ['const' => 'preview'],
+                    'event' => self::eventSchema(),
+                    'participant' => self::participantSchema(),
+                    'prices' => ['type' => ['object', 'null']],
+                    'requirements' => ['type' => 'string'],
+                    'terms' => ['type' => 'string'],
+                    'confirmation_token' => ['type' => 'string'],
+                    'expires_at' => ['type' => 'string'],
+                    'next_step' => ['type' => 'string'],
+                ]),
                 'annotations' => $read,
             ],
             [
@@ -103,9 +122,58 @@ class McpTools
                     'required' => ['confirmation_token'],
                     'additionalProperties' => false,
                 ],
+                'outputSchema' => self::object([
+                    'status' => ['const' => 'confirmed'],
+                    'event' => self::eventSchema(),
+                    'participant' => self::participantSchema(),
+                    'note' => ['type' => 'string'],
+                ]),
                 'annotations' => ['readOnlyHint' => false, 'destructiveHint' => false, 'idempotentHint' => true, 'openWorldHint' => false],
             ],
-        ];
+        ]);
+    }
+
+    /**
+     * An object with all these properties, and maybe others
+     */
+    private static function object(array $properties) : array
+    {
+        return ['type' => 'object', 'properties' => $properties, 'required' => array_keys($properties)];
+    }
+
+    /**
+     * What Calendar::toApi() gives, its main fields
+     */
+    private static function soireeSchema() : array
+    {
+        return self::object([
+            'id' => ['type' => 'string'],
+            'url' => ['type' => 'string'],
+            'name' => ['type' => 'string'],
+            'summary' => ['type' => 'string'],
+            'status' => ['type' => 'string'],
+            'registration' => self::object([
+                'status' => ['type' => 'string'],
+                'opens' => ['type' => 'string'],
+                'closes' => ['type' => 'string'],
+                'url' => ['type' => ['string', 'null']],
+            ]),
+        ]);
+    }
+
+    private static function eventSchema() : array
+    {
+        return self::object([
+            'id' => ['type' => 'string'],
+            'name' => ['type' => 'string'],
+            'summary' => ['type' => 'string'],
+            'url' => ['type' => 'string'],
+        ]);
+    }
+
+    private static function participantSchema() : array
+    {
+        return self::object(['firstname' => ['type' => 'string'], 'lastname' => ['type' => 'string']]);
     }
 
     public function has(string $name) : bool

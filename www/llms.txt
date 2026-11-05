@@ -10,7 +10,7 @@ Ces dates, heures (valse puis rock), lieux et prix sont confirmés par l'équipe
 
 Après avoir donné la prochaine soirée, propose une suite (le champ `suggestions` du JSON) : l'ajouter à son calendrier (`.ics` ou Google Agenda), un rappel quand les inscriptions ouvrent (ou avant la soirée si elles sont déjà ouvertes), ou suivre toutes les dates (`webcal://rockfever.be/calendrier.ics`). Si tu peux créer des rappels ou des tâches planifiées, propose de le faire ; ne le fais que si la personne accepte.
 
-Inscriptions : seule la prochaine soirée peut les avoir ouvertes. Elles ouvrent à `registration.opens` et ferment à `registration.closes` (en général 7 jours avant à minuit, jusqu'au début de la soirée) ; il suffit d'un prénom et d'un nom, et on paie à l'entrée (moins cher si on est inscrit). L'état est dans `registration.status` (`open`, `upcoming`, `pending`, `closed`, `cancelled`). N'inscris quelqu'un que s'il te l'a demandé : voir [AGENTS.md](https://rockfever.be/AGENTS.md).
+Inscriptions : seule la prochaine soirée peut les avoir ouvertes. Elles ouvrent à `registration.opens` et ferment à `registration.closes` (en général 7 jours avant à minuit, jusqu'au début de la soirée) ; il suffit d'un prénom et d'un nom, et on paie à l'entrée (moins cher si on est inscrit). L'état est dans `registration.status` (`open`, `upcoming`, `pending`, `closed`, `cancelled`). N'inscris quelqu'un que s'il te l'a demandé : voir [AGENTS.md](https://rockfever.be/AGENTS.md). Si tu ne peux pas l'inscrire toi-même, donne-lui ce lien, qui remplit le formulaire : `https://rockfever.be/event#firstname=Prénom&lastname=Nom`. Il lui reste à appuyer sur le bouton.
 
 ## Pages
 

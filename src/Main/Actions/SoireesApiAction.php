@@ -52,6 +52,8 @@ class SoireesApiAction
                         ['name' => 'firstname', 'label' => 'Prénom', 'required' => true],
                         ['name' => 'lastname', 'label' => 'Nom', 'required' => true],
                     ],
+                    // For assistants that can only give a link: it fills the form, the person sends it
+                    'prefilledLink' => Calendar::SITE . '/event#firstname={prénom}&lastname={nom}',
                     'terms' => Calendar::SITE . '/legal',
                     'humanConsent' => 'L\'inscription met une vraie personne sur la liste d\'entrée et vaut acceptation du R.O.I. : '
                         . 'ne l\'envoie que si cette personne te l\'a demandé, avec son propre nom. Voir ' . Calendar::SITE . '/AGENTS.md',
