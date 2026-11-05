@@ -498,7 +498,8 @@ h6 {
 }
 
 /* Hidden on screen, still read by screen readers. The label of a field TinyMCE replaced names its editing area
-   (script.js) */
+   (script.js). Around a table rather than on it: a table ignores this height and stays as tall as its rows, which then
+   add empty space to the end of the page */
 .sr-only,
 .input-field > .tox-tinymce ~ label {
     position: absolute;

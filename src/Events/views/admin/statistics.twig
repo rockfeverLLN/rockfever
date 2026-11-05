@@ -101,7 +101,7 @@
             <div class="col s12">
                 <canvas id="myChart" width="100%" height="55vh" aria-hidden="true"></canvas>
                 {#- The chart's numbers, for screen readers #}
-                <table class="sr-only">
+                <div class="sr-only"><table>
                     <caption>Arrivées en fonction de l'heure</caption>
                     <thead>
                     <tr>
@@ -121,7 +121,7 @@
                         </tr>
                     {% endfor %}
                     </tbody>
-                </table>
+                </table></div>
             </div>
 
         </div>
