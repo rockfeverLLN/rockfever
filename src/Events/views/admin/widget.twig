@@ -6,7 +6,7 @@
             <canvas id="dancersChart" aria-hidden="true"></canvas>
         </div>
         {#- The chart's numbers, for screen readers #}
-        <table class="sr-only">
+        <div class="sr-only"><table>
             <caption>Participants des dernières soirées</caption>
             <thead>
             <tr>
@@ -26,7 +26,7 @@
                 </tr>
             {% endfor %}
             </tbody>
-        </table>
+        </table></div>
     </section>
 </div>
 

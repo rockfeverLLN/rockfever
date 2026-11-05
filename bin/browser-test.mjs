@@ -57,6 +57,10 @@ const PAGES = [
     // Card reveal
     ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
         + " !!document.querySelector('.card-reveal.open'))"],
+    // The tables hidden for screen readers add nothing to the page's height: a table on its own ignores .sr-only's
+    ['/admin/statistics', "!!document.getElementById('eventsChart')"
+        + " && [...document.querySelectorAll('.sr-only')].every(element => element.offsetHeight <= 1)"
+        + " && document.documentElement.scrollHeight <= Math.ceil(document.querySelector('main').getBoundingClientRect().bottom + scrollY)"],
     ['/admin/about/1', "tinymce.get().length > 0 && tinymce.get()[0].initialized"
         + " && !!tinymce.get()[0].ui.registry.getAll().buttons.imageuploader"],
     // The settings page: TinyMCE on the R.O.I. and the conditions
