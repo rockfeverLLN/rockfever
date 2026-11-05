@@ -37,6 +37,15 @@ done
 # The next planned soirée, or home once they're all over
 check /event '200|302'
 check /calendrier/2000-01-01 404
+check /mcp 405
+echo "MCP"
+if curl -s -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' "$BASE/mcp" \
+    | grep -q '"name":"confirm_registration"'; then
+    echo "  ok   tools/list"
+else
+    echo "  FAIL tools/list"
+    FAILED=1
+fi
 
 echo "Admin pages"
 curl -s -o /dev/null -b "$COOKIES" -c "$COOKIES" --data 'role=administrator&password=admin' "$BASE/login"

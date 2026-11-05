@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Every check a pull request must pass, Dependabot's package updates included: PHP syntax, PHPStan (phpstan.neon:
-# catches classes and methods a new version removed or changed), the pages answering (bin/smoke-test.sh) and their
-# scripts working in Chrome (bin/browser-test.mjs). Run by .github/workflows/test.yml on GitHub Actions: Composer and
+# catches classes and methods a new version removed or changed), the pages answering (bin/smoke-test.sh), signing up
+# through MCP (bin/mcp-test.php) and the pages' scripts working in Chrome (bin/browser-test.mjs). Run by .github/workflows/test.yml on GitHub Actions: Composer and
 # PHP run in their official Docker images.
 #
 # Expects the workflow's test database (filled by `phinx migrate` and `phinx seed:run`) and its site-php image.
@@ -30,6 +30,8 @@ trap 'echo; echo "Site errors:"; docker logs site 2>&1 | tail -n 20; docker rm -
 for i in $(seq 30); do curl -s -o /dev/null http://127.0.0.1:8000/ && break; sleep 1; done
 
 bin/smoke-test.sh http://127.0.0.1:8000
+echo "MCP sign-up"
+site php bin/mcp-test.php http://127.0.0.1:8000
 echo "Browser"
 node $(node -e WebSocket 2> /dev/null || echo --experimental-websocket) --no-warnings \
     bin/browser-test.mjs http://127.0.0.1:8000

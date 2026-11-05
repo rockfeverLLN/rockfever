@@ -42,6 +42,8 @@ class SoireesApiAction
                     Calendar::REGISTRATION_CLOSED => 'fermées : fermées par l\'équipe, ou registration.closes est passé',
                     Calendar::REGISTRATION_CANCELLED => 'la soirée est annulée',
                 ],
+                // The same sign-up as tools, in two steps, for assistants that can use MCP
+                'mcp' => Calendar::SITE . '/mcp',
                 'form' => [
                     'url' => Calendar::SITE . '/event',
                     'method' => 'POST',
