@@ -109,9 +109,40 @@ class DancerNames
      * The pairs of dancers that look like one person and that nobody settled yet, the surest first
      *
      * @param array $dancers The result of dancers()
-     * @return array ['total' => how many there are, 'pairs' => the first of them: ['a', 'b' (dancers), 'reason']]
+     * @return array ['total' => how many there are, 'sure' => how many have the same letters,
+     *               'pairs' => the first of them: ['a', 'b' (dancers), 'reason']]
      */
     public function suggestions(array $dancers): array
+    {
+        $pairs = $this->pairs($dancers);
+        return [
+            'total' => count($pairs),
+            'sure' => count(array_filter($pairs, fn ($pair) => $pair['rank'] === 0)),
+            'pairs' => array_slice($pairs, 0, self::SUGGESTIONS_SHOWN),
+        ];
+    }
+
+    /**
+     * Answers "same person" to every pair with the same letters, whose spellings only differ by their spaces or by where
+     * the first name ends: each one keeps the name used most
+     *
+     * @param array $dancers The result of dancers()
+     * @return int How many pairs that settled
+     */
+    public function mergeSure(array $dancers): int
+    {
+        $sure = array_filter($this->pairs($dancers), fn ($pair) => $pair['rank'] === 0);
+        foreach ($sure as $pair) {
+            $this->merge($pair['b']['key'], $pair['a']['key']);
+        }
+        return count($sure);
+    }
+
+    /**
+     * @param array $dancers The result of dancers()
+     * @return array Every pair still to settle, the surest first: ['a', 'b' (dancers), 'rank', 'reason']
+     */
+    private function pairs(array $dancers): array
     {
         $different = [];
         foreach ($this->matches() as $match) {
@@ -143,8 +174,7 @@ class DancerNames
             $x['a']['signUps'] + $x['b']['signUps'],
             $y['a']['name'],
         ]);
-
-        return ['total' => count($pairs), 'pairs' => array_slice($pairs, 0, self::SUGGESTIONS_SHOWN)];
+        return $pairs;
     }
 
     /**
