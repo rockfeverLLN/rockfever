@@ -63,7 +63,6 @@ class MusicAction extends FormAction
             $params = $this->getParams($request);
             $this->table->insert($params);
             $this->flash->success($this->messages['create']);
-            $this->flash->event('music_request');
             return $this->redirect('music');
         } else {
             $this->flash->error("Merci de bien vouloir remplir le formulaire");

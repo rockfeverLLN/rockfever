@@ -72,8 +72,8 @@ const PAGES = [
         + " document.getElementById('inAppBrowser').open)",
         'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0.0'],
 ];
-// Analytics can fail in a test run without the site being broken, and Chrome has no handler for Safari's scheme
-const IGNORED = /googletagmanager|google-analytics|Failed to launch 'x-safari-/;
+// Chrome has no handler for Safari's scheme
+const IGNORED = /Failed to launch 'x-safari-/;
 
 const chromePath = process.env.CHROME || (process.platform === 'darwin'
     ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'google-chrome');

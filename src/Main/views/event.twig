@@ -112,11 +112,9 @@
     </div>
 
     {#- Right after a sign-up (EventAction queues the sign_up event, bots don't get it): a popup to put the soirée in
-        their calendar, so they don't forget it. script.js opens it (data-open-on-load); its links' data-track count
-        the clicks in Analytics (add_to_calendar, by method) and close it, closing it otherwise counts
-        add_to_calendar_dismiss #}
+        their calendar, so they don't forget it. script.js opens it (data-open-on-load), and its links close it #}
     {% if flash('event') == 'sign_up' %}
-        <dialog id="signupCalendar" class="modal signup-calendar" data-open-on-load data-track-close="add_to_calendar_dismiss">
+        <dialog id="signupCalendar" class="modal signup-calendar" data-open-on-load>
             <div class="modal-content">
                 <button type="button" class="modal-close signup-calendar-x" aria-label="Fermer">
                     <i class="mdi mdi-close" aria-hidden="true"></i>
@@ -128,11 +126,11 @@
                 <p>Ajoute-la à ton calendrier pour ne pas l’oublier&nbsp;:</p>
                 <div class="soiree-actions">
                     <a href="{{ path('calendar.event', {date: soiree.date}) }}" class="btn koamaru waves-effect waves-light" autofocus
-                       data-track="add_to_calendar" data-track-method="ics">
+                       data-close-modal>
                         <i class="mdi mdi-calendar-plus left" aria-hidden="true"></i>Ajouter à mon calendrier
                     </a>
                     <a href="{{ soiree.googleUrl }}" class="btn-flat calendar-google" target="_blank" rel="noopener"
-                       data-track="add_to_calendar" data-track-method="google">
+                       data-close-modal>
                         <i class="mdi mdi-google left" aria-hidden="true"></i>Google Agenda
                     </a>
                 </div>

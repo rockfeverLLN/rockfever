@@ -39,8 +39,8 @@ class FlashService
     }
 
     /**
-     * A Google Analytics event (a GA4 event name) for the next page to send, so it's counted after a redirect too.
-     * Call it after success(), which replaces the whole flash
+     * What the visitor just did, for the next page to react to after the redirect: /event opens its calendar popup
+     * after a sign_up. Call it after success(), which replaces the whole flash
      */
     public function event(string $name)
     {

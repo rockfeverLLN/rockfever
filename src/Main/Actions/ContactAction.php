@@ -91,7 +91,6 @@ class ContactAction extends FormAction
                     "<br><br>--<br>Adresse de réponse : " . htmlspecialchars($params['email']);
                 $this->mailer->send();
                 $this->flash->success("Le message a bien été envoyé !");
-                $this->flash->event('generate_lead');
             } catch (\Exception $e) {
                 $this->flash->error("Le message n'a pas pu être envoyé.");
             }
