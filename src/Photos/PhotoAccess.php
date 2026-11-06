@@ -12,7 +12,8 @@ use Psr\Http\Message\ServerRequestInterface;
  * the event in the admin). They get a cookie for that album, for 30 days. An album whose soirée has no password
  * is only for the team.
  *
- * The cookie holds an HMAC keyed with the password: nobody can make one without knowing it, and changing the
+ * The cookie holds an HMAC of the album's id and password, keyed with a secret of the server: without the secret,
+ * nobody can try passwords by making cookies, which the form's limit on wrong passwords wouldn't count. Changing the
  * password makes the cookies handed out before useless. No session, so the browser loads the photos in parallel
  * (PHP locks the session for the length of each request)
  */
@@ -28,6 +29,11 @@ class PhotoAccess
     private $auth;
 
     private $team;
+
+    /**
+     * @var string|null
+     */
+    private $secret;
 
     public function __construct(Auth $auth)
     {
@@ -86,6 +92,31 @@ class PhotoAccess
 
     private function getToken(Album $album) : string
     {
-        return hash_hmac('sha256', 'rockfever-album-' . $album->id, $album->photosPassword);
+        return hash_hmac('sha256', 'rockfever-album-' . $album->id . '|' . $album->photosPassword, $this->getSecret());
+    }
+
+    /**
+     * The key of the cookies, made the first time it's needed. In storage/, which is outside the web root and which
+     * deploys never touch. Without it, a new one is made and visitors give their albums' passwords again: no harm
+     */
+    private function getSecret() : string
+    {
+        if ($this->secret === null) {
+            $file = dirname(__DIR__, 2) . '/storage/photo-cookies.key';
+            $secret = is_file($file) ? (string) file_get_contents($file) : '';
+            if (strlen($secret) !== 64) {
+                if (!is_dir(dirname($file))) {
+                    mkdir(dirname($file), 0755, true);
+                }
+                // Written aside then renamed, so another request never reads half a key
+                $temporary = $file . '.' . bin2hex(random_bytes(4));
+                $secret = bin2hex(random_bytes(32));
+                if (file_put_contents($temporary, $secret) !== 64 || !chmod($temporary, 0600) || !rename($temporary, $file)) {
+                    throw new \RuntimeException('Could not save the key of the album cookies');
+                }
+            }
+            $this->secret = $secret;
+        }
+        return $this->secret;
     }
 }

@@ -21,6 +21,8 @@ echo "PHP syntax"
 site sh -c "find src config www -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null"
 echo "PHPStan"
 site vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+echo "Album cookies"
+site php bin/photo-cookie-test.php
 
 docker rm -f site > /dev/null 2>&1 || true
 docker run -d --name site --network host --user "$(id -u):$(id -g)" -v "$PWD:/app" -w /app site-php \

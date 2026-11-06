@@ -15,10 +15,10 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write  # push the new screenshots
+  contents: read
 
 # Takes .github/assets/desktop.jpg and phones.webp again from the live site (bin/readme-screenshots.mjs) and commits
-# them when they changed. A push made with this job's token doesn't start the deploy, and .github isn't uploaded anyway.
+# them when they changed. deploy.yml skips the pushes that only change them, and .github isn't uploaded anyway.
 # Same rule as deploy.yml: no marketplace actions, only plain git and the Chrome and Node already on the runner.
 defaults:
   run:
@@ -30,6 +30,8 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
     runs-on: ubuntu-26.04
+    # Holds the key that pushes to main (bin/push-main.sh)
+    environment: repo-bot
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -41,6 +43,8 @@ jobs:
       - name: Take the screenshots
         run: node $(node -e WebSocket 2> /dev/null || echo --experimental-websocket) --no-warnings bin/readme-screenshots.mjs
       - name: Commit them if they changed
+        env:
+          MAIN_PUSH_KEY: ${{ secrets.MAIN_PUSH_KEY }}
         run: |
           if git diff --quiet -- .github/assets; then
             echo "The screenshots haven't changed"
@@ -51,4 +55,4 @@ jobs:
           git commit --quiet -m "Take the README screenshots again from the live site" -- .github/assets
           # In case something was pushed meanwhile
           git pull --quiet --rebase origin main
-          git push --quiet origin HEAD:main
+          bin/push-main.sh

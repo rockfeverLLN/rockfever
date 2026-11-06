@@ -16,8 +16,9 @@ defaults:
   run:
     shell: bash
 
-# Tests every pull request on a copy of the site (bin/test.sh). Dependabot's package updates (.github/dependabot.yml)
-# that pass are merged and deployed without anyone needing to do anything.
+# Tests every pull request on a copy of the site (bin/test.sh). Dependabot's minor and patch updates
+# (.github/dependabot.yml) that pass are merged and deployed without anyone needing to do anything; its new major
+# versions pass the same tests and wait for someone to read them and merge.
 # Same rule as deploy.yml: no marketplace actions, only plain git and official images.
 jobs:
   test:
@@ -78,7 +79,7 @@ jobs:
           command -v lzip > /dev/null || { timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lzip; }
           bin/fetch-cjxl.sh
 
-  # Dependabot's pull requests that passed go live. Merged here rather than with GitHub's auto-merge, which needs a
+  # Dependabot's minor and patch updates that passed go live. Merged here rather than with GitHub's auto-merge, which needs a
   # branch protection rule; and a merge made with this job's token doesn't start deploy.yml on its own, so it's
   # started here
   merge:
@@ -101,6 +102,14 @@ jobs:
     steps:
       - name: Merge and deploy
         run: |
+          # Dependabot's commit says what each update is: every one of them must be minor or patch
+          message=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" --jq .commit.message)
+          updates=$(grep -c 'dependency-name:' <<< "$message" || true)
+          safe=$(grep -cE '^ *update-type: version-update:semver-(minor|patch)$' <<< "$message" || true)
+          if [ "$updates" = 0 ] || [ "$updates" != "$safe" ]; then
+            echo "::notice::Not a minor or patch update: it stays open for someone to read and merge"
+            exit 0
+          fi
           # --match-head-commit: not if Dependabot pushed again during the tests, the newer run will merge it.
           # If another update was merged meanwhile and conflicts, Dependabot rebases this one and it's tested again
           gh pr merge "$PR_URL" --merge --match-head-commit "$HEAD_SHA"
