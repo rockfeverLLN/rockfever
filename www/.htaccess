@@ -30,7 +30,8 @@ AddType "text/plain; charset=utf-8" .txt
 
 # Security headers, on every response (pages, files and errors). The CSP doesn't list script or image sources:
 # the admin loads TinyMCE and fonts from CDNs, and the About sections can embed videos. The pages, admin included,
-# add a second policy for their scripts (ContentSecurityPolicyMiddleware), which browsers apply together with this one
+# add a second policy for their scripts (ContentSecurityPolicyMiddleware), which browsers apply together with this one.
+# "add", not "set" like the others: "set" would replace the policy PHP sends. deploy.yml checks both reach the browser
 <IfModule mod_headers.c>
     Header always set Strict-Transport-Security "max-age=31536000"
     Header always set X-Content-Type-Options "nosniff"
@@ -38,7 +39,7 @@ AddType "text/plain; charset=utf-8" .txt
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
     Header always set Cross-Origin-Opener-Policy "same-origin"
-    Header always set Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
+    Header always add Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests"
     Header always unset X-Powered-By
     Header unset X-Powered-By
 </IfModule>
