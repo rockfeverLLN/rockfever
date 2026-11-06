@@ -31,7 +31,7 @@
     });
 
     // /event#firstname=...&lastname=...: an assistant that can't sign the person up gives this link, which fills the form
-    // for them to send. In the fragment, so that their name reaches neither the server nor Analytics (see the layout)
+    // for them to send. In the fragment, so that their name doesn't reach the server
     var prefill = new URLSearchParams(location.hash.slice(1));
     if (prefill.has('firstname') || prefill.has('lastname')) {
         ['firstname', 'lastname'].forEach(function (name) {
@@ -263,19 +263,8 @@
         }
     });
 
-    // Analytics: a click on a link with data-track="event_name" sends that GA4 event, with data-track-method as its
-    // method. A dialog's data-track-close is sent when it's closed without a click on one of its tracked links
-    function track(name, method) {
-        if (typeof window.gtag === 'function') {
-            window.gtag('event', name, method ? {method: method} : {});
-        }
-    }
-
     function closeModal() {
         if (openModal) {
-            if (openModal.dataset.trackClose && !openModal.dataset.tracked) {
-                track(openModal.dataset.trackClose);
-            }
             openModal.close();
             openModal = null;
             modalOverlay.classList.remove('open');
@@ -306,14 +295,10 @@
     }
 
     document.addEventListener('click', function (event) {
-        // A tracked link in the open dialog closes it: what it was there for is done
-        var tracked = event.target.closest('a[data-track]');
-        if (tracked) {
-            track(tracked.dataset.track, tracked.dataset.trackMethod);
-            if (openModal && openModal.contains(tracked)) {
-                openModal.dataset.tracked = 'true';
-                closeModal();
-            }
+        // A link with data-close-modal closes its dialog, and still opens: what the dialog was there for is done
+        var closing = event.target.closest('a[data-close-modal]');
+        if (closing && openModal && openModal.contains(closing)) {
+            closeModal();
         }
         var trigger = event.target.closest('.modal-trigger');
         var modal = trigger && document.querySelector(trigger.getAttribute('href') || '#' + trigger.dataset.target);

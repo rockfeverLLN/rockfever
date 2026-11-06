@@ -12,7 +12,7 @@ class TrailingSlashMiddleWare
         $uri = $request->getUri()->getPath();
 
         if (!empty($uri) && $uri[-1] === "/" && mb_strlen($uri)!==1) {
-            // Keep the query string: links shared on social media carry utm_ tags that Analytics reads from the URL
+            // Keep the query string: the page it leads to may need it
             $query = $request->getUri()->getQuery();
             return (new Response())
                 // 308 keeps a POST one: after a 301 clients ask again with GET, as for an MCP address pasted with its slash
