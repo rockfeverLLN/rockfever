@@ -6,6 +6,7 @@
 
 {% block head %}
     {#- Schema.org event so search engines and assistants can show the date, place, prices and sign-up #}
+    <link rel="preload" as="image" href="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl" fetchpriority="high"/>
     {{ soireesJsonLd([soiree]) }}
 {% endblock %}
 
@@ -47,7 +48,7 @@
             </div>
         </div>
         <div class="parallax">
-            <picture><source srcset="images/body/bg.jxl" type="image/jxl"><img src="images/body/bg.webp" alt="People dancing rock"></picture>
+            <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="People dancing rock" width="1412" height="793" fetchpriority="high"></picture>
         </div>
     </div>
 
