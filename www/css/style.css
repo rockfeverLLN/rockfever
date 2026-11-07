@@ -2960,6 +2960,7 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 
 .mdi:before {
     display: inline-block;
+    width: 1em;
     font: normal normal normal 24px/1 'Material Design Icons';
     font-size: inherit;
     line-height: inherit;

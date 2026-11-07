@@ -36,6 +36,12 @@ class ContentSecurityPolicyMiddleware
         if (!str_starts_with($type, 'text/html') || !str_contains((string) $response->getBody(), 'nonce="' . $nonce . '"')) {
             return $response;
         }
-        return $response->withAddedHeader('Content-Security-Policy', "script-src 'nonce-$nonce' 'strict-dynamic'");
+        // 'unsafe-inline' and https: are only for browsers too old for nonces: the others ignore both
+        $policy = "script-src 'nonce-$nonce' 'strict-dynamic' 'unsafe-inline' https:";
+        // The admin's scripts (TinyMCE, guests.js) write HTML, which Trusted Types would block
+        if (!str_starts_with($request->getUri()->getPath(), '/admin')) {
+            $policy .= "; require-trusted-types-for 'script'; trusted-types script-loader";
+        }
+        return $response->withAddedHeader('Content-Security-Policy', $policy);
     }
 }
