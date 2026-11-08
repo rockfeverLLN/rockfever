@@ -18,7 +18,7 @@ class AboutUpload extends Upload
 
     protected $maxSize = 1600;
 
-    protected $widths = [320, 640, 960, 1280];
+    protected $widths = [320, 640, 800, 960, 1280];
 
     /**
      * Only images: the files land in the web root, where a .php file would run
