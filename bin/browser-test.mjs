@@ -57,14 +57,23 @@ const PAGES = [
     // Card reveal
     ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
         + " !!document.querySelector('.card-reveal.open'))"],
+    // The tables hidden for screen readers add nothing to the page's height: a table on its own ignores .sr-only's
+    ['/admin/statistics', "!!document.getElementById('eventsChart')"
+        + " && [...document.querySelectorAll('.sr-only')].every(element => element.offsetHeight <= 1)"
+        + " && document.documentElement.scrollHeight <= Math.ceil(document.querySelector('main').getBoundingClientRect().bottom + scrollY)"],
     ['/admin/about/1', "tinymce.get().length > 0 && tinymce.get()[0].initialized"
         + " && !!tinymce.get()[0].ui.registry.getAll().buttons.imageuploader"],
     // The settings page: TinyMCE on the R.O.I. and the conditions
     ['/admin/values', "tinymce.get().length === 2 && tinymce.get().every(e => e.initialized)"],
     ['/admin/about/gallery', "new ClipboardJS('.to-clipboard') && !!Masonry.data(document.querySelector('.grid'))"],
+    // In Instagram's browser, a calendar link that can't leave for the real browser ends on the help popup. The third
+    // value is the browser the page is opened as
+    ['/calendrier', "(window.tapped || (window.tapped = true, document.querySelector('.calendar-subscribe a').click()),"
+        + " document.getElementById('inAppBrowser').open)",
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0.0'],
 ];
-// Analytics can fail in a test run without the site being broken
-const IGNORED = /googletagmanager|google-analytics/;
+// Chrome has no handler for Safari's scheme
+const IGNORED = /Failed to launch 'x-safari-/;
 
 const chromePath = process.env.CHROME || (process.platform === 'darwin'
     ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : 'google-chrome');
@@ -103,7 +112,7 @@ socket.addEventListener('message', ({data}) => {
         problems.push(p.exceptionDetails.exception?.description || p.exceptionDetails.text);
     } else if (message.method === 'Runtime.consoleAPICalled' && p.type === 'error') {
         problems.push('console.error: ' + p.args.map(a => a.value ?? a.description).join(' '));
-    } else if (message.method === 'Log.entryAdded' && p.entry.level === 'error' && !IGNORED.test(p.entry.url || '')) {
+    } else if (message.method === 'Log.entryAdded' && p.entry.level === 'error' && !IGNORED.test(`${p.entry.text} ${p.entry.url || ''}`)) {
         problems.push(`${p.entry.text} ${p.entry.url || ''}`);
     }
 });
@@ -131,8 +140,10 @@ try {
     await evaluate(`fetch('/login', {method: 'POST', body: new URLSearchParams({role: 'administrator', password: 'admin'})})
         .then(r => r.ok)`);
 
-    for (const [path, check] of PAGES) {
+    const defaultAgent = await evaluate('navigator.userAgent');
+    for (const [path, check, userAgent] of PAGES) {
         problems = [];
+        await send('Emulation.setUserAgentOverride', {userAgent: userAgent || defaultAgent});
         await send('Page.navigate', {url: BASE + path});
         // The site's scripts load after the first paint (views/layout.twig), and TinyMCE loads its parts after
         // that: wait until the check passes, for up to 15 seconds

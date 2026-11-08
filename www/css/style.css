@@ -498,7 +498,8 @@ h6 {
 }
 
 /* Hidden on screen, still read by screen readers. The label of a field TinyMCE replaced names its editing area
-   (script.js) */
+   (script.js). Around a table rather than on it: a table ignores this height and stays as tall as its rows, which then
+   add empty space to the end of the page */
 .sr-only,
 .input-field > .tox-tinymce ~ label {
     position: absolute;
@@ -774,7 +775,8 @@ main:focus {
     background-color: #e8eef5;
 }
 
-/* The popup after a sign-up on /event: add the soirée to a calendar (event.twig) */
+/* The popup after a sign-up on /event: add the soirée to a calendar (event.twig). The help for Instagram's browser
+   looks the same (inAppBrowser.twig) */
 dialog.modal.signup-calendar {
     top: 50%;
     transform: translateY(-50%);
@@ -1370,6 +1372,56 @@ button.dashboard-pill {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+}
+
+/* /admin/statistics/names: a pair of names to settle, then the form to match two by hand */
+.name-pair {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 24px;
+    margin: 0;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid #e3e8ef;
+}
+
+.name-pair:last-of-type {
+    margin-bottom: 16px;
+}
+
+.name-pair-reason {
+    flex: 0 0 100%;
+    color: #52606d;
+    font-size: 13px;
+}
+
+.name-pair-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.name-pair-choice small {
+    color: #52606d;
+}
+
+.name-match-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 24px;
+}
+
+.name-match-form > div {
+    flex: 1 1 240px;
+}
+
+.name-match-form input {
+    margin-bottom: 0;
 }
 
 .club-stats-season {
@@ -2165,8 +2217,13 @@ table tbody tr td .input-field {
 }
 
 .dancers-list-background {
-    background-image: url("/images/body/bg.webp");
-    background-image: image-set(url("/images/body/bg.jxl") type("image/jxl"), url("/images/body/bg.webp") type("image/webp"));
+    /* ?v=2: the browsers keep images for a year, and the earlier picture ended in a white line */
+    background-image: url("/images/body/bg.webp?v=2");
+    background-image: image-set(url("/images/body/bg.jxl?v=2") type("image/jxl"), url("/images/body/bg.webp?v=2") type("image/webp"));
+    /* One picture over the whole column: tiled, it repeats once a zoomed-out window is larger than it */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     height: 100%;
 }
 
@@ -2851,6 +2908,7 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 
 .mdi:before {
     display: inline-block;
+    width: 1em;
     font: normal normal normal 24px/1 'Material Design Icons';
     font-size: inherit;
     line-height: inherit;

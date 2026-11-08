@@ -3,29 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Google tag (gtag.js), as Google gives it, so Analytics' tag check finds it. async: it doesn't block the page -->
     {#- Every script carries the page's nonce: the Content-Security-Policy blocks the others (ContentSecurityPolicyMiddleware) #}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MKKLSTRX4W" nonce="{{ csp_nonce }}"></script>
-    <script nonce="{{ csp_nonce }}">
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        {#- Analytics may set its cookies, with no banner: with storage denied, Google doesn't report the visits of a
-            site this small (it only models them above 1,000 consenting users a day). Nothing for ads #}
-        gtag('consent', 'default', {
-            'analytics_storage': 'granted',
-            'ad_storage': 'denied',
-            'ad_user_data': 'denied',
-            'ad_personalization': 'denied'
-        });
-        gtag('js', new Date());
-
-        gtag('config', 'G-MKKLSTRX4W');
-        {#- What the visitor just did (a sign-up, a message...), queued by the action with FlashService::event() #}
-        {%- set analytics_event = flash('event') %}
-        {%- if analytics_event %}
-        gtag('event', {{ analytics_event|json_encode(constant('JSON_HEX_TAG'))|raw }});
-        {%- endif %}
-    </script>
     <!-- The site's scripts are only needed once the page is shown: they load after its first paint, so that on a slow
          connection they don't hold it back -->
     <script nonce="{{ csp_nonce }}">
@@ -37,7 +15,14 @@
                 }
                 loaded = true;
                 var tag = document.createElement('script');
-                tag.src = '{{ asset('/js/script.js') }}';
+                var url = '{{ asset('/js/script.js') }}';
+                // The Content-Security-Policy requires Trusted Types: this policy can only give that one address
+                var policy = window.trustedTypes && trustedTypes.createPolicy('script-loader', {
+                    createScriptURL: function () {
+                        return url;
+                    }
+                });
+                tag.src = policy ? policy.createScriptURL('') : url;
                 document.head.appendChild(tag);
             }
             // The load event often comes before the first paint: wait for the browser to report that paint
@@ -126,6 +111,7 @@
     }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE'))|raw }}</script>
 
     <link rel="preload" href="{{ __DIR__ }}/fonts/material-icons.woff2?v=5eaf69cb" as="font" type="font/woff2" crossorigin/>
+    <link rel="preload" href="{{ __DIR__ }}/fonts/mdi.woff2?v=da4cb1cf" as="font" type="font/woff2" crossorigin/>
     <link rel="preload" href="{{ __DIR__ }}/fonts/inter.woff2?v=8e433c05" as="font" type="font/woff2" crossorigin/>
     {% block head %}{% endblock %}
     {# critical.css and site.css are built by bin/critical-css.php at every deploy (not in git) #}
@@ -164,5 +150,6 @@
     </main>
 
     {% include "footer.twig" %}
+    {% include "inAppBrowser.twig" %}
 </body>
 </html>

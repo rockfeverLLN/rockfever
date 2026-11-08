@@ -111,16 +111,17 @@ class TextExtension extends \Twig\Extension\AbstractExtension
      * and a srcset of the smaller copies made by Upload::generateWidths when they exist
      * @param string|null $content
      * @param int $eager
+     * @param string|null $sizes The width the images are shown at, as a sizes attribute, when not the home column's
      * @return string
      */
-    public function lazyImages(?string $content, int $eager = 0) : string
+    public function lazyImages(?string $content, int $eager = 0, ?string $sizes = null) : string
     {
         if (is_null($content)) {
             return '';
         }
         $count = 0;
-        return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use (&$count, $eager) {
-            $tag = $this->addSrcset($this->cleanSrc($this->pastedToFile($match[0])));
+        return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use (&$count, $eager, $sizes) {
+            $tag = $this->addSrcset($this->cleanSrc($this->pastedToFile($match[0])), $sizes);
             if (preg_match('/\bloading=/i', $tag) || $count++ < $eager) {
                 return $tag;
             }
@@ -218,7 +219,7 @@ class TextExtension extends \Twig\Extension\AbstractExtension
      * Lets the browser download a copy of the image that fits its displayed width instead of the full photo.
      * Only for images with a width attribute: without one, the srcset would change their displayed size
      */
-    private function addSrcset(string $tag) : string
+    private function addSrcset(string $tag, ?string $sizes = null) : string
     {
         if (preg_match('/\bsrcset=/i', $tag)
             || !preg_match('/\swidth=["\']?(\d+)/i', $tag, $width)
@@ -253,14 +254,60 @@ class TextExtension extends \Twig\Extension\AbstractExtension
         return substr_replace(
             $tag,
             sprintf(
-                '<img srcset="%s" sizes="(max-width: %dpx) 100vw, %dpx"',
+                '<img srcset="%s" sizes="%s"',
                 implode(', ', $candidates),
-                $width[1],
-                $width[1]
+                $sizes ?? self::columnSizes((int) $width[1])
             ),
             0,
             4
         );
+    }
+
+    /**
+     * Width of the home page's column (.home-content in www/css/style.css) by window width, as
+     * [up to this window width, share of the window, plus pixels]: the container's 20px gutters on phones,
+     * 85% then 70% of the window (.container in base.css), at most 880px
+     */
+    private const COLUMN = [[600, 1, -40], [992, 0.85, 0], [1257, 0.7, 0], [null, 0, 880]];
+
+    /**
+     * The sizes attribute of an image of the column: the width it is shown at, the column's but no wider than its
+     * width attribute. Telling the browser 100vw made it pick a copy for the whole window, gutters included: the
+     * 960px one for a photo shown 744 device pixels wide on a phone
+     */
+    private static function columnSizes(int $width) : string
+    {
+        $entries = [];
+        $add = function (?int $upTo, string $size) use (&$entries) {
+            // A size the same as the one before covers its range too
+            if ($entries && end($entries)[1] === $size) {
+                array_pop($entries);
+            }
+            $entries[] = [$upTo, $size];
+        };
+        $from = 0;
+        foreach (self::COLUMN as [$upTo, $share, $pixels]) {
+            if ($share === 0) {
+                $add($upTo, $pixels <= $width ? $pixels . 'px' : $width . 'px');
+                continue;
+            }
+            $column = $pixels < 0 ? sprintf('calc(%dvw - %dpx)', $share * 100, -$pixels) : round($share * 100) . 'vw';
+            // Window width from which the column is wider than the image
+            $wider = ($width - $pixels) / $share;
+            if ($wider >= $upTo) {
+                $add($upTo, $column);
+            } elseif ($wider <= $from) {
+                $add($upTo, $width . 'px');
+            } else {
+                $add((int) floor($wider), $column);
+                $add($upTo, $width . 'px');
+            }
+            $from = $upTo;
+        }
+        $last = array_pop($entries);
+        $sizes = array_map(fn ($entry) => sprintf('(max-width: %dpx) %s', $entry[0], $entry[1]), $entries);
+        $sizes[] = $last[1];
+        return implode(', ', $sizes);
     }
 
     public function statusToText(int $status)

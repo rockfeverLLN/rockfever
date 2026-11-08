@@ -134,23 +134,21 @@
     });
 
     // Parallax headers: the image moves slower than the page, as Materialize's parallax did. Not for visitors who
-    // asked their device for less motion (WCAG 2.3.3): the photo stays still, as base.css places it
+    // asked their device for less motion (WCAG 2.3.3): the photo stays still, showing its lower part
     var parallaxImages = all('.parallax-container .parallax img');
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (parallaxImages.length) {
         var updateParallax = function () {
             var windowHeight = window.innerHeight;
             parallaxImages.forEach(function (image) {
-                if (reducedMotion.matches) {
-                    image.style.transform = '';
-                    return;
-                }
                 var container = image.closest('.parallax-container');
                 var containerHeight = container.offsetHeight || 500;
                 var top = container.getBoundingClientRect().top;
-                if (top + containerHeight > 0 && top < windowHeight) {
-                    var scrolled = (windowHeight - top) / (containerHeight + windowHeight);
-                    image.style.transform = 'translate3d(-50%, ' + (image.offsetHeight - containerHeight) * scrolled + 'px, 0)';
+                // base.css holds the photo by its top: 0 shows its bottom, which is all that a visitor who asked for
+                // less motion sees, and 1 its top
+                var scrolled = reducedMotion.matches ? 0 : (windowHeight - top) / (containerHeight + windowHeight);
+                if (reducedMotion.matches || (top + containerHeight > 0 && top < windowHeight)) {
+                    image.style.transform = 'translate3d(-50%, ' + (containerHeight - image.offsetHeight) * (1 - scrolled) + 'px, 0)';
                 }
             });
         };
@@ -166,6 +164,13 @@
         window.addEventListener('scroll', requestParallax, {passive: true});
         window.addEventListener('resize', requestParallax);
         reducedMotion.addEventListener('change', requestParallax);
+        // The header grows when its fonts arrive or a message opens: the photo follows without a scroll
+        if (window.ResizeObserver) {
+            var parallaxResize = new ResizeObserver(requestParallax);
+            parallaxImages.forEach(function (image) {
+                parallaxResize.observe(image.closest('.parallax-container'));
+            });
+        }
         parallaxImages.forEach(function (image) {
             image.addEventListener('load', requestParallax);
         });
@@ -250,19 +255,8 @@
         }
     });
 
-    // Analytics: a click on a link with data-track="event_name" sends that GA4 event, with data-track-method as its
-    // method. A dialog's data-track-close is sent when it's closed without a click on one of its tracked links
-    function track(name, method) {
-        if (typeof window.gtag === 'function') {
-            window.gtag('event', name, method ? {method: method} : {});
-        }
-    }
-
     function closeModal() {
         if (openModal) {
-            if (openModal.dataset.trackClose && !openModal.dataset.tracked) {
-                track(openModal.dataset.trackClose);
-            }
             openModal.close();
             openModal = null;
             modalOverlay.classList.remove('open');
@@ -293,14 +287,10 @@
     }
 
     document.addEventListener('click', function (event) {
-        // A tracked link in the open dialog closes it: what it was there for is done
-        var tracked = event.target.closest('a[data-track]');
-        if (tracked) {
-            track(tracked.dataset.track, tracked.dataset.trackMethod);
-            if (openModal && openModal.contains(tracked)) {
-                openModal.dataset.tracked = 'true';
-                closeModal();
-            }
+        // A link with data-close-modal closes its dialog, and still opens: what the dialog was there for is done
+        var closing = event.target.closest('a[data-close-modal]');
+        if (closing && openModal && openModal.contains(closing)) {
+            closeModal();
         }
         var trigger = event.target.closest('.modal-trigger');
         var modal = trigger && document.querySelector(trigger.getAttribute('href') || '#' + trigger.dataset.target);
@@ -336,6 +326,52 @@
     var onLoad = document.querySelector('dialog.modal[data-open-on-load]');
     if (onLoad) {
         showModal(onLoad, null);
+    }
+
+    // Instagram's and Facebook's own browser don't hand a .ics file or a webcal: link over to the phone, and Google
+    // refuses to sign in there: a tap on "add to my calendar" does nothing. The tap opens the link in the phone's real
+    // browser instead. The apps can block that too: if the page is still on screen shortly after, #inAppBrowser says how
+    // to do it by hand
+    var inAppHelp = document.getElementById('inAppBrowser');
+    if (inAppHelp && /Instagram|FBAN|FBAV|FB_IAB/.test(navigator.userAgent)) {
+        var leftApp = false;
+        var helpTimer = null;
+        var leaveApp = function () {
+            leftApp = true;
+        };
+        // These apps only run on phones and tablets: Safari's own scheme on iOS, an Android intent otherwise
+        var inRealBrowser = function (url) {
+            return /iPhone|iPad|iPod/.test(navigator.userAgent)
+                ? url.replace(/^(https?):/, 'x-safari-$1:')
+                : url.replace(/^(https?):\/\/(.*)$/, 'intent://$2#Intent;scheme=$1;end');
+        };
+
+        window.addEventListener('blur', leaveApp);
+        document.addEventListener('visibilitychange', leaveApp);
+        document.addEventListener('click', function (event) {
+            var link = event.target.closest('a[href$=".ics"], a[href^="webcal:"], a[href^="https://calendar.google.com/"]');
+            if (!link) {
+                return;
+            }
+            event.preventDefault();
+            leftApp = false;
+            // A browser can't be sent to a webcal: link from here: it gets this page, whose button then subscribes
+            window.location.href = inRealBrowser(link.protocol === 'webcal:' ? window.location.href.split('#')[0] : link.href);
+            clearTimeout(helpTimer);
+            helpTimer = setTimeout(function () {
+                if (!leftApp) {
+                    showModal(inAppHelp, link);
+                }
+            }, 1500);
+        });
+
+        var copyLink = inAppHelp.querySelector('.in-app-copy');
+        copyLink.addEventListener('click', function () {
+            navigator.clipboard.writeText(window.location.href).then(function () {
+                copyLink.textContent = 'Lien copié';
+            }, function () {
+            });
+        });
     }
 
     // Collapsibles: a click on an item's header opens it and closes the others. The headers are buttons for the

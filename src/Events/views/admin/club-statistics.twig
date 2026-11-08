@@ -29,7 +29,7 @@
             <p class="club-stats-intro">
                 {{ totals.events }} soirée{{ totals.events > 1 ? 's' }} passée{{ totals.events > 1 ? 's' }}
                 {%- if season is not null %} pendant la saison {{ seasons[season] }}{% else %} depuis le début{% endif %}.
-                Un danseur est reconnu à son prénom et son nom.
+                Un danseur est reconnu à son prénom et son nom : <a href="{{ path('admin.statistics.names') }}">corriger les noms</a>.
             </p>
 
             <div class="row stat-grid">
@@ -109,7 +109,7 @@
                         <div class="club-stats-chart">
                             <canvas id="loyaltyChart" aria-hidden="true"></canvas>
                         </div>
-                        <table class="sr-only">
+                        <div class="sr-only"><table>
                             <caption>Nombre de danseurs selon le nombre de soirées où ils sont venus</caption>
                             <thead><tr><th scope="col">Venus</th><th scope="col">Danseurs</th></tr></thead>
                             <tbody>
@@ -117,7 +117,7 @@
                                 <tr><th scope="row">{{ bucket }}</th><td>{{ amount }}</td></tr>
                             {% endfor %}
                             </tbody>
-                        </table>
+                        </table></div>
                     </section>
                 </div>
                 <div class="col s12 l6">
@@ -131,7 +131,7 @@
                             <div class="club-stats-chart">
                                 <canvas id="arrivalsChart" aria-hidden="true"></canvas>
                             </div>
-                            <table class="sr-only">
+                            <div class="sr-only"><table>
                                 <caption>Arrivées par quart d'heure</caption>
                                 <thead><tr><th scope="col">Heure</th><th scope="col">Arrivées</th></tr></thead>
                                 <tbody>
@@ -139,7 +139,7 @@
                                     <tr><th scope="row">{{ time }}</th><td>{{ amount }}</td></tr>
                                 {% endfor %}
                                 </tbody>
-                            </table>
+                            </table></div>
                         {% else %}
                             <p class="dashboard-empty">Pas d'heure d'arrivée enregistrée sur cette période.</p>
                         {% endif %}

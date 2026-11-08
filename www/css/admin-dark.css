@@ -291,6 +291,15 @@ html[data-theme="dark"] .club-stats-note {
     color: var(--admin-muted);
 }
 
+html[data-theme="dark"] .name-pair {
+    border-color: var(--admin-line);
+}
+
+html[data-theme="dark"] .name-pair-reason,
+html[data-theme="dark"] .name-pair-choice small {
+    color: var(--admin-muted);
+}
+
 html[data-theme="dark"] .club-stats-season select {
     background-color: var(--admin-surface-2);
     border-color: var(--admin-line);

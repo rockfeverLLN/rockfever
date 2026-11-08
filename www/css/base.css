@@ -376,11 +376,13 @@ i.right {
     z-index: -1;
 }
 
+/* Held by its top, not its bottom: a header that grows when its fonts arrive doesn't move the photo (a layout
+   shift of most of the screen). script.js places it and moves it as the page scrolls */
 .parallax-container .parallax img {
     opacity: 0;
     position: absolute;
     left: 50%;
-    bottom: 0;
+    top: 0;
     min-width: 100%;
     min-height: 100%;
     transform: translate3d(0, 0, 0);
