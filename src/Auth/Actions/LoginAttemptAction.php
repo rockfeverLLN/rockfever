@@ -79,7 +79,7 @@ class LoginAttemptAction
             $this->throttle->fail($request, 'login', self::ATTEMPTS_DELAY);
             // Slows down bots trying passwords
             sleep(1);
-            (new FlashService($this->session))->error('Invalid username or password');
+            (new FlashService($this->session))->error('Mot de passe incorrect pour ce rôle.');
             return $this->redirect('auth.login');
         }
     }
