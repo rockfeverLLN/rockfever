@@ -1,3 +1,4 @@
 {#- The gallery is private: no search engine, even if a link to it leaks #}
 <meta name="robots" content="noindex, nofollow"/>
-<link rel="stylesheet" href="{{ asset('/css/photos.css') }}"/>
+{#- Inlined rather than linked: a stylesheet of its own held the first paint back (Lighthouse: render-blocking) #}
+<style>{{ source('@photos/photos.css') }}</style>

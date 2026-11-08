@@ -12,7 +12,7 @@
                     <div class="card-content">
                         <h1 class="center" style="font-size: 2rem; margin-top: 0">Connexion</h1>
                         <div class="center">
-                            <img src="images/body/moderator.svg" alt="Administrateur">
+                            <img src="images/body/moderator.svg" alt="Administrateur" width="100" height="100">
                         </div>
                         <form action="{{ path('auth.login') }}" method="post">
                             {{ field('role', null, 'Rôle', {type: 'select', options:roles }) }}
