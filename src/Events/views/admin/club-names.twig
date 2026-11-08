@@ -14,38 +14,45 @@
         </p>
 
         <section class="dashboard-card">
-            <h2>À vérifier</h2>
+            <h2>Même personne ?</h2>
             {% if suggestions.pairs %}
                 <p class="club-stats-note">
-                    {% if suggestions.total > suggestions.pairs|length %}
-                        Les {{ suggestions.pairs|length }} premiers noms sur {{ suggestions.total }} qui se ressemblent :
-                        les suivants arrivent une fois ceux-ci réglés.
-                    {% else %}
-                        {{ suggestions.total }} paire{{ suggestions.total > 1 ? 's' }} de noms qui se ressemblent.
-                    {% endif %}
-                    Choisissez le nom à garder. Ceux sans réponse restent ici pour plus tard.
+                    <strong><span id="name-pairs-left" aria-live="polite">{{ suggestions.total }}</span> paire{{ suggestions.total > 1 ? 's' }} à vérifier.</strong>
+                    Pour chacune, répondez <strong>Même personne</strong> ou <strong>Deux personnes</strong> : c'est
+                    enregistré tout de suite, et la suivante arrive. Le nom en gras est celui qui sera gardé.
                 </p>
-                <form method="post" action="{{ path('admin.statistics.names.save') }}">
+                {% if suggestions.sure > 0 %}
+                    <form method="post" action="{{ path('admin.statistics.names.save') }}" class="name-pairs-sure">
+                        <p>
+                            <strong>{{ suggestions.sure }} paire{{ suggestions.sure > 1 ? 's' }} sans grand doute</strong> :
+                            les mêmes lettres coupées autrement, ou un prénom et un nom inversés, quand un seul des deux
+                            est le prénom d'autres danseurs. Le prénom est alors gardé devant. Une paire comme
+                            Thomas Martin et Martin Thomas, deux prénoms possibles, reste à vérifier ci-dessous.
+                        </p>
+                        <button type="submit" name="sure" value="1" class="btn koamaru">Tout regrouper ({{ suggestions.sure }})</button>
+                    </form>
+                {% endif %}
+                <div id="name-pairs">
                     {% for pair in suggestions.pairs %}
-                        <fieldset class="name-pair">
-                            <legend class="sr-only">{{ pair.a.name }} ou {{ pair.b.name }}</legend>
-                            <input type="hidden" name="pairs[{{ loop.index0 }}][a]" value="{{ pair.a.key }}">
-                            <input type="hidden" name="pairs[{{ loop.index0 }}][b]" value="{{ pair.b.key }}">
-                            <span class="name-pair-reason">{{ pair.reason }}</span>
-                            {% for side in ['a', 'b'] %}
-                                <label class="name-pair-choice">
-                                    <input type="radio" class="browser-default" name="pairs[{{ loop.parent.loop.index0 }}][choice]" value="{{ side }}">
-                                    <span><strong>{{ pair[side].name }}</strong> <small>{{ pair[side].signUps }} inscription{{ pair[side].signUps > 1 ? 's' }}</small></span>
-                                </label>
-                            {% endfor %}
-                            <label class="name-pair-choice">
-                                <input type="radio" class="browser-default" name="pairs[{{ loop.index0 }}][choice]" value="different">
-                                <span>Deux personnes</span>
-                            </label>
-                        </fieldset>
+                        <form method="post" action="{{ path('admin.statistics.names.save') }}" class="name-pair">
+                            <input type="hidden" name="pairs[0][a]" value="{{ pair.a.key }}">
+                            <input type="hidden" name="pairs[0][b]" value="{{ pair.b.key }}">
+                            <p class="name-pair-names">
+                                <strong>{{ pair.a.name }}</strong> <small>{{ pair.a.signUps }} inscription{{ pair.a.signUps > 1 ? 's' }}</small>
+                                <span class="name-pair-and">et</span>
+                                {{ pair.b.name }} <small>{{ pair.b.signUps }} inscription{{ pair.b.signUps > 1 ? 's' }}</small>
+                            </p>
+                            <p class="name-pair-reason">{{ pair.a.name == pair.b.name ? 'Écrit pareil, mais coupé autrement entre prénom et nom' : pair.reason }}</p>
+                            <div class="name-pair-answers">
+                                <button type="submit" name="pairs[0][choice]" value="a" class="btn koamaru" aria-label="Même personne : garder {{ pair.a.name }}">Même personne</button>
+                                <button type="submit" name="pairs[0][choice]" value="different" class="btn-flat" aria-label="{{ pair.a.name }} et {{ pair.b.name }} sont deux personnes">Deux personnes</button>
+                                {% if pair.a.name != pair.b.name %}
+                                    <button type="submit" name="pairs[0][choice]" value="b" class="name-pair-other">Même personne, mais garder « {{ pair.b.name }} »</button>
+                                {% endif %}
+                            </div>
+                        </form>
                     {% endfor %}
-                    <button type="submit" class="btn koamaru">Enregistrer</button>
-                </form>
+                </div>
             {% else %}
                 <p class="dashboard-empty">Aucun nom ne se ressemble assez pour être vérifié.</p>
             {% endif %}

@@ -30,6 +30,19 @@
         });
     });
 
+    // /event#firstname=...&lastname=...: an assistant that can't sign the person up gives this link, which fills the form
+    // for them to send. In the fragment, so that their name doesn't reach the server
+    var prefill = new URLSearchParams(location.hash.slice(1));
+    if (prefill.has('firstname') || prefill.has('lastname')) {
+        ['firstname', 'lastname'].forEach(function (name) {
+            var input = document.querySelector('form[toolname] input[name="' + name + '"]');
+            if (input && prefill.has(name)) {
+                input.value = prefill.get(name).slice(0, 100);
+            }
+        });
+        history.replaceState(null, '', location.pathname + location.search);
+    }
+
     // The menus' link to the page we're on says so to screen readers, as its highlight does on screen
     all('nav li.active > a, .sidenav li.active > a').forEach(function (link) {
         if (!link.hasAttribute('aria-current') && !link.classList.contains('dropdown-trigger')) {
@@ -372,6 +385,46 @@
             }, function () {
             });
         });
+    }
+
+    // /admin/statistics/names: an answer is saved at once and its row leaves the list. Once it's empty, or if the server
+    // can't place an answer (a pair changed by an earlier one), the page reloads with the next pairs
+    var namePairs = document.getElementById('name-pairs');
+    if (namePairs) {
+        var pairsLeft = document.getElementById('name-pairs-left');
+        namePairs.addEventListener('submit', function (event) {
+            var form = event.target;
+            event.preventDefault();
+            form.classList.add('saving');
+            fetch(form.action, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'X-Requested-With': 'fetch'},
+                body: new URLSearchParams(new FormData(form, event.submitter))
+            }).then(function (response) {
+                var next = form.nextElementSibling;
+                if (response.status !== 204 || !namePairs.querySelector('.name-pair:not(.saving)')) {
+                    window.location.reload();
+                    return;
+                }
+                form.remove();
+                pairsLeft.textContent = Number(pairsLeft.textContent) - 1;
+                if (next) {
+                    next.querySelector('button').focus();
+                }
+            }, function () {
+                window.location.reload();
+            });
+        });
+
+        var groupSure = document.querySelector('.name-pairs-sure');
+        if (groupSure) {
+            groupSure.addEventListener('submit', function (event) {
+                if (!window.confirm('Regrouper toutes ces paires ? Chaque choix pourra être annulé en bas de la page.')) {
+                    event.preventDefault();
+                }
+            });
+        }
     }
 
     // Collapsibles: a click on an item's header opens it and closes the others. The headers are buttons for the

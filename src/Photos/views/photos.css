@@ -1,5 +1,6 @@
 /* The photo gallery (/photos, src/Photos/views). Its own file: the page is behind a password, so
-   bin/critical-css.php never sees it and site.css only has the rules of the other pages */
+   bin/critical-css.php never sees it and site.css only has the rules of the other pages. head.twig inlines it, so
+   the gallery doesn't wait for one more stylesheet before its first paint */
 
 .photos-page, .photos-lock, .photos-viewer {
     --photos-blue: #072d55;

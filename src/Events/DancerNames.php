@@ -17,6 +17,12 @@ class DancerNames
      */
     private const SUGGESTIONS_SHOWN = 40;
 
+    /**
+     * The ranks of the pairs that mergeSure() settles, and of the swapped names it leaves to the team
+     */
+    private const SURE = 0;
+    private const SWAPPED = 1;
+
     public function __construct(private \PDO $pdo)
     {
     }
@@ -109,9 +115,41 @@ class DancerNames
      * The pairs of dancers that look like one person and that nobody settled yet, the surest first
      *
      * @param array $dancers The result of dancers()
-     * @return array ['total' => how many there are, 'pairs' => the first of them: ['a', 'b' (dancers), 'reason']]
+     * @return array ['total' => how many there are, 'sure' => how many mergeSure() would settle,
+     *               'pairs' => the first of them: ['a', 'b' (dancers), 'reason']]
      */
     public function suggestions(array $dancers): array
+    {
+        $pairs = $this->pairs($dancers);
+        return [
+            'total' => count($pairs),
+            'sure' => count(array_filter($pairs, fn ($pair) => $pair['rank'] === self::SURE)),
+            'pairs' => array_slice($pairs, 0, self::SUGGESTIONS_SHOWN),
+        ];
+    }
+
+    /**
+     * Answers "same person" to the pairs that leave little doubt: the same letters, whose spellings only differ by their
+     * spaces or by where the first name ends, and the swapped names that rightWayRound() can tell apart. The first ones
+     * keep the name used most, the others the first name in front.
+     *
+     * @param array $dancers The result of dancers()
+     * @return int How many pairs that settled
+     */
+    public function mergeSure(array $dancers): int
+    {
+        $sure = array_filter($this->pairs($dancers), fn ($pair) => $pair['rank'] === self::SURE);
+        foreach ($sure as $pair) {
+            $this->merge($pair['b']['key'], $pair['a']['key']);
+        }
+        return count($sure);
+    }
+
+    /**
+     * @param array $dancers The result of dancers()
+     * @return array Every pair still to settle, the surest first: ['a', 'b' (dancers), 'rank', 'reason']
+     */
+    private function pairs(array $dancers): array
     {
         $different = [];
         foreach ($this->matches() as $match) {
@@ -120,16 +158,21 @@ class DancerNames
             }
         }
 
+        $lookalikes = array_diff_key($this->lookalikes(array_keys($dancers)), $different);
+        $firstNames = $this->firstNames(array_keys($dancers), $lookalikes);
+
         $pairs = [];
-        foreach ($this->lookalikes(array_keys($dancers)) as $id => [$a, $b, $likeness]) {
-            if (isset($different[$id])) {
-                continue;
-            }
+        foreach ($lookalikes as [$a, $b, [$rank, $reason]]) {
             // The spelling used most on the left: it's most often the right one
             if ($dancers[$a]['signUps'] < $dancers[$b]['signUps']) {
                 [$a, $b] = [$b, $a];
             }
-            $pairs[] = ['a' => $dancers[$a], 'b' => $dancers[$b], 'rank' => $likeness[0], 'reason' => $likeness[1]];
+            $rightWay = $rank === self::SWAPPED ? $this->rightWayRound($a, $b, $firstNames) : null;
+            if ($rightWay !== null) {
+                [$a, $b] = $rightWay;
+                $rank = self::SURE;
+            }
+            $pairs[] = ['a' => $dancers[$a], 'b' => $dancers[$b], 'rank' => $rank, 'reason' => $reason];
         }
         // A slip is rare next to the right spelling: two names used as often are more likely two people
         usort($pairs, fn ($x, $y) => [
@@ -143,8 +186,53 @@ class DancerNames
             $x['a']['signUps'] + $x['b']['signUps'],
             $y['a']['name'],
         ]);
+        return $pairs;
+    }
 
-        return ['total' => count($pairs), 'pairs' => array_slice($pairs, 0, self::SUGGESTIONS_SHOWN)];
+    /**
+     * The first names the dancers are known by, leaving out the swapped spellings, which can't be trusted on it
+     *
+     * @param string[] $keys
+     * @param array $lookalikes The result of lookalikes()
+     * @return array [first name without spaces => true]
+     */
+    private function firstNames(array $keys, array $lookalikes): array
+    {
+        $swapped = [];
+        foreach ($lookalikes as [$a, $b, [$rank]]) {
+            if ($rank === self::SWAPPED) {
+                $swapped[$a] = $swapped[$b] = true;
+            }
+        }
+
+        $firstNames = [];
+        foreach (array_diff($keys, array_keys($swapped)) as $key) {
+            $firstNames[$this->squeezedFirstName($key)] = true;
+        }
+        return $firstNames;
+    }
+
+    /**
+     * Which of two swapped spellings has the first name in front, when other dancers tell: "Madeleine" is the first name
+     * of others and "Barbez" of nobody. When both are first names, "Thomas Martin" and "Martin Thomas" can be two people;
+     * when neither is, nothing says which way round it goes.
+     *
+     * @param array $firstNames The result of firstNames()
+     * @return string[]|null The right spelling then the swapped one, null when only the team can tell
+     */
+    private function rightWayRound(string $a, string $b, array $firstNames): ?array
+    {
+        $firstInA = isset($firstNames[$this->squeezedFirstName($a)]);
+        $firstInB = isset($firstNames[$this->squeezedFirstName($b)]);
+        if ($firstInA === $firstInB) {
+            return null;
+        }
+        return $firstInA ? [$a, $b] : [$b, $a];
+    }
+
+    private function squeezedFirstName(string $key): string
+    {
+        return str_replace(' ', '', explode('|', $key, 2)[0]);
     }
 
     /**
@@ -372,10 +460,10 @@ class DancerNames
         $sameLast = $squeezedLastA === $squeezedLastB;
 
         if ($squeezedFirstA . $squeezedLastA === $squeezedFirstB . $squeezedLastB) {
-            return [0, 'Mêmes lettres'];
+            return [self::SURE, 'Mêmes lettres'];
         }
         if ($squeezedFirstA === $squeezedLastB && $squeezedLastA === $squeezedFirstB) {
-            return [1, 'Prénom et nom inversés'];
+            return [self::SWAPPED, 'Prénom et nom inversés'];
         }
         if ($firstA === '' || $lastA === '' || $firstB === '' || $lastB === '') {
             return null;

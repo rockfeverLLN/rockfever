@@ -7,6 +7,7 @@ use Framework\Actions\RouterAwareAction;
 use Framework\Renderer\RendererInterface;
 use Framework\Router;
 use Framework\Session\FlashService;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -30,7 +31,12 @@ class StatisticsNamesAction
     public function __invoke(ServerRequestInterface $request)
     {
         if ($request->getMethod() === 'POST') {
-            return $this->save((array)$request->getParsedBody());
+            $body = (array)$request->getParsedBody();
+            // An answer from the list, saved without leaving the page (script.js), which removes its row
+            if ($request->getHeaderLine('X-Requested-With') === 'fetch') {
+                return new Response($this->answer((array)($body['pairs'] ?? [])) > 0 ? 204 : 409);
+            }
+            return $this->save($body);
         }
 
         $dancers = $this->names->dancers();
@@ -46,6 +52,9 @@ class StatisticsNamesAction
         if (isset($body['undo'])) {
             $this->names->undo((int)$body['undo']);
             $this->flash->success('Le choix a bien été annulé');
+        } elseif (isset($body['sure'])) {
+            $settled = $this->names->mergeSure($this->names->dancers());
+            $this->flash->success($settled > 1 ? "$settled paires de noms regroupées" : 'Une paire de noms regroupée');
         } elseif (isset($body['wrong'], $body['right'])) {
             $this->matchByHand((string)$body['wrong'], (string)$body['right']);
         } else {
@@ -70,9 +79,25 @@ class StatisticsNamesAction
     }
 
     /**
-     * @param array $pairs The suggestions of the form, those left unanswered stay for later
+     * Without JavaScript, the page reloads after each answer
+     *
+     * @param array $pairs The suggestions of the form
      */
     private function settle(array $pairs): void
+    {
+        $settled = $this->answer($pairs);
+        if ($settled === 0) {
+            $this->flash->error('Choisissez une réponse pour au moins une paire de noms');
+        } else {
+            $this->flash->success($settled > 1 ? "$settled paires de noms réglées" : 'Une paire de noms réglée');
+        }
+    }
+
+    /**
+     * @param array $pairs The suggestions answered, those left unanswered stay for later
+     * @return int How many were settled
+     */
+    private function answer(array $pairs): int
     {
         $dancers = $this->names->dancers();
         $settled = 0;
@@ -94,11 +119,6 @@ class StatisticsNamesAction
             }
             $settled++;
         }
-
-        if ($settled === 0) {
-            $this->flash->error('Choisissez une réponse pour au moins une paire de noms');
-        } else {
-            $this->flash->success($settled > 1 ? "$settled paires de noms réglées" : 'Une paire de noms réglée');
-        }
+        return $settled;
     }
 }

@@ -2,6 +2,8 @@ name: Deploy to OVH
 on:
   push:
     branches: [main]
+    # The README screenshots (readme-screenshots.yml) aren't uploaded: nothing to deploy
+    paths-ignore: ['.github/assets/**']
   workflow_dispatch:
 
 # Never run two uploads to the server at the same time
@@ -23,6 +25,8 @@ jobs:
   deploy:
     # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
     runs-on: ubuntu-26.04
+    # Holds the SFTP secrets, and only lets main read them: a workflow pushed to another branch can't
+    environment: production
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
     steps:
@@ -155,6 +159,13 @@ jobs:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: bin/deploy.sh
+      # Only the server shows this: PHP's built-in server of the tests ignores www/.htaccess, whose rules once replaced
+      # the scripts' policy on every page without anyone seeing it. A browser's User-Agent: OVH refuses curl's
+      - name: Check the live pages' Content-Security-Policy
+        run: |
+          headers=$(curl -sS -D - -o /dev/null -A 'Mozilla/5.0 (rockfever deploy check)' https://rockfever.be/login)
+          grep -i '^content-security-policy:.*script-src' <<< "$headers"
+          grep -i '^content-security-policy:.*frame-ancestors' <<< "$headers"
       # The site is live by now: this only lets bin/deploy.sh clean finish, and never fails the deploy
       - name: Wait for the old caches to be removed
         continue-on-error: true

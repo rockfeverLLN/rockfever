@@ -2,26 +2,18 @@
 
 {% block title %}Connexion - Rock Fever{% endblock %}
 
-{% block bodyColor %}grey lighten-2{% endblock %}
-
 {% block body %}
+    {#- The team's sign-in: one card in the middle of the page, with the site's colours and buttons #}
     <div class="container login-page">
-        <div class="row">
-            <div class="col s12 m6 l4 offset-m3 offset-l4">
-                <div class="card login-card">
-                    <div class="card-content">
-                        <h1 class="center" style="font-size: 2rem; margin-top: 0">Connexion</h1>
-                        <div class="center">
-                            <img src="images/body/moderator.svg" alt="Administrateur">
-                        </div>
-                        <form action="{{ path('auth.login') }}" method="post">
-                            {{ field('role', null, 'Rôle', {type: 'select', options:roles }) }}
-                            {{ field('password', null, 'Mot de passe', {type:'password'}) }}
-                            <button class="btn">Login</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+        <div class="login-card">
+            <h1 class="login-title">Connexion</h1>
+            <p class="login-subtitle">Espace réservé à l’équipe de Rock Fever</p>
+            {%- include 'flash.twig' %}
+            <form action="{{ path('auth.login') }}" method="post">
+                {{ field('role', null, 'Rôle', {type: 'select', options:roles }) }}
+                {{ field('password', null, 'Mot de passe', {type:'password'}) }}
+                <button class="login-button">Se connecter</button>
+            </form>
         </div>
     </div>
 {% endblock %}

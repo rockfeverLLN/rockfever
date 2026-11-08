@@ -53,17 +53,6 @@ class Statistics
              ORDER BY e.date ASC, e.id ASC, d.id ASC"
         )->fetchAll(\PDO::FETCH_OBJ);
 
-        // Status 0 is the default for a signup that has not been processed at the door yet.
-        // For past events, a batch of only status-0 rows is therefore missing attendance data,
-        // not evidence that every registered dancer was a no-show. Count an event once at
-        // least one attendance outcome has been recorded (present, VIP, or walk-in).
-        $eventsWithAttendanceData = [];
-        foreach ($rows as $row) {
-            if ((int)$row->status > 0) {
-                $eventsWithAttendanceData[(int)$row->event_id] = true;
-            }
-        }
-
         $keys = $this->names->identify($rows);
         $labels = $this->names->labels($rows, $keys);
         foreach ($rows as $row) {

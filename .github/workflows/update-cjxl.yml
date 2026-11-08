@@ -6,8 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # push the new version
-  actions: write   # start the deploy (pushes made with this job's token don't trigger it on their own)
+  contents: read
 
 # bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
 defaults:
@@ -17,12 +16,14 @@ defaults:
 # Dependabot can't follow cjxl, a file of libjxl's GitHub releases rather than a package: this raises bin/cjxl.version
 # to libjxl's newest release, checked against the SHA-256 GitHub gives for the file, and deploys it once
 # bin/fetch-cjxl.sh has tested it makes JPEG XL as the site runs it. A version that fails stays out and fails this
-# run, which GitHub emails about; the site keeps the previous one.
+# run, which GitHub emails about; the site keeps the previous one. Runs on main only: the key that pushes there
+# (bin/push-main.sh) is in the repo-bot environment. Its push starts deploy.yml like any other.
 # Same rule as deploy.yml: no marketplace actions, only plain git.
 jobs:
   update:
     # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
     runs-on: ubuntu-26.04
+    environment: repo-bot
     timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
@@ -31,7 +32,7 @@ jobs:
         env:
           TOKEN: ${{ github.token }}
         run: |
-          git clone --quiet --branch "$GITHUB_REF_NAME" \
+          git clone --quiet --branch main \
             "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -60,13 +61,10 @@ jobs:
         if: steps.check.outputs.new
         env:
           TAG: ${{ steps.check.outputs.new }}
+          MAIN_PUSH_KEY: ${{ secrets.MAIN_PUSH_KEY }}
         run: |
           git commit --quiet -m "Update cjxl to $TAG" \
             -m "https://github.com/libjxl/libjxl/releases/tag/$TAG" -- bin/cjxl.version
           # In case something was pushed during the test
-          git pull --quiet --rebase origin "$GITHUB_REF_NAME"
-          git push --quiet origin "HEAD:$GITHUB_REF_NAME"
-          # Only main goes live: a run started by hand on another branch just tests and pushes there
-          if [ "$GITHUB_REF_NAME" = main ]; then
-            gh workflow run deploy.yml --ref main
-          fi
+          git pull --quiet --rebase origin main
+          bin/push-main.sh

@@ -295,8 +295,14 @@ html[data-theme="dark"] .name-pair {
     border-color: var(--admin-line);
 }
 
+html[data-theme="dark"] .name-pairs-sure {
+    background-color: var(--admin-surface-2);
+}
+
+html[data-theme="dark"] .name-pair-names small,
+html[data-theme="dark"] .name-pair-and,
 html[data-theme="dark"] .name-pair-reason,
-html[data-theme="dark"] .name-pair-choice small {
+html[data-theme="dark"] .name-pair-other {
     color: var(--admin-muted);
 }
 
