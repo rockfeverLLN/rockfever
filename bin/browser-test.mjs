@@ -162,6 +162,23 @@ try {
         } else {
             failed = true;
             console.log(`  FAIL ${path}${ok ? '' : `: ${check} never became true${error ? ` (${error})` : ''}`}`);
+            if (path === '/admin/statistics') {
+                const bounds = await evaluate(`(() => {
+                    const main = document.querySelector('main');
+                    return JSON.stringify({
+                        chart: !!document.getElementById('eventsChart'),
+                        hiddenTableHeights: [...document.querySelectorAll('.sr-only')].map(element => element.offsetHeight),
+                        documentHeight: document.documentElement.scrollHeight,
+                        mainBottom: main.getBoundingClientRect().bottom + scrollY,
+                        overflow: [...document.querySelectorAll('body *')].filter(element => {
+                            const rect = element.getBoundingClientRect();
+                            return rect.bottom + scrollY > main.getBoundingClientRect().bottom + scrollY + 1;
+                        }).slice(-8).map(element => ({tag: element.tagName, className: element.className,
+                            bottom: Math.round(element.getBoundingClientRect().bottom + scrollY)}))
+                    });
+                })()`);
+                console.log(`       page bounds: ${bounds}`);
+            }
             problems.forEach(problem => console.log(`       ${problem}`));
         }
     }
