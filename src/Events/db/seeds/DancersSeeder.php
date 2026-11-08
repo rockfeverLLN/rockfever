@@ -33,7 +33,9 @@ class DancersSeeder extends AbstractSeed
                 'firstname' =>  $faker->firstName,
                 'lastname'  =>  $faker->lastName,
                 'event_id'  =>  rand(1, 3),
-                'date'      =>  date('Y-m-d H:i:s', $date)
+                'date'      =>  date('Y-m-d H:i:s', $date),
+                // The statistics ignore past events with no recorded attendance outcomes.
+                'status'    =>  1
             ];
         }
         $this->table('dancers')

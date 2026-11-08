@@ -53,6 +53,16 @@ class Statistics
              ORDER BY e.date ASC, e.id ASC, d.id ASC"
         )->fetchAll(\PDO::FETCH_OBJ);
 
+        // Status 0 is the default for a signup not processed at the door. If every signup
+        // for a past event still has that status, attendance data is missing, not a set of
+        // no-shows. Include an event only once an attendance outcome has been recorded.
+        $eventsWithAttendanceData = [];
+        foreach ($rows as $row) {
+            if ((int)$row->status > 0) {
+                $eventsWithAttendanceData[(int)$row->event_id] = true;
+            }
+        }
+
         $keys = $this->names->identify($rows);
         $labels = $this->names->labels($rows, $keys);
         foreach ($rows as $row) {
@@ -62,6 +72,9 @@ class Statistics
         $events = [];
         $people = [];
         foreach ($rows as $i => $row) {
+            if (!isset($eventsWithAttendanceData[(int)$row->event_id])) {
+                continue;
+            }
             $inPeriod = $from === null || ($row->event_date >= $from && $row->event_date < $to);
             $key = $keys[$i];
             $came = (int)$row->status > 0;
