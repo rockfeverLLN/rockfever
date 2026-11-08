@@ -33,9 +33,21 @@
     src: url(/fonts/inter.woff2?v=8e433c05) format('woff2');
 }
 
+/* Arial resized to Inter's measurements, shown until Inter arrives: the text then keeps its place instead of
+   reflowing and moving the page (layout shift). Liberation Sans has Arial's metrics; Android has neither and uses
+   system-ui, as before */
+@font-face {
+    font-family: 'Inter fallback';
+    src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+    ascent-override: 90.44%;
+    descent-override: 22.52%;
+    line-gap-override: 0%;
+    size-adjust: 107.12%;
+}
+
 /* Public pages (layout.twig): the admin keeps the font of base.css */
 .site {
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Inter fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     color: #1f2933;
     -webkit-font-smoothing: antialiased;
     /* Inter turns "->" into an arrow: keep the text as it was typed */
@@ -1191,7 +1203,7 @@ ul.next-event-infos:last-child {
     border-radius: 16px;
     background-color: #ffffff;
     color: #1f2933;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Inter fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 15px;
     line-height: 1.6;
     box-shadow: 0 6px 20px rgba(3, 41, 81, 0.06);

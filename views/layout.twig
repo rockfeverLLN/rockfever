@@ -117,9 +117,11 @@
     {# critical.css and site.css are built by bin/critical-css.php at every deploy (not in git) #}
     {%- if assetExists('/css/site.css') %}
     {# Rules the page needs for the first paint, then the one stylesheet (base.css's part and style.css), loaded in
-       the background. The rules of this page only when bin/critical-css.php read it, else those of all the pages #}
+       the background. The rules of this page only when bin/critical-css.php read it, else those of all the pages.
+       raw: source() alone is safe, but not the ?: around it, and Twig's escaping broke every rule with a quote or a >
+       (fonts, content: "", child selectors) until site.css came and moved the page #}
     {%- set critical = page is defined ? source('critical/' ~ page ~ '.css', ignore_missing = true) : '' %}
-    <style>{{ critical ?: source('critical.css', ignore_missing = true) }}</style>
+    <style>{{ (critical ?: source('critical.css', ignore_missing = true))|raw }}</style>
     <link rel="preload" href="{{ asset('/css/site.css') }}" as="style" id="site-css"/>
     {#- Not an onload attribute: the Content-Security-Policy blocks those. The script runs before the file can load #}
     <script nonce="{{ csp_nonce }}">
