@@ -1430,6 +1430,11 @@ button.dashboard-pill {
     gap: 12px;
 }
 
+/* Keep the last card's margin inside the page, so it doesn't extend the document past <main>. */
+.club-stats {
+    display: flow-root;
+}
+
 /* /admin/statistics/names: a pair of names to answer, then the form to match two by hand */
 .name-pairs-sure {
     display: flex;
