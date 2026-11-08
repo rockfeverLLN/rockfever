@@ -147,23 +147,21 @@
     });
 
     // Parallax headers: the image moves slower than the page, as Materialize's parallax did. Not for visitors who
-    // asked their device for less motion (WCAG 2.3.3): the photo stays still, as base.css places it
+    // asked their device for less motion (WCAG 2.3.3): the photo stays still, showing its lower part
     var parallaxImages = all('.parallax-container .parallax img');
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (parallaxImages.length) {
         var updateParallax = function () {
             var windowHeight = window.innerHeight;
             parallaxImages.forEach(function (image) {
-                if (reducedMotion.matches) {
-                    image.style.transform = '';
-                    return;
-                }
                 var container = image.closest('.parallax-container');
                 var containerHeight = container.offsetHeight || 500;
                 var top = container.getBoundingClientRect().top;
-                if (top + containerHeight > 0 && top < windowHeight) {
-                    var scrolled = (windowHeight - top) / (containerHeight + windowHeight);
-                    image.style.transform = 'translate3d(-50%, ' + (image.offsetHeight - containerHeight) * scrolled + 'px, 0)';
+                // base.css holds the photo by its top: 0 shows its bottom, which is all that a visitor who asked for
+                // less motion sees, and 1 its top
+                var scrolled = reducedMotion.matches ? 0 : (windowHeight - top) / (containerHeight + windowHeight);
+                if (reducedMotion.matches || (top + containerHeight > 0 && top < windowHeight)) {
+                    image.style.transform = 'translate3d(-50%, ' + (containerHeight - image.offsetHeight) * (1 - scrolled) + 'px, 0)';
                 }
             });
         };
@@ -179,6 +177,13 @@
         window.addEventListener('scroll', requestParallax, {passive: true});
         window.addEventListener('resize', requestParallax);
         reducedMotion.addEventListener('change', requestParallax);
+        // The header grows when its fonts arrive or a message opens: the photo follows without a scroll
+        if (window.ResizeObserver) {
+            var parallaxResize = new ResizeObserver(requestParallax);
+            parallaxImages.forEach(function (image) {
+                parallaxResize.observe(image.closest('.parallax-container'));
+            });
+        }
         parallaxImages.forEach(function (image) {
             image.addEventListener('load', requestParallax);
         });
