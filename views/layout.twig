@@ -139,6 +139,8 @@
     <link rel="stylesheet" href="{{ asset('/css/style.css') }}"/>
     {%- endif %}
     <link rel="shortcut icon" type="image/png" href="{{ __DIR__ }}/images/favicon.png"/>
+    {#- For iPhones' home screens: square, iOS rounds its corners #}
+    <link rel="apple-touch-icon" href="{{ __DIR__ }}/images/apple-touch-icon.png"/>
 </head>
 
 {#- "site" scopes the public pages' font, menu and footer styles: the admin uses the same style.css #}

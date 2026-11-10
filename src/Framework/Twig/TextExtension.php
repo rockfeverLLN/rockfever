@@ -24,6 +24,7 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             new \Twig\TwigFilter('round', [$this, 'round']),
             new \Twig\TwigFilter('lazyImages', [$this, 'lazyImages']),
             new \Twig\TwigFilter('withoutEmptyParagraphs', [$this, 'withoutEmptyParagraphs']),
+            new \Twig\TwigFilter('defaultAlt', [$this, 'defaultAlt']),
             new \Twig\TwigFilter('typography', [$this, 'typography'], ['is_safe' => ['html']])
         ];
     }
@@ -64,13 +65,47 @@ class TextExtension extends \Twig\Extension\AbstractExtension
     }
 
     /**
-     * Removes the blank paragraphs (<p>&nbsp;</p>) the admin editor leaves when pressing Enter several times
+     * Removes the blank paragraphs (<p>&nbsp;</p>) the admin editor leaves when pressing Enter several times, and
+     * the empty bold, emphasis and underline tags (not <i> or <span>, which can be icons) it leaves when bold is turned on with nothing typed (<strong> </strong>):
+     * SEO audits report those as errors. The inline tags go first, so a paragraph that only held one goes too
      * @param string|null $content
      * @return string
      */
     public function withoutEmptyParagraphs(?string $content) : string
     {
-        return preg_replace('#<p\b[^>]*>(?:\s|&nbsp;|\x{a0}|<br\s*/?>)*</p>\s*#iu', '', $content ?? '');
+        $blank = '(?:\s|&nbsp;|\x{a0})*';
+        $content = $content ?? '';
+        // Repeated for nested ones (<strong><em> </em></strong>)
+        do {
+            $content = preg_replace('#<(b|strong|em|u)\b[^>]*>' . $blank . '</\1>#iu', ' ', $content, -1, $count);
+        } while ($count > 0);
+        return preg_replace('#<p\b[^>]*>(?:\s|&nbsp;|\x{a0}|<br\s*/?>)*</p>\s*#iu', '', $content);
+    }
+
+    /**
+     * Gives the images written in the admin without a description (alt="" or no alt) the one passed, as the staff
+     * cards' photos get the member's name: a blank alt tells screen readers and search engines the image says nothing
+     * @param string|null $content
+     * @param string|null $alt
+     * @return string
+     */
+    public function defaultAlt(?string $content, ?string $alt) : string
+    {
+        $alt = trim((string) $alt);
+        if ($alt === '') {
+            return $content ?? '';
+        }
+        $alt = htmlspecialchars($alt, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return preg_replace_callback('/<img\b[^>]*>/i', function ($match) use ($alt) {
+            $tag = $match[0];
+            if (preg_match('/\salt=(["\'])\s*\1/i', $tag)) {
+                return preg_replace('/\salt=(["\'])\s*\1/i', ' alt="' . $alt . '"', $tag, 1);
+            }
+            if (!preg_match('/\salt=/i', $tag)) {
+                return substr_replace($tag, '<img alt="' . $alt . '"', 0, 4);
+            }
+            return $tag;
+        }, $content ?? '');
     }
 
     /**
