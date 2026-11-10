@@ -1,0 +1,26 @@
+{#- One of the soirées' settings (App\Main\Settings), for index.twig's "Réglages des soirées": `name`, and an optional
+    shorter `label` where its card's title already says the rest. Included, not a macro, so the form's errors show #}
+{%- set setting = settings[name] %}
+{%- set label = label|default(setting.label) %}
+<div class="events-settings-field">
+    {%- if setting.type == 'days' %}
+        {#- The browser's own select: Materialize's needs its script #}
+        <div class="events-settings-select">
+            <label for="{{ name }}">{{ label }}</label>
+            <select id="{{ name }}" name="{{ name }}" class="browser-default">
+                {% for value, choice in dayChoices %}
+                    <option value="{{ value }}" {% if value == setting.value %}selected{% endif %}>{{ choice }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {%- elseif setting.type == 'time' %}
+        {{ field(name, setting.value, label, {type: 'time', attributes: {required: true}}) }}
+    {%- elseif setting.type == 'optional_time' %}
+        {{ field(name, setting.value, label, {type: 'time'}) }}
+    {%- elseif setting.type == 'int' %}
+        {{ field(name, setting.value, label, {attributes: {required: true, inputmode: 'numeric', pattern: '[0-9]{1,3}'}}) }}
+    {%- else %}
+        {{ field(name, setting.value, label, {attributes: {required: true, maxlength: 250}}) }}
+    {%- endif %}
+    {% if setting.help %}<span class="events-settings-help">{{ setting.help }}</span>{% endif %}
+</div>

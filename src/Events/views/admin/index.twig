@@ -10,52 +10,71 @@
         {%- set s = settings|map(setting => setting.value) %}
         <details class="events-settings">
             <summary>
-                <i class="mdi mdi-cog left" aria-hidden="true"></i><strong>Réglages des soirées</strong>
-                <span class="grey-text">
-                    · valse {{ s.SOIREE_WALTZ_TIME|replace({':': 'h'}) }}, rock {{ s.SOIREE_ROCK_TIME|replace({':': 'h'}) }},
-                    fin {{ s.SOIREE_END_TIME|replace({':': 'h'}) }} · {{ s.SOIREE_PLACE }}
-                    · {{ s.PRICE_ONLINE }}&nbsp;€ inscrit, {{ s.PRICE_DOOR }}&nbsp;€ sur place
-                    · inscriptions {{ registrationRule }}
+                <strong class="events-settings-name">Réglages des soirées</strong>
+                <span class="events-settings-summary grey-text">
+                    <span><i class="mdi mdi-clock" aria-hidden="true"></i>valse {{ s.SOIREE_WALTZ_TIME|replace({':': 'h'}) }}, rock {{ s.SOIREE_ROCK_TIME|replace({':': 'h'}) }}, fin {{ s.SOIREE_END_TIME|replace({':': 'h'}) }}</span>
+                    <span><i class="mdi mdi-map-marker" aria-hidden="true"></i>{{ s.SOIREE_PLACE }}</span>
+                    <span><i class="mdi mdi-credit-card" aria-hidden="true"></i>{{ s.PRICE_ONLINE }}&nbsp;€ inscrit, {{ s.PRICE_DOOR }}&nbsp;€ sur place</span>
+                    <span><i class="mdi mdi-lock-open" aria-hidden="true"></i>inscriptions {{ registrationRule }}</span>
                 </span>
             </summary>
             {% if isAdmin() %}
-                <form action="{{ path('admin.events.settings') }}" method="post" class="row">
-                    {#- A titled row each: the times, the place, the prices, the sign-up window. The titles, full width, also
-                        keep a field with a helper text from pushing the next row aside #}
-                    {%- set titles = {SOIREE_WALTZ_TIME: 'Horaire', SOIREE_PLACE: 'Lieu', PRICE_ONLINE: 'Prix', REGISTRATION_DAYS: 'Inscriptions sur le site'} %}
-                    {% for name, setting in settings %}
-                        {% if titles[name] is defined %}
-                            <div class="col s12"><h2 class="events-settings-title">{{ titles[name] }}</h2></div>
-                        {% endif %}
-                        <div class="col s12 {{ name starts with 'REGISTRATION' ? 'm6 l3' : (setting.type == 'string' or name starts with 'PRICE' ? 'm6' : 'm4') }}">
-                            {%- if setting.type == 'days' %}
-                                {#- The browser's own select: Materialize's needs its script #}
-                                <div class="events-settings-select">
-                                    <label for="{{ name }}">{{ setting.label }}</label>
-                                    <select id="{{ name }}" name="{{ name }}" class="browser-default">
-                                        {% for value, choice in dayChoices %}
-                                            <option value="{{ value }}" {% if value == setting.value %}selected{% endif %}>{{ choice }}</option>
-                                        {% endfor %}
-                                    </select>
+                {#- One card each: the times, the place, the prices, the sign-up window. Each field keeps its name
+                    (App\Main\Settings), only the layout is chosen here; a short label where the card's title says the rest #}
+                <form action="{{ path('admin.events.settings') }}" method="post" class="events-settings-form">
+                    <div class="events-settings-grid">
+                        <fieldset class="events-settings-card">
+                            <legend><i class="mdi mdi-clock" aria-hidden="true"></i>Horaire</legend>
+                            <div class="events-settings-fields events-settings-fields-3">
+                                {% include '@events/admin/setting-field.twig' with {name: 'SOIREE_WALTZ_TIME', label: 'Valse'} %}
+                                {% include '@events/admin/setting-field.twig' with {name: 'SOIREE_ROCK_TIME', label: 'Rock'} %}
+                                {% include '@events/admin/setting-field.twig' with {name: 'SOIREE_END_TIME', label: 'Fin'} %}
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="events-settings-card">
+                            <legend><i class="mdi mdi-credit-card" aria-hidden="true"></i>Prix</legend>
+                            <div class="events-settings-fields events-settings-fields-2">
+                                {% include '@events/admin/setting-field.twig' with {name: 'PRICE_ONLINE', label: 'Inscrit en ligne (€)'} %}
+                                {% include '@events/admin/setting-field.twig' with {name: 'PRICE_DOOR', label: 'Sur place (€)'} %}
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="events-settings-card events-settings-card-wide">
+                            <legend><i class="mdi mdi-map-marker" aria-hidden="true"></i>Lieu</legend>
+                            <div class="events-settings-fields events-settings-fields-place">
+                                {% include '@events/admin/setting-field.twig' with {name: 'SOIREE_PLACE', label: 'Nom'} %}
+                                {% include '@events/admin/setting-field.twig' with {name: 'SOIREE_ADDRESS'} %}
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="events-settings-card events-settings-card-wide">
+                            <legend><i class="mdi mdi-lock-open" aria-hidden="true"></i>Inscriptions sur le site</legend>
+                            <div class="events-settings-windows">
+                            <div class="events-settings-window">
+                                <span class="events-settings-window-title">Ouverture</span>
+                                <div class="events-settings-fields events-settings-fields-day">
+                                    {% include '@events/admin/setting-field.twig' with {name: 'REGISTRATION_DAYS', label: 'Jour'} %}
+                                    {% include '@events/admin/setting-field.twig' with {name: 'REGISTRATION_OPEN_TIME', label: 'Heure'} %}
                                 </div>
-                            {%- elseif setting.type == 'time' %}
-                                {{ field(name, setting.value, setting.label, {type: 'time', attributes: {required: true}}) }}
-                            {%- elseif setting.type == 'optional_time' %}
-                                {{ field(name, setting.value, setting.label, {type: 'time'}) }}
-                            {%- elseif setting.type == 'int' %}
-                                {{ field(name, setting.value, setting.label, {attributes: {required: true, inputmode: 'numeric', pattern: '[0-9]{1,3}'}}) }}
-                            {%- else %}
-                                {{ field(name, setting.value, setting.label, {attributes: {required: true, maxlength: 250}}) }}
-                            {%- endif %}
-                            {% if setting.help %}<span class="helper-text">{{ setting.help }}</span>{% endif %}
-                        </div>
-                    {% endfor %}
-                    <div class="col s12">
+                            </div>
+                            <div class="events-settings-window">
+                                <span class="events-settings-window-title">Fermeture</span>
+                                <div class="events-settings-fields events-settings-fields-day">
+                                    {% include '@events/admin/setting-field.twig' with {name: 'REGISTRATION_CLOSE_DAYS', label: 'Jour'} %}
+                                    {% include '@events/admin/setting-field.twig' with {name: 'REGISTRATION_CLOSE_TIME', label: 'Heure'} %}
+                                </div>
+                            </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="events-settings-footer">
+                        <button class="btn koamaru">Enregistrer les réglages</button>
                         <p class="grey-text">
                             Valent pour toutes les soirées, sauf les heures et le lieu qu'un événement a changés (sa
                             page «&nbsp;Modifier&nbsp;»).
                         </p>
-                        <button class="btn koamaru">Enregistrer les réglages</button>
                     </div>
                 </form>
             {% else %}

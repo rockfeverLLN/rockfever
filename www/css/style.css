@@ -2189,48 +2189,211 @@ table tbody tr td .input-field {
     margin: 16px 0 0;
 }
 
-/* Its "Réglages des soirées": one line that sums them up, the form once opened */
+/* Its "Réglages des soirées": one line that sums them up, the form once opened. A card for each kind of setting,
+   two side by side on a wide screen */
 .events-settings {
-    margin-bottom: 16px;
-    padding: 8px 16px;
+    margin-bottom: 24px;
     border: 1px solid rgba(127, 127, 127, 0.3);
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .events-settings summary {
     cursor: pointer;
-    padding: 8px 0;
+    padding: 14px 20px;
     line-height: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 16px;
+    row-gap: 4px;
+    list-style: none;
 }
 
-.events-settings summary .mdi {
-    vertical-align: middle;
-    margin-right: 8px;
+.events-settings summary::-webkit-details-marker {
+    display: none;
 }
 
-.events-settings form {
-    margin-top: 8px;
+/* Its own arrow, turning when opened */
+.events-settings summary::before {
+    content: "\25B8";
+    display: inline-block;
+    width: 14px;
+    font-size: 1.1rem;
+    transition: transform 0.15s;
 }
 
-.events-settings .events-settings-title {
-    font-size: 1rem;
+.events-settings[open] summary::before {
+    transform: rotate(90deg);
+}
+
+.events-settings[open] summary {
+    border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+}
+
+.events-settings-summary {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 18px;
+    row-gap: 2px;
+    font-size: 0.9rem;
+}
+
+.events-settings-summary .mdi {
+    margin-right: 5px;
+    opacity: 0.8;
+}
+
+.events-settings-form {
+    padding: 20px;
+}
+
+.events-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 16px;
+}
+
+.events-settings-card {
+    margin: 0;
+    padding: 4px 16px 8px;
+    border: 1px solid rgba(127, 127, 127, 0.25);
+    border-radius: 8px;
+    background: rgba(127, 127, 127, 0.05);
+    min-width: 0;
+}
+
+.events-settings-card legend {
+    padding: 0 6px;
+    margin-left: -6px;
     font-weight: 500;
-    margin: 16px 0 0;
+    font-size: 1rem;
 }
 
-/* A day to choose, lined up with the fields beside it (Materialize's labels sit above their field) */
+.events-settings-card legend .mdi {
+    margin-right: 6px;
+}
+
+.events-settings-fields {
+    display: grid;
+    column-gap: 16px;
+}
+
+.events-settings-fields-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.events-settings-fields-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.events-settings-fields-place {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+
+.events-settings-fields-day {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+}
+
+/* On a phone: the place, and a day then its hour, one under the other */
+@media (max-width: 600px) {
+    .events-settings-fields-place,
+    .events-settings-fields-day {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .events-settings summary,
+    .events-settings-form {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .events-settings-card {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+
+
+.events-settings-field .input-field {
+    margin-bottom: 0;
+}
+
+.events-settings-help {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    opacity: 0.75;
+}
+
+/* Opening and closing of the sign-ups: a day and an hour each, side by side on a wide screen */
+.events-settings-card-wide {
+    grid-column: 1 / -1;
+}
+
+.events-settings-windows {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    column-gap: 32px;
+}
+
+.events-settings-window-title {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.75;
+}
+
+/* A day to choose, drawn like Materialize's fields beside it: label above, a line under */
 .events-settings-select {
-    margin-top: 1rem;
-    margin-bottom: 8px;
+    margin-top: calc(1rem - 14px);
 }
 
 .events-settings-select label {
     display: block;
+    margin-bottom: -4px;
     font-size: 0.8rem;
 }
 
-.events-settings-select select {
+.events-settings .events-settings-select select.browser-default {
     height: 3rem;
+    padding: 0 4px 0 0;
+    border: none;
+    border-bottom: 1px solid #9e9e9e;
+    border-radius: 0;
+    background-color: transparent;
+    color: inherit;
+    font-size: 1rem;
+}
+
+.events-settings .events-settings-select select.browser-default:focus {
+    outline-offset: 2px;
+}
+
+/* The same grey labels everywhere, filled or not (Materialize turns a filled text field's blue) */
+.events-settings .events-settings-field .input-field > label,
+.events-settings .events-settings-field .input-field > label.active,
+.events-settings .events-settings-select label {
+    color: inherit;
+    opacity: 0.7;
+}
+
+.events-settings-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
+    margin-top: 20px;
+}
+
+.events-settings-footer p {
+    margin: 0;
+    flex: 1 1 280px;
+    font-size: 0.9rem;
 }
 
 .event-button .text {
