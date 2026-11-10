@@ -30,6 +30,8 @@ class CalendarAction
                 // One soirée is a file to open in the calendar app; the full list is also read by subscriptions
                 'Content-Disposition' => ($date ? 'attachment' : 'inline') . '; filename="' . $filename . '"',
                 'Cache-Control' => 'public, max-age=3600',
+                // A file for calendar apps, not a page for search results
+                'X-Robots-Tag' => 'noindex',
             ], $this->calendar->toIcs($date));
         }
         $date = $request->getAttribute('date');

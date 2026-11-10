@@ -7,6 +7,8 @@ RewriteCond %{HTTP_HOST} ^www\.rockfever\.be$ [NC]
 RewriteRule ^ https://rockfever.be%{REQUEST_URI} [R=301,L,NE]
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE,QSA]
+# jQuery and Materialize were removed (cfb7030): tell crawlers still asking for them that they are gone for good
+RewriteRule ^(js/jquery\.min\.js|js/materialize\.min\.js|css/materialize\.min\.css)$ - [G,L]
 # Browsers ask for /favicon.ico on every page: serve the PNG favicon there
 RewriteRule ^favicon\.ico$ /images/favicon.png [L]
 # Browsers that can show JPEG XL get the copy of an image in that format when it has one (photo.jpg =>
@@ -67,6 +69,10 @@ AddType "text/plain; charset=utf-8" .txt
             Header set Cache-Control "public, max-age=31536000, immutable"
             Header unset Expires
         </If>
+    </FilesMatch>
+    # Scripts and styles are not pages: keep them out of search results (crawlers can still fetch them to render)
+    <FilesMatch "\.(css|js)$">
+        Header set X-Robots-Tag "noindex"
     </FilesMatch>
     # The same image URL gives a JPEG XL or not depending on what the browser accepts (rule above): caches must
     # keep both apart
