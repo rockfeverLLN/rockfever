@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Accueil - Rock Fever{% endblock %}
+{% block title %}Rock Fever – Soirées rock et valse à Louvain-la-Neuve{% endblock %}
 
 {% block canonical_path %}/{% endblock %}
 
@@ -18,7 +18,7 @@
             </div>
         </div>
         <div class="parallax">
-            <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="People dancing rock" width="1412" height="793" fetchpriority="high"></picture>
+            <picture><source srcset="{{ __DIR__ }}/images/body/bg.jxl" type="image/jxl"><img src="{{ __DIR__ }}/images/body/bg.webp" alt="Des couples dansent le rock lors d’une soirée Rock Fever" width="1412" height="793" fetchpriority="high"></picture>
         </div>
     </div>
     {{ nextSoiree }}
@@ -28,7 +28,7 @@
         {% for item in items %}
             <section class="home-section rich-text">
                 <h2>{{ item.title | e | typography }}</h2>
-                <div>{{ item.content | lazyImages | typography }}</div>
+                <div>{{ item.content | withoutEmptyParagraphs | lazyImages | typography }}</div>
             </section>
         {% endfor %}
         {% if members %}
@@ -36,7 +36,7 @@
                 {% for member in members %}
                     <section class="staff-card rich-text">
                         <h3>{{ member.title | e | typography }}</h3>
-                        <div class="staff-card-content">{{ member.content | withoutEmptyParagraphs | lazyImages(0, '(max-width: 600px) 76px, (max-width: 992px) 43vw, 300px') | typography }}</div>
+                        <div class="staff-card-content">{{ member.content | withoutEmptyParagraphs | defaultAlt(member.title) | lazyImages(0, '(max-width: 600px) 76px, (max-width: 992px) 43vw, 300px') | typography }}</div>
                     </section>
                 {% endfor %}
             </div>
