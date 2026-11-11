@@ -2,10 +2,18 @@ name: Test
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      # Set by .github/workflows/dependabot-retry.yml: a Dependabot update that failed, tested again on today's main
+      pr:
+        description: Pull request to test merged with main (its number), and merge if it's Dependabot's and passes
+        required: false
+      sha:
+        description: That pull request's head commit, which only is merged
+        required: false
 
 # A new push to the pull request replaces the run of the previous one
 concurrency:
-  group: test-${{ github.event.pull_request.number || github.ref }}
+  group: test-${{ github.event.pull_request.number || inputs.pr || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -16,9 +24,9 @@ defaults:
   run:
     shell: bash
 
-# Tests every pull request on a copy of the site (bin/test.sh). Dependabot's minor and patch updates
-# (.github/dependabot.yml) that pass are merged and deployed without anyone needing to do anything; its new major
-# versions pass the same tests and wait for someone to read them and merge.
+# Tests every pull request on a copy of the site (bin/test.sh). Dependabot's updates (.github/dependabot.yml), major
+# versions included, that pass are merged and deployed without anyone needing to do anything. One that fails is tested
+# again on main as it then is (.github/workflows/dependabot-retry.yml), and merged once it passes.
 # Same rule as deploy.yml: no marketplace actions, only plain git and official images.
 jobs:
   test:
@@ -39,14 +47,31 @@ jobs:
           --health-cmd "healthcheck.sh --connect --innodb_initialized"
           --health-interval 5s --health-timeout 5s --health-retries 20
     steps:
-      # The pull request's own commit, not the merge with main GitHub prepares
+      # The pull request's own commit, not the merge with main GitHub prepares. Except for a Dependabot update tested
+      # again: its merge with today's main, which has the fixes made since it failed
       - name: Checkout
         env:
           TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR: ${{ inputs.pr }}
         run: |
           git init --quiet .
-          git fetch --quiet --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$SHA"
+          ref=$SHA
+          if [ -n "$PR" ]; then
+            # GitHub works out the merge (refs/pull/N/merge) when asked whether it can be merged
+            for i in $(seq 10); do
+              mergeable=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq .mergeable)
+              [ "$mergeable" != null ] && break
+              sleep 3
+            done
+            if [ "$mergeable" != true ]; then
+              echo "::error::Pull request #$PR doesn't merge with main: Dependabot rebases it on its own"
+              exit 1
+            fi
+            ref=refs/pull/$PR/merge
+          fi
+          git fetch --quiet --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$ref"
           git checkout --quiet FETCH_HEAD
       # Same PHP version as the server, read from .ovhconfig
       - name: Read PHP version
@@ -79,12 +104,14 @@ jobs:
           command -v lzip > /dev/null || { timeout 300 $APT update && timeout 300 $APT install -y --no-install-recommends lzip; }
           bin/fetch-cjxl.sh
 
-  # Dependabot's minor and patch updates that passed go live. Merged here rather than with GitHub's auto-merge, which needs a
+  # Dependabot's updates that passed go live, major versions included. Merged here rather than with GitHub's auto-merge, which needs a
   # branch protection rule; and a merge made with this job's token doesn't start deploy.yml on its own, so it's
   # started here
   merge:
     needs: test
-    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    if: >-
+      (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]')
+      || (github.event_name == 'workflow_dispatch' && inputs.pr != '' && inputs.sha != '')
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     # One merge at a time: two updates passing together would otherwise both deploy the same commit
@@ -97,17 +124,17 @@ jobs:
       actions: write        # start the deploy
     env:
       GH_TOKEN: ${{ github.token }}
-      PR_URL: ${{ github.event.pull_request.html_url }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_URL: ${{ github.event.pull_request.html_url || format('{0}/{1}/pull/{2}', github.server_url, github.repository, inputs.pr) }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.sha }}
     steps:
       - name: Merge and deploy
         run: |
-          # Dependabot's commit says what each update is: every one of them must be minor or patch
+          # Only Dependabot's own pull request and commit, as it made them: a commit someone else pushed to its branch
+          # waits for someone to merge it
+          author=$(gh pr view "$PR_URL" --json author --jq .author.login)
           message=$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA" --jq .commit.message)
-          updates=$(grep -c 'dependency-name:' <<< "$message" || true)
-          safe=$(grep -cE '^ *update-type: version-update:semver-(minor|patch)$' <<< "$message" || true)
-          if [ "$updates" = 0 ] || [ "$updates" != "$safe" ]; then
-            echo "::notice::Not a minor or patch update: it stays open for someone to read and merge"
+          if [ "$author" != app/dependabot ] || ! grep -q 'dependency-name:' <<< "$message"; then
+            echo "::notice::Not Dependabot's update as it made it: it stays open for someone to read and merge"
             exit 0
           fi
           # --match-head-commit: not if Dependabot pushed again during the tests, the newer run will merge it.

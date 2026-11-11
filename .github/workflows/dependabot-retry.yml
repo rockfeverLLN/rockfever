@@ -1,0 +1,54 @@
+name: Retry Dependabot updates
+on:
+  # A change to main may be what a failed update was waiting for: a fix to the code or to the tests
+  push:
+    branches: [main]
+  # And once a day, for a failure that came from elsewhere (the hour, the network, a service down)
+  schedule:
+    # 12:47 UTC, after the night's updates have been tested, at a quiet minute
+    - cron: '47 12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
+defaults:
+  run:
+    shell: bash
+
+# A Dependabot update whose tests failed (.github/workflows/test.yml) would otherwise stay open on the previous version
+# until a newer release, even once main has the fix: its tests run on its own commit, and Dependabot only rebases it when
+# it conflicts. This tests each one again merged with today's main (test.yml with its pr input), which merges and deploys
+# it if it passes. One that still fails stays open, tried again at the next change to main or the next day.
+# Same rule as deploy.yml: no marketplace actions, only the gh command.
+jobs:
+  retry:
+    # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    permissions:
+      actions: write        # start test.yml
+      pull-requests: read
+      checks: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Test the failed updates again
+        run: |
+          # Each open Dependabot pull request whose last test failed, and none of whose checks is still running
+          failed=$(gh pr list --author app/dependabot --state open --limit 100 --json number,headRefOid,statusCheckRollup \
+            --jq '.[] | select(
+                ([.statusCheckRollup[] | select(.name == "test")] | last | .conclusion) as $test
+                | ($test == "FAILURE" or $test == "TIMED_OUT" or $test == "CANCELLED")
+                  and ([.statusCheckRollup[] | select(.status != null and .status != "COMPLETED")] | length) == 0
+              ) | "\(.number) \(.headRefOid)"')
+          if [ -z "$failed" ]; then
+            echo "No failed Dependabot update"
+            exit 0
+          fi
+          while read -r number sha; do
+            echo "Testing #$number again on main"
+            gh workflow run test.yml --ref main -f pr="$number" -f sha="$sha"
+          done <<< "$failed"
