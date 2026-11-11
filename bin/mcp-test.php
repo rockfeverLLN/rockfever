@@ -64,14 +64,35 @@ $pdo->prepare(
      VALUES ('MCP test', '', ?, '20:30:00', '21:00:00', '', '', '')"
 )->execute([$day]);
 $eventId = (int) $pdo->lastInsertId();
-// A soirée planned for today, still to come tonight, would be the next one rather than the test's: set it aside
-$today = (new DateTimeImmutable('today', new DateTimeZone('Europe/Brussels')))->format('Y-m-d');
-$setAside = $pdo->prepare('SELECT id FROM soirees WHERE date >= ? AND date < ? AND cancelled = 0');
-$setAside->execute([$today, $day]);
-$setAside = array_map('intval', $setAside->fetchAll(PDO::FETCH_COLUMN));
-if ($setAside) {
-    $pdo->exec('UPDATE soirees SET cancelled = 1 WHERE id IN (' . implode(',', $setAside) . ')');
+// Only the test's soirée may be the next one, whatever the hour the test runs at: a soirée planned for today, or
+// yesterday's still going on after midnight, or an admin event on one of those days without a planned date, would come
+// before it. Each is cancelled for the test (a row of the soirees table) and put back at the end. A planned date of the
+// test's day that is cancelled would cancel the test's soirée: it is planned again for the test.
+$zone = new DateTimeZone('Europe/Brussels');
+$yesterday = (new DateTimeImmutable('yesterday', $zone))->format('Y-m-d');
+$before = $pdo->prepare('SELECT id FROM soirees WHERE date >= ? AND date < ? AND cancelled = 0');
+$before->execute([$yesterday, $day]);
+$setAside = array_map('intval', $before->fetchAll(PDO::FETCH_COLUMN));
+$cancelledOnDay = $pdo->prepare('SELECT id FROM soirees WHERE date = ? AND cancelled = 1');
+$cancelledOnDay->execute([$day]);
+$replanned = array_map('intval', $cancelledOnDay->fetchAll(PDO::FETCH_COLUMN));
+$unplanned = $pdo->prepare(
+    'SELECT DISTINCT DATE(date) FROM events WHERE DATE(date) >= ? AND DATE(date) < ? AND id <> ?
+     AND DATE(date) NOT IN (SELECT date FROM soirees)'
+);
+$unplanned->execute([$yesterday, $day, $eventId]);
+$added = [];
+foreach ($unplanned->fetchAll(PDO::FETCH_COLUMN) as $date) {
+    $pdo->prepare('INSERT INTO soirees (date, cancelled) VALUES (?, 1)')->execute([$date]);
+    $added[] = (int) $pdo->lastInsertId();
 }
+$setCancelled = function (array $ids, int $cancelled) use ($pdo) : void {
+    if ($ids) {
+        $pdo->exec("UPDATE soirees SET cancelled = $cancelled WHERE id IN (" . implode(',', $ids) . ')');
+    }
+};
+$setCancelled($setAside, 1);
+$setCancelled($replanned, 0);
 
 try {
     // The protocol
@@ -163,8 +184,10 @@ try {
     $check('and new ones', ($tool('prepare_registration', $names)['isError'] ?? false) === true);
 } finally {
     $pdo->exec("DELETE FROM events WHERE id = $eventId");
-    if ($setAside) {
-        $pdo->exec('UPDATE soirees SET cancelled = 0 WHERE id IN (' . implode(',', $setAside) . ')');
+    $setCancelled($setAside, 0);
+    $setCancelled($replanned, 1);
+    if ($added) {
+        $pdo->exec('DELETE FROM soirees WHERE id IN (' . implode(',', $added) . ')');
     }
 }
 exit($failed ? 1 : 0);
