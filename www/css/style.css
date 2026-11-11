@@ -1555,6 +1555,19 @@ button.dashboard-pill {
     font-size: 14px;
 }
 
+/* The soirée going on right now, in the statistics' table */
+.club-stats-live {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #c62828;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
 /* Tile colors Materialize's subset (base.css) doesn't have: !important like its own, over the dark theme's cards */
 .club-stats .stat-teal {
     background-color: #00796b !important;

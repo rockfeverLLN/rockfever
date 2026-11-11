@@ -2,8 +2,14 @@
 
 namespace App\Events;
 
+use App\Main\Calendar;
+use App\Main\Settings;
+
 /**
  * The figures of the club's statistics page (Actions\StatisticsAction), over the past soirées of a season or of all time.
+ *
+ * The soirée going on right now counts too, marked live: its sign-ups not yet seen at the door are on their way, not
+ * no-shows, so they're left out of the no-shows until it ends (the soirées' end time, Settings).
  *
  * A dancer is recognised by their name, with the spellings the team matched (DancerNames): the sign-ups have no other id.
  * Statuses of a sign-up: 0 = registered (after the soirée: didn't come), 1 = came, 2 = came as VIP, 3 = came without
@@ -16,20 +22,49 @@ class Statistics
      */
     private const SEASON_START_MONTH = 9;
 
-    public function __construct(private \PDO $pdo, private DancerNames $names)
+    public function __construct(private \PDO $pdo, private DancerNames $names, private Settings $settings)
     {
     }
 
     /**
-     * The seasons with a past soirée, latest first: [2025 => '2025-2026', ...]
+     * Today in Brussels: the soirées up to today are the ones counted
+     */
+    private function today(): string
+    {
+        return $this->now()->format('Y-m-d');
+    }
+
+    private function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable('now', new \DateTimeZone(Calendar::TIMEZONE));
+    }
+
+    /**
+     * Whether the soirée of that day is still going on: it ends at the usual end time, the next day if before its start
+     */
+    private function isLive(string $date): bool
+    {
+        $timezone = new \DateTimeZone(Calendar::TIMEZONE);
+        $start = new \DateTimeImmutable($date . ' ' . $this->settings->get('SOIREE_WALTZ_TIME'), $timezone);
+        $end = new \DateTimeImmutable($date . ' ' . $this->settings->get('SOIREE_END_TIME'), $timezone);
+        if ($end <= $start) {
+            $end = $end->modify('+1 day');
+        }
+        return $end > $this->now();
+    }
+
+    /**
+     * The seasons with a past soirée or tonight's, latest first: [2025 => '2025-2026', ...]
      */
     public function seasons(): array
     {
         $seasons = [];
-        $rows = $this->pdo->query(
+        $statement = $this->pdo->prepare(
             'SELECT DISTINCT YEAR(date) - (MONTH(date) < ' . self::SEASON_START_MONTH . ') AS season
-             FROM events WHERE date < CURDATE() ORDER BY season DESC'
-        )->fetchAll(\PDO::FETCH_COLUMN);
+             FROM events WHERE date <= ? ORDER BY season DESC'
+        );
+        $statement->execute([$this->today()]);
+        $rows = $statement->fetchAll(\PDO::FETCH_COLUMN);
         foreach ($rows as $season) {
             $seasons[(int)$season] = $season . '-' . ($season + 1);
         }
@@ -44,23 +79,29 @@ class Statistics
         $from = $season === null ? null : sprintf('%d-%02d-01', $season, self::SEASON_START_MONTH);
         $to = $season === null ? null : sprintf('%d-%02d-01', $season + 1, self::SEASON_START_MONTH);
 
-        // Every sign-up of every past soirée: newcomers and returns need the dancers' whole history
-        $rows = $this->pdo->query(
+        // Every sign-up of every past soirée and tonight's: newcomers and returns need the dancers' whole history
+        $statement = $this->pdo->prepare(
             "SELECT e.id AS event_id, e.title, e.date AS event_date, d.firstname, d.lastname, d.status,
                     DATE_FORMAT(d.date, '%H:%i') AS arrival
              FROM events e JOIN dancers d ON d.event_id = e.id
-             WHERE e.date < CURDATE()
+             WHERE e.date <= ?
              ORDER BY e.date ASC, e.id ASC, d.id ASC"
-        )->fetchAll(\PDO::FETCH_OBJ);
+        );
+        $statement->execute([$this->today()]);
+        $rows = $statement->fetchAll(\PDO::FETCH_OBJ);
 
         // Status 0 is the default for a signup not processed at the door. If every signup
         // for a past event still has that status, attendance data is missing, not a set of
         // no-shows. Include an event only once an attendance outcome has been recorded.
         $eventsWithAttendanceData = [];
+        $live = [];
+        $lastEventId = null;
         foreach ($rows as $row) {
             if ((int)$row->status > 0) {
                 $eventsWithAttendanceData[(int)$row->event_id] = true;
+                $lastEventId = (int)$row->event_id;
             }
+            $live[(int)$row->event_id] ??= $this->isLive($row->event_date);
         }
 
         $keys = $this->names->identify($rows);
@@ -78,6 +119,7 @@ class Statistics
             $inPeriod = $from === null || ($row->event_date >= $from && $row->event_date < $to);
             $key = $keys[$i];
             $came = (int)$row->status > 0;
+            $isLive = $live[(int)$row->event_id];
 
             $people[$key] ??= [
                 'name' => $labels[$key],
@@ -97,7 +139,10 @@ class Statistics
                 'id' => (int)$row->event_id,
                 'title' => $row->title,
                 'date' => $row->event_date,
+                'live' => $isLive,
                 'registered' => 0,
+                // Of the sign-ups of the soirée going on, those not at the door yet
+                'expected' => 0,
                 'came' => 0,
                 'noShows' => 0,
                 'vip' => 0,
@@ -109,6 +154,10 @@ class Statistics
             switch ((int)$row->status) {
                 case 0:
                     $event['registered']++;
+                    if ($isLive) {
+                        $event['expected']++;
+                        break;
+                    }
                     $event['noShows']++;
                     $people[$key]['periodNoShows']++;
                     $people[$key]['periodRegistered']++;
@@ -141,7 +190,7 @@ class Statistics
         }
 
         return [
-            'totals' => $this->totals($events, $people),
+            'totals' => $this->totals($events, $people, $lastEventId),
             'events' => array_values($events),
             'loyalty' => $this->loyalty($people),
             'regulars' => $this->regulars($people),
@@ -150,11 +199,13 @@ class Statistics
         ];
     }
 
-    private function totals(array $events, array $people): array
+    private function totals(array $events, array $people, ?int $lastEventId): array
     {
         $sum = fn (string $field) => array_sum(array_column($events, $field));
         $attendances = $sum('came');
         $registered = $sum('registered');
+        // The no-shows are over the soirées that ended
+        $endedRegistered = array_sum(array_column(array_filter($events, fn ($event) => !$event['live']), 'registered'));
         $newcomers = $sum('newcomers');
 
         $dancers = 0;
@@ -162,7 +213,6 @@ class Statistics
         // The newcomers of the period who came again later, of those who had a later soirée to come back to
         $newcomersWithLaterSoiree = 0;
         $newcomersBack = 0;
-        $lastEventId = $this->lastPastEventId();
         $periodEventIds = array_flip(array_column($events, 'id'));
         foreach ($people as $person) {
             if ($person['periodVisits'] === 0) {
@@ -194,7 +244,9 @@ class Statistics
             'average' => count($events) ? $attendances / count($events) : 0,
             'registered' => $registered,
             'noShows' => $sum('noShows'),
-            'noShowRate' => $this->rate($sum('noShows'), $registered),
+            'noShowRate' => $this->rate($sum('noShows'), $endedRegistered),
+            'endedRegistered' => $endedRegistered,
+            'live' => $events ? end($events)['live'] : false,
             'walkIns' => $sum('walkIns'),
             'walkInRate' => $this->rate($sum('walkIns'), $attendances),
             'vip' => $sum('vip'),
@@ -285,13 +337,6 @@ class Statistics
             'median' => $this->clock($minutes[intdiv(count($minutes), 2)]),
             'peak' => array_search(max($slots), $slots, true),
         ];
-    }
-
-    private function lastPastEventId(): ?int
-    {
-        $id = $this->pdo->query('SELECT id FROM events WHERE date < CURDATE() ORDER BY date DESC, id DESC LIMIT 1')
-            ->fetchColumn();
-        return $id === false ? null : (int)$id;
     }
 
     /**
