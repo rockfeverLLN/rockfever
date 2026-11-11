@@ -23,19 +23,16 @@
     </a>
 {%- elseif not soiree or signUpOnly|default(false) %}
 {%- elseif status == 'closed' %}
-    {#- Sign-ups closed: the soirée's name, when, and a green arrow that says the card opens it #}
-    <a href="{{ path('event') }}" class="next-event-link next-event-closed koamaru">
+    {#- Sign-ups closed: laid out like the open card, its big button opens the soirée's page #}
+    <a href="{{ path('event') }}" class="next-event-link next-event-open koamaru">
         <span class="next-event-text">
-            {%- if soiree.tonight %}
-            <span>C’est ce soir à&nbsp;{{ time|replace({':': 'h'}) }}&nbsp;!</span>
-            {%- else %}
-            <span>Prochaine soirée&nbsp;: {{ when }}</span>
-            {%- endif %}
+            <span class="next-event-note">Rendez-vous à {{ soiree.tonight ? 'la soirée de ce soir' : 'la prochaine soirée' }}&nbsp;:</span>
             {%- if soiree.title %}
-            <span class="next-event-title">«&nbsp;{{ soiree.title|e|typography }}&nbsp;»</span>
+            <span>«&nbsp;{{ soiree.title|e|typography }}&nbsp;»</span>
             {%- endif %}
+            <span>{{ when|capitalize }} à&nbsp;{{ time|replace({':': 'h'}) }}</span>
+            <span class="next-event-signup">Voir la soirée</span>
         </span>
-        <span class="next-event-arrow" aria-hidden="true"></span>
     </a>
 {%- else %}
     {#- The whole card still opens /event through its first link, and its "add to my calendar" buttons sit over it #}
