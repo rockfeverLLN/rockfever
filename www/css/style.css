@@ -504,37 +504,6 @@ h6 {
     background-color: #00897b;
 }
 
-/* Sign-ups closed: the soirée's name under when, and a green arrow to its page */
-.next-event-title {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0;
-    opacity: .9;
-}
-
-.next-event-arrow {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background-color: #00574b;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-    font-size: 26px;
-    transition: background-color .15s, transform .15s;
-}
-
-.next-event-arrow::after {
-    content: "\2192";
-}
-
-.next-event-closed:hover .next-event-arrow {
-    background-color: #00897b;
-    transform: translateX(3px);
-}
-
 .soiree-registration {
     margin: -6px 0 12px 0;
     color: #00574b;
@@ -2962,10 +2931,6 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
         gap: .3em;
         background: none;
         font-size: 11pt;
-    }
-
-    .site .next-event-arrow {
-        display: none;
     }
 
     .site .next-event-signup::after {
