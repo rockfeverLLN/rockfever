@@ -2737,10 +2737,14 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
 }
 
 /* Admin menu on desktop: the logo takes its own room in the row instead of being laid over it, so the links can't
-   run under it. It gets smaller on smaller desktop screens, and is cut short if it still doesn't fit */
+   run under it. The bar uses the whole width of the screen: in the page's narrower .container the menu's links left
+   no room for the whole word "Administration" below ~1400px wide. It is only cut short if it still doesn't fit */
 @media only screen and (min-width: 993px) {
     .admin-nav .nav-wrapper {
         display: flex;
+        width: auto;
+        max-width: none;
+        padding: 0 24px;
     }
 
     .admin-nav .brand-logo {
@@ -2759,12 +2763,6 @@ a.event-list-stat:hover, a.event-list-stat:focus-visible {
     .admin-nav ul.right {
         flex: none;
         margin-left: auto;
-    }
-}
-
-@media only screen and (min-width: 993px) and (max-width: 1199px) {
-    .admin-nav .brand-logo {
-        font-size: 1.1rem;
     }
 }
 
