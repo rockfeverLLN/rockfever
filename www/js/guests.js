@@ -185,6 +185,10 @@
             document.getElementById('improvised').textContent = improvised;
             var venueStat = totalAttendees / (here + vip + registered);
             document.getElementById('venue-stats').textContent = Math.round(venueStat * 10000) / 100 + '% des pré-inscrits';
+            // Pré-inscrits not marked here or VIP (yet): during the soirée, those still to come
+            var preregistered = here + vip + registered;
+            var noShow = preregistered ? registered / preregistered : 0;
+            document.getElementById('no-show').textContent = Math.round(noShow * 10000) / 100 + '% de no-show';
         });
     }
 
