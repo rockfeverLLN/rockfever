@@ -28,7 +28,8 @@
         {% else %}
             <p class="club-stats-intro">
                 {{ totals.events }} soirée{{ totals.events > 1 ? 's' }} passée{{ totals.events > 1 ? 's' }}
-                {%- if season is not null %} pendant la saison {{ seasons[season] }}{% else %} depuis le début{% endif %}.
+                {%- if season is not null %} pendant la saison {{ seasons[season] }}{% else %} depuis le début{% endif %}
+                {%- if totals.live %}, dont celle de ce soir, <strong>en cours</strong> : ses chiffres changent à chaque entrée (rechargez la page){% endif %}.
                 Un danseur est reconnu à son prénom et son nom : <a href="{{ path('admin.statistics.names') }}">corriger les noms</a>.
             </p>
 
@@ -44,7 +45,7 @@
                     <div class="card card-statistics red white-text">
                         <i class="material-icons stat-back" aria-hidden="true">event_busy</i>
                         <span class="stat">{{ format.percent(totals.noShowRate) }}</span>
-                        <p>De no-shows<br><small>{{ totals.noShows }} inscrits sur {{ totals.registered }} ne sont pas venus</small></p>
+                        <p>De no-shows<br><small>{{ totals.noShows }} inscrits sur {{ totals.endedRegistered }} ne sont pas venus{% if totals.live %}, sans la soirée en cours{% endif %}</small></p>
                     </div>
                 </div>
                 <div class="col s6 l3">
@@ -98,6 +99,7 @@
                 </div>
                 <p class="club-stats-note">
                     Les barres : les nouveaux et les habitués présents. La ligne : la part des inscrits qui ne sont pas venus.
+                    {% if totals.live %}La soirée en cours n'a pas encore de no-shows : ses inscrits peuvent encore arriver.{% endif %}
                     Le tableau en bas de la page a les mêmes chiffres.
                 </p>
             </section>
@@ -207,10 +209,14 @@
                         {% for event in events|reverse %}
                             <tr>
                                 <td>{{ event.date|date('d/m/Y') }}</td>
-                                <td><a href="{{ path('admin.events.statistics', {id: event.id}) }}">{{ event.title }}</a></td>
+                                <td><a href="{{ path('admin.events.statistics', {id: event.id}) }}">{{ event.title }}</a>{% if event.live %} <span class="club-stats-live">en cours</span>{% endif %}</td>
                                 <td class="right-align">{{ event.registered }}</td>
                                 <td class="right-align">{{ event.came }}</td>
-                                <td class="right-align">{{ event.noShows }} <small>({{ format.percent(event.registered ? 100 * event.noShows / event.registered : null) }})</small></td>
+                                {% if event.live %}
+                                    <td class="right-align"><small>{{ event.expected }} attendu{{ event.expected > 1 ? 's' }}</small></td>
+                                {% else %}
+                                    <td class="right-align">{{ event.noShows }} <small>({{ format.percent(event.registered ? 100 * event.noShows / event.registered : null) }})</small></td>
+                                {% endif %}
                                 <td class="right-align">{{ event.walkIns }}</td>
                                 <td class="right-align">{{ event.newcomers }}</td>
                             </tr>
@@ -229,10 +235,10 @@
     <script nonce="{{ csp_nonce }}">
         (function () {
             var events = {{ events|map(e => {
-                label: e.date|date('d/m') ~ ' ' ~ e.title|excerpt(20),
+                label: e.date|date('d/m') ~ ' ' ~ e.title|excerpt(20) ~ (e.live ? ' (en cours)' : ''),
                 newcomers: e.newcomers,
                 regulars: e.came - e.newcomers,
-                noShowRate: e.registered ? (100 * e.noShows / e.registered)|round : null
+                noShowRate: e.registered and not e.live ? (100 * e.noShows / e.registered)|round : null
             })|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP'))|raw }};
             var loyalty = {{ loyalty|json_encode|raw }};
             var arrivals = {{ arrivals.slots|json_encode|raw }};
