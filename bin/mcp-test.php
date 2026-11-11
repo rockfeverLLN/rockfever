@@ -64,6 +64,14 @@ $pdo->prepare(
      VALUES ('MCP test', '', ?, '20:30:00', '21:00:00', '', '', '')"
 )->execute([$day]);
 $eventId = (int) $pdo->lastInsertId();
+// A soirée planned for today, still to come tonight, would be the next one rather than the test's: set it aside
+$today = (new DateTimeImmutable('today', new DateTimeZone('Europe/Brussels')))->format('Y-m-d');
+$setAside = $pdo->prepare('SELECT id FROM soirees WHERE date >= ? AND date < ? AND cancelled = 0');
+$setAside->execute([$today, $day]);
+$setAside = array_map('intval', $setAside->fetchAll(PDO::FETCH_COLUMN));
+if ($setAside) {
+    $pdo->exec('UPDATE soirees SET cancelled = 1 WHERE id IN (' . implode(',', $setAside) . ')');
+}
 
 try {
     // The protocol
@@ -155,5 +163,8 @@ try {
     $check('and new ones', ($tool('prepare_registration', $names)['isError'] ?? false) === true);
 } finally {
     $pdo->exec("DELETE FROM events WHERE id = $eventId");
+    if ($setAside) {
+        $pdo->exec('UPDATE soirees SET cancelled = 0 WHERE id IN (' . implode(',', $setAside) . ')');
+    }
 }
 exit($failed ? 1 : 0);
