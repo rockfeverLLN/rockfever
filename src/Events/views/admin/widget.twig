@@ -33,11 +33,13 @@
 <div class="col s12 m6">
     {#- Navy like the next soirée's card on the home page (nextSoiree.twig) #}
     <section class="dashboard-card dashboard-next koamaru">
+        {#- On its day and until the morning after, "Ce soir" as on the home page #}
+        {%- set heading = tonight ? 'Ce soir' : 'Prochain rock' %}
         <h2>
             {% if nextEvent %}
-                <a href="{{ path('admin.events.edit', {id:nextEvent.id }) }}" class="underlined-link">Prochain rock</a>
+                <a href="{{ path('admin.events.edit', {id:nextEvent.id }) }}" class="underlined-link">{{ heading }}</a>
             {% else %}
-                Prochain rock
+                {{ heading }}
             {% endif %}
         </h2>
         <ul class="next-event-infos">

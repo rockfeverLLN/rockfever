@@ -74,12 +74,16 @@ class EventTable extends Table
         return $this->makeQuery()->order('e.date ASC, e.id ASC')->fetchAll();
     }
 
-    public function findNext()
+    /**
+     * The first event from that day (Y-m-d) on, today's by default, with its number of participants
+     */
+    public function findNext(?string $from = null)
     {
         return $this->makeQuery()
             ->select('e.*, count(d.id) as participantsCount')
             ->join('dancers as d', 'd.event_id = e.id')
-            ->where('e.date >= CURDATE()')
+            ->where($from === null ? 'e.date >= CURDATE()' : 'e.date >= :from')
+            ->params($from === null ? [] : ['from' => $from])
             ->order('e.date ASC')
             ->groupBy('e.id')
             ->fetch();
