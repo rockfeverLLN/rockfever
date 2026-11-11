@@ -634,6 +634,8 @@ class Calendar
             'facebookLink' => $event?->facebookLink ?: null,
             'cancelled' => $cancelled,
             'past' => $past,
+        // The next soirée, on its day or still going on after midnight: "ce soir" on the site
+        'tonight' => !$past && !$cancelled && $day <= $now->format('Y-m-d'),
             'registration' => [
                 'status' => $status,
                 'opens' => $opens,
