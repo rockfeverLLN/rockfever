@@ -4,7 +4,8 @@
 {%- set soiree = nextSoiree() %}
 {%- if soiree %}
     {%- set status = soiree.registration.status %}
-    {%- set when = soiree.label|lower %}
+    {#- On its day, "ce soir" instead of its date #}
+    {%- set when = soiree.tonight ? 'ce soir' : soiree.label|lower %}
     {%- set time = soiree.start|date('H:i', false) %}
     {%- set opens = soiree.registration.opens %}
 {%- endif %}
@@ -12,7 +13,7 @@
     {#- The whole card opens the sign-up page, and its big button says so #}
     <a href="{{ path('event') }}" class="next-event-link next-event-open koamaru">
         <span class="next-event-text">
-            <span class="next-event-note">Les inscriptions sont ouvertes pour la prochaine soirée&nbsp;:</span>
+            <span class="next-event-note">Les inscriptions sont ouvertes pour {{ soiree.tonight ? 'la soirée de ce soir' : 'la prochaine soirée' }}&nbsp;:</span>
             {%- if soiree.title %}
             <span>«&nbsp;{{ soiree.title|e|typography }}&nbsp;»</span>
             {%- endif %}
@@ -21,6 +22,8 @@
         </span>
     </a>
 {%- elseif not soiree or signUpOnly|default(false) %}
+{%- elseif status == 'closed' and soiree.tonight %}
+    <a href="{{ path('event') }}" class="next-event-link koamaru">C’est ce soir à&nbsp;{{ time|replace({':': 'h'}) }}&nbsp;!</a>
 {%- elseif status == 'closed' %}
     <a href="{{ path('event') }}" class="next-event-link koamaru">Prochaine soirée&nbsp;: {{ when }}</a>
 {%- else %}
