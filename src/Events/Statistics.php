@@ -312,11 +312,13 @@ class Statistics
     }
 
     /**
-     * The arrivals at the door by quarter of an hour ['20:00' => 12, ...], and the median arrival time
+     * The average arrivals at the door per soirée by quarter of an hour ['20:00' => 4.5, ...], and the median arrival time
      */
     private function arrivals(array $events): array
     {
-        $minutes = array_merge([], ...array_column($events, 'arrivals'));
+        // Averaged over the soirées with arrival times: one without any recorded doesn't pull the average down
+        $timed = array_filter(array_column($events, 'arrivals'));
+        $minutes = array_merge([], ...$timed);
         if (!$minutes) {
             return ['slots' => [], 'median' => null, 'peak' => null];
         }
@@ -331,11 +333,13 @@ class Statistics
         foreach ($minutes as $minute) {
             $slots[$this->clock(intdiv($minute, 15) * 15)]++;
         }
+        $peak = array_search(max($slots), $slots, true);
+        $slots = array_map(fn ($amount) => round($amount / count($timed), 1), $slots);
 
         return [
             'slots' => $slots,
             'median' => $this->clock($minutes[intdiv(count($minutes), 2)]),
-            'peak' => array_search(max($slots), $slots, true),
+            'peak' => $peak,
         ];
     }
 

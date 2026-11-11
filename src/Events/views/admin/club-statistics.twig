@@ -134,11 +134,11 @@
                                 <canvas id="arrivalsChart" aria-hidden="true"></canvas>
                             </div>
                             <div class="sr-only"><table>
-                                <caption>Arrivées par quart d'heure</caption>
-                                <thead><tr><th scope="col">Heure</th><th scope="col">Arrivées</th></tr></thead>
+                                <caption>Arrivées par quart d'heure, en moyenne par soirée</caption>
+                                <thead><tr><th scope="col">Heure</th><th scope="col">Arrivées par soirée</th></tr></thead>
                                 <tbody>
                                 {% for time, amount in arrivals.slots %}
-                                    <tr><th scope="row">{{ time }}</th><td>{{ amount }}</td></tr>
+                                    <tr><th scope="row">{{ time }}</th><td>{{ amount|number_format(1, ',') }}</td></tr>
                                 {% endfor %}
                                 </tbody>
                             </table></div>
@@ -291,9 +291,10 @@
                     type: 'bar',
                     data: {
                         labels: Object.keys(arrivals),
-                        datasets: [{label: 'Arrivées', data: Object.values(arrivals), backgroundColor: '#1d4f86'}]
+                        datasets: [{label: 'Arrivées par soirée', data: Object.values(arrivals), backgroundColor: '#1d4f86'}]
                     },
-                    options: {legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true, precision: 0}}]}}
+                    options: {legend: {display: false}, scales: {yAxes: [{ticks: {beginAtZero: true},
+                        scaleLabel: {display: true, labelString: 'Arrivées par soirée'}}]}}
                 });
             }
         })();
