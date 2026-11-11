@@ -2599,7 +2599,7 @@ html:not([data-theme="dark"]) .guests-list .collection-item .red-text {
 /* The letters the search matched (www/js/guests.js) */
 .guests-list .collection .collection-item mark {
     background: #ffe082;
-    color: inherit;
+    color: #212121;
     border-radius: 2px;
 }
 
