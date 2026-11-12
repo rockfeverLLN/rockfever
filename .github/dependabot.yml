@@ -28,7 +28,7 @@ updates:
     commit-message:
       prefix: Update
 
-  # The JavaScript libraries loaded from jsDelivr: TinyMCE and its French translation, clipboard.js, Masonry. Their
+  # The JavaScript libraries loaded from jsDelivr: TinyMCE and its French translation, clipboard.js, Masonry, Chart.js. Their
   # versions are in package.json, which Framework\Twig\CdnExtension reads to build their URLs
   - package-ecosystem: npm
     directory: /

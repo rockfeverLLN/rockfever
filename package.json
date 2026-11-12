@@ -3,6 +3,7 @@
     "private": true,
     "description": "The JavaScript libraries the site loads from jsDelivr, at these exact versions (Framework\\Twig\\CdnExtension builds their URLs from this file). Nothing is installed with npm: this file is only here for Dependabot to raise the versions",
     "dependencies": {
+        "chart.js": "4.6.1",
         "clipboard": "2.0.11",
         "masonry-layout": "4.2.2",
         "tinymce": "8.10.1",

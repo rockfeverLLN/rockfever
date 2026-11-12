@@ -113,16 +113,20 @@
     </section>
 </div>
 
-<script nonce="{{ csp_nonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<script nonce="{{ csp_nonce }}" src="{{ cdn('chart.js', 'dist/chart.umd.min.js') }}"></script>
 <script nonce="{{ csp_nonce }}">
     // Text and grid in the colors of the admin's theme (admin-dark.css), and again when its button switches it
-    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    Chart.defaults.global.defaultFontColor = dark ? "#9aa7b4" : "#52606d";
-    Chart.defaults.global.defaultFontFamily = "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
-    var dancersChart = document.getElementById("dancersChart").getContext('2d');
-    var chart = new Chart(dancersChart, {
+    var colors = function (dark) {
+        return {text: dark ? '#9aa7b4' : '#52606d', line: dark ? '#2d3640' : '#e3e8ef'};
+    };
+    var theme = colors(document.documentElement.getAttribute('data-theme') === 'dark');
+    Chart.defaults.color = theme.text;
+    Chart.defaults.font.family = "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+    var chart = new Chart(document.getElementById("dancersChart"), {
         type: 'bar',
         data: {
+            // A single group of bars, one per event, without a name under it
+            labels: [''],
             datasets: [
                 {% for event in countForChart %}
                 {
@@ -149,69 +153,63 @@
         options: {
             maintainAspectRatio: false,
             // A bar opens its event's statistics
-            onClick: function (e) {
-                var bar = this.getElementAtEvent(e);
-                if (bar.length) {
-                    window.location.href = this.data.datasets[bar[0]._datasetIndex].url;
+            onClick: function (e, bars, chart) {
+                if (bars.length) {
+                    window.location.href = chart.data.datasets[bars[0].datasetIndex].url;
                 }
             },
-            onHover: function (e) {
-                e.target.style.cursor = this.getElementAtEvent(e).length ? 'pointer' : 'default';
+            onHover: function (e, bars) {
+                e.native.target.style.cursor = bars.length ? 'pointer' : 'default';
             },
-            // One legend entry per event, which shows or hides its whole bar
-            legend: {
-                labels: {
-                    filter: function (item, data) {
-                        return !data.datasets[item.datasetIndex].walkIns;
+            plugins: {
+                // One legend entry per event, which shows or hides its whole bar
+                legend: {
+                    labels: {
+                        filter: function (item, data) {
+                            return !data.datasets[item.datasetIndex].walkIns;
+                        }
+                    },
+                    onClick: function (e, item, legend) {
+                        var chart = legend.chart, visible = !chart.isDatasetVisible(item.datasetIndex);
+                        [item.datasetIndex - 1, item.datasetIndex].forEach(function (i) {
+                            chart.setDatasetVisibility(i, visible);
+                        });
+                        chart.update();
                     }
                 },
-                onClick: function (e, item) {
-                    var chart = this.chart;
-                    [item.datasetIndex - 1, item.datasetIndex].forEach(function (i) {
-                        var meta = chart.getDatasetMeta(i);
-                        meta.hidden = meta.hidden === null ? !chart.data.datasets[i].hidden : null;
-                    });
-                    chart.update();
-                }
-            },
-            tooltips: {
-                callbacks: {
-                    label: function (item, data) {
-                        var dataset = data.datasets[item.datasetIndex];
-                        var share = dataset.total ? Math.round(100 * item.yLabel / dataset.total) : 0;
-                        return dataset.label + ' : ' + item.yLabel
-                            + (dataset.walkIns ? ' sans inscription' : ' pré-inscrits') + ' (' + share + ' %)';
+                tooltip: {
+                    callbacks: {
+                        label: function (item) {
+                            var dataset = item.dataset, count = item.parsed.y;
+                            var share = dataset.total ? Math.round(100 * count / dataset.total) : 0;
+                            return dataset.label + ' : ' + count
+                                + (dataset.walkIns ? ' sans inscription' : ' pré-inscrits') + ' (' + share + ' %)';
+                        }
                     }
                 }
             },
             scales: {
-                xAxes: [{
+                x: {
                     stacked: true,
-                    gridLines: {
-                        display: false
-                    }
-                }],
-                yAxes: [{
+                    ticks: {color: theme.text},
+                    grid: {display: false},
+                    border: {color: theme.line}
+                },
+                y: {
                     stacked: true,
-                    ticks: {
-                        beginAtZero:true
-                    },
-                    gridLines: {
-                        color: dark ? '#2d3640' : '#e3e8ef',
-                        zeroLineColor: dark ? '#2d3640' : '#e3e8ef'
-                    }
-                }]
+                    beginAtZero: true,
+                    ticks: {color: theme.text},
+                    grid: {color: theme.line},
+                    border: {color: theme.line}
+                }
             }
         }
     });
     document.addEventListener('admin-theme', function (event) {
-        var dark = event.detail === 'dark';
-        var text = dark ? '#9aa7b4' : '#52606d', line = dark ? '#2d3640' : '#e3e8ef';
-        chart.options.legend.labels.fontColor = text;
-        chart.options.scales.xAxes[0].ticks.fontColor = text;
-        chart.options.scales.yAxes[0].ticks.fontColor = text;
-        chart.options.scales.yAxes[0].gridLines.color = line;
-        chart.options.scales.yAxes[0].gridLines.zeroLineColor = line;
+        var theme = colors(event.detail === 'dark'), scales = chart.options.scales;
+        chart.options.plugins.legend.labels.color = theme.text;
+        scales.x.ticks.color = scales.y.ticks.color = theme.text;
+        scales.x.border.color = scales.y.border.color = scales.y.grid.color = theme.line;
         chart.update();
     });
 </script>
