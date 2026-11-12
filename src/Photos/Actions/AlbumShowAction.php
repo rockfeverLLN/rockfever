@@ -122,11 +122,10 @@ class AlbumShowAction
 
     private function passwordForm(Album $album, ?string $error = null) : ResponseInterface
     {
-        $open = $this->access->isOpen($album);
         return new Response(
-            $open ? 200 : 404,
+            200,
             PhotoIndexAction::HEADERS,
-            $this->renderer->render('@photos/password', compact('album', 'open', 'error'))
+            $this->renderer->render('@photos/password', compact('album', 'error'))
         );
     }
 }

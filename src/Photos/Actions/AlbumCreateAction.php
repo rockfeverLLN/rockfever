@@ -43,7 +43,7 @@ class AlbumCreateAction
     {
         $params = AlbumParams::fromRequest($request);
         if ($params === null) {
-            $this->flash->error('Donne un titre et une collection à l\'album (100 caractères au plus)');
+            $this->flash->error(AlbumParams::ERROR);
             return $this->redirect('admin.photos.index');
         }
         if ($params['event_id'] !== null && !$this->albumTable->eventExists($params['event_id'])) {

@@ -58,14 +58,10 @@
             <div class="col s12 l4">
                 <div class="card-panel">
                     <h2><i class="mdi mdi-lock"></i> Mots de passe</h2>
-                    {% if isPhotographer() %}
-                        <p>Chaque album s'ouvre avec le mot de passe de sa soirée, que l'équipe donne aux danseurs.
-                            Choisis bien la soirée de l'album : connecté, tu vois tous les albums sans mot de passe.</p>
-                    {% else %}
-                        <p>Chaque album s'ouvre avec le <b>mot de passe des photos de sa soirée</b>, à choisir dans
-                            <a href="{{ path('admin.events.index') }}">Événements</a> en modifiant la soirée. Donne-le à ses danseurs.</p>
-                        <p class="grey-text">Un album sans soirée, ou dont la soirée n'a pas de mot de passe, n'est visible que par l'équipe.</p>
-                    {% endif %}
+                    <p>Un album peut avoir <b>un mot de passe</b>, à donner aux danseurs : choisis-le sur la page de l'album.
+                        Sans mot de passe, tout le monde le voit.</p>
+                    <p class="grey-text">Un nouvel album prend le mot de passe des photos de sa soirée, s'il y en a un.
+                        Connecté, tu vois tous les albums sans mot de passe.</p>
                 </div>
             </div>
         </div>
@@ -81,7 +77,7 @@
                             </span>
                             <span class="title">{{ album.title }}</span>
                             <span class="meta">{{ album.collection }}{% if album.eventDate %} · {{ album.eventDate|date('d/m/Y') }}{% endif %} · {{ album.photoCount }} photo{{ album.photoCount > 1 ? 's' }}</span>
-                            {% if not album.photosPassword %}<span class="meta red-text text-darken-2">Équipe seulement : pas de mot de passe</span>{% endif %}
+                            <span class="meta"><i class="mdi {{ album.password ? 'mdi-lock' : 'mdi-earth' }}"></i> {{ album.password ? 'Mot de passe' : 'Public' }}</span>
                         </a>
                     {% endfor %}
                 </div>

@@ -12,31 +12,14 @@
             <a href="{{ path('photos.album', {slug: album.slug}) }}" target="_blank" class="btn-flat koamaru-text waves-effect">Voir l'album</a>
         </h1>
 
-        {#- Photographers don't need the soirée's password, nor the events #}
-        {% if album.photosPassword and isPhotographer() %}
+        {#- Who sees it: its password, changed in the form on the right (PhotoAccess) #}
+        {% if album.password %}
             <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
-                <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe de sa soirée.
-            </div></div></div>
-        {% elseif isPhotographer() %}
-            <div class="row"><div class="col s12"><div class="card-panel orange lighten-5">
-                <i class="mdi mdi-lock-open"></i> <b>Seule l'équipe voit cet album</b> pour l'instant : sa soirée n'a pas
-                encore de mot de passe des photos{% if not album.eventId %}, ou choisis-la ci-dessous{% endif %}.
-            </div></div></div>
-        {% elseif album.photosPassword %}
-            <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
-                <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe de sa soirée :
-                <b>{{ album.photosPassword }}</b>. Pour le changer, modifie la soirée dans
-                <a href="{{ path('admin.events.edit', {id: album.eventId}) }}">Événements</a>.
+                <i class="mdi mdi-lock"></i> Les danseurs ouvrent cet album avec le mot de passe <b>{{ album.password }}</b>.
             </div></div></div>
         {% else %}
-            <div class="row"><div class="col s12"><div class="card-panel orange lighten-5">
-                <i class="mdi mdi-lock-open"></i> <b>Seule l'équipe voit cet album</b> :
-                {% if album.eventId %}
-                    sa soirée n'a pas de mot de passe des photos. Ajoutes-en un dans
-                    <a href="{{ path('admin.events.edit', {id: album.eventId}) }}">Événements</a>.
-                {% else %}
-                    choisis sa soirée ci-dessous, puis donne-lui un mot de passe des photos dans Événements.
-                {% endif %}
+            <div class="row"><div class="col s12"><div class="card-panel green lighten-5">
+                <i class="mdi mdi-earth"></i> <b>Tout le monde voit cet album</b> : il n'a pas de mot de passe.
             </div></div></div>
         {% endif %}
 
