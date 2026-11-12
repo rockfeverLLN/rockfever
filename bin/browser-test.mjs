@@ -1,6 +1,6 @@
 // Opens the pages that use JavaScript in headless Chrome and fails if a script throws, logs an error, doesn't
 // load, or if a widget doesn't work. bin/smoke-test.sh only checks the HTML answers, this checks that the site's
-// own widgets (www/js/script.js, guests.js) and TinyMCE, clipboard.js and Masonry still work after an update.
+// own widgets (www/js/script.js, guests.js) and TinyMCE, clipboard.js, Masonry and Chart.js still work after an update.
 // Used by bin/test.sh on every pull request, with no npm packages: Node talks to Chrome over its
 // DevTools protocol.
 //
@@ -54,11 +54,14 @@ const PAGES = [
         + " search.value = ''; search.dispatchEvent(new Event('input'));"
         + " return items.length > 0 && hidden && !!items[0].querySelector('[data-remove]')"
         + " && document.getElementById('attendees').textContent !== '-'; })()"],
-    // Card reveal
+    // The dashboard's chart of the last soirées
+    ['/admin', "!!Chart.getChart('dancersChart') && Chart.getChart('dancersChart').getDatasetMeta(0).data.length > 0"],
+    // Card reveal, and the arrivals chart drew its lines
     ['/admin/events/statistics/1', "(document.querySelector('.card-reveal.open') || document.querySelector('.activator').click(),"
-        + " !!document.querySelector('.card-reveal.open'))"],
+        + " !!document.querySelector('.card-reveal.open'))"
+        + " && Chart.getChart('myChart').getDatasetMeta(1).data.length > 0"],
     // The tables hidden for screen readers add nothing to the page's height: a table on its own ignores .sr-only's
-    ['/admin/statistics', "!!document.getElementById('eventsChart')"
+    ['/admin/statistics', "['eventsChart', 'loyaltyChart'].every(id => Chart.getChart(id).getDatasetMeta(0).data.length > 0)"
         + " && [...document.querySelectorAll('.sr-only')].every(element => element.offsetHeight <= 1)"
         + " && document.documentElement.scrollHeight <= Math.ceil(document.querySelector('main').getBoundingClientRect().bottom + scrollY)"],
     ['/admin/about/1', "tinymce.get().length > 0 && tinymce.get()[0].initialized"

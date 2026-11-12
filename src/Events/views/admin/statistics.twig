@@ -129,13 +129,12 @@
 {% endblock %}
 
 {% block js %}
-    <script nonce="{{ csp_nonce }}" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+    <script nonce="{{ csp_nonce }}" src="{{ cdn('chart.js', 'dist/chart.umd.min.js') }}"></script>
     <script nonce="{{ csp_nonce }}">
         // Text and grid in the colors of the admin's theme (admin-dark.css)
         if (document.documentElement.getAttribute('data-theme') === 'dark') {
-            Chart.defaults.global.defaultFontColor = '#9aa7b4';
-            Chart.defaults.scale.gridLines.color = '#2d3640';
-            Chart.defaults.scale.gridLines.zeroLineColor = '#2d3640';
+            Chart.defaults.color = '#9aa7b4';
+            Chart.defaults.borderColor = '#2d3640';
         }
         var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -157,7 +156,7 @@
                         ],
                         borderColor: '#e91e63',
                         backgroundColor: '#f8bbd0',
-                        //fill: false
+                        fill: true
                     },
                     {
                         label: 'Arrivées cumulées',
@@ -169,18 +168,20 @@
                             {% endfor %}
                         ],
                         borderColor: '#072d55',
-                        backgroundColor: '#bbd8f7'
+                        backgroundColor: '#bbd8f7',
+                        fill: true
                     }
                 ]
             },
             options: {
-                title: {
-                    display: true,
-                    text: 'Nombre de participants en fonction de l\'heure'
-                },
-                fill: true,
-                height: 500,
-                responsive: true
+                // Curved, as Chart.js drew them before version 3
+                elements: {line: {tension: 0.4}},
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Nombre de participants en fonction de l\'heure'
+                    }
+                }
             }
         });
     </script>
