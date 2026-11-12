@@ -17,14 +17,14 @@ class Album
     public $eventId;
 
     /**
+     * The password that opens it (PhotoAccess). Empty: everyone sees it
+     */
+    public $password;
+
+    /**
      * The photo chosen as cover, if any: coverId is the one to show (AlbumTable::findAllWithCovers)
      */
     public $coverPhotoId;
-
-    /**
-     * Its soirée's photo password, when the query joins it (AlbumTable::makeAccessQuery)
-     */
-    public $photosPassword;
 
     public $createdAt;
 

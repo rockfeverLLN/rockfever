@@ -36,7 +36,7 @@ class PhotosModule extends Module
         /** @var Router $router */
         $router = $container->get(Router::class);
 
-        // The gallery's albums and photos, each behind its soirée's password (PhotoAccess)
+        // The gallery's albums and photos, each behind its password, if it has one (PhotoAccess)
         $router->get('/photos', PhotoIndexAction::class, 'photos');
         $router->get('/photos/{id:\d+}/{size:480|960|1600|full}', PhotoFileAction::class, 'photos.file');
         $router->post('/photos/{id:\d+}/suppression', DeletionRequestAction::class, 'photos.request');

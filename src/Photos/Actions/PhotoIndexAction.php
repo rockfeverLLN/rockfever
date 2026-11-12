@@ -47,8 +47,8 @@ class PhotoIndexAction
         $collections = [];
         $unlocked = [];
         foreach ($this->albumTable->findAllWithCovers()->fetchAll() as $album) {
-            // Albums without photos, and those of soirées without a password (team only), aren't listed
-            if ($album->photoCount > 0 && ($this->access->isOpen($album) || $this->access->isTeam())) {
+            // Albums without photos aren't listed
+            if ($album->photoCount > 0) {
                 $collections[$album->collection][] = $album;
                 if ($this->access->canView($request, $album)) {
                     $unlocked[] = $album->id;

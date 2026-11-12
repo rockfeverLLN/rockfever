@@ -8,9 +8,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
- * Who sees an album: the team, logged in, and visitors who gave the photo password of the album's soirée (set on
- * the event in the admin). They get a cookie for that album, for 30 days. An album whose soirée has no password
- * is only for the team.
+ * Who sees an album: everyone if it has no password, else the team, logged in, and visitors who gave its password
+ * (set on its admin page). They get a cookie for that album, for 30 days.
  *
  * The cookie holds an HMAC of the album's id and password, keyed with a secret of the server: without the secret,
  * nobody can try passwords by making cookies, which the form's limit on wrong passwords wouldn't count. Changing the
@@ -41,11 +40,11 @@ class PhotoAccess
     }
 
     /**
-     * Whether visitors can get into the album at all
+     * Whether visitors need its password: without one, everyone sees it
      */
-    public function isOpen(Album $album) : bool
+    public function isLocked(Album $album) : bool
     {
-        return (string) $album->photosPassword !== '';
+        return (string) $album->password !== '';
     }
 
     public function isTeam() : bool
@@ -58,8 +57,11 @@ class PhotoAccess
 
     public function canView(ServerRequestInterface $request, Album $album) : bool
     {
+        if (!$this->isLocked($album)) {
+            return true;
+        }
         $cookie = $request->getCookieParams()[self::COOKIE . $album->id] ?? '';
-        if ($this->isOpen($album) && is_string($cookie) && hash_equals($this->getToken($album), $cookie)) {
+        if (is_string($cookie) && hash_equals($this->getToken($album), $cookie)) {
             return true;
         }
         return $this->isTeam();
@@ -70,8 +72,8 @@ class PhotoAccess
      */
     public function checkPassword(Album $album, string $password) : bool
     {
-        return $this->isOpen($album)
-            && hash_equals(mb_strtolower(trim($album->photosPassword)), mb_strtolower(trim($password)));
+        return $this->isLocked($album)
+            && hash_equals(mb_strtolower(trim($album->password)), mb_strtolower(trim($password)));
     }
 
     /**
@@ -79,7 +81,7 @@ class PhotoAccess
      */
     public function grant(ResponseInterface $response, ServerRequestInterface $request, Album $album) : ResponseInterface
     {
-        if (!$this->isOpen($album)) {
+        if (!$this->isLocked($album)) {
             return $response;
         }
         $cookie = self::COOKIE . $album->id . '=' . $this->getToken($album)
@@ -92,7 +94,7 @@ class PhotoAccess
 
     private function getToken(Album $album) : string
     {
-        return hash_hmac('sha256', 'rockfever-album-' . $album->id . '|' . $album->photosPassword, $this->getSecret());
+        return hash_hmac('sha256', 'rockfever-album-' . $album->id . '|' . $album->password, $this->getSecret());
     }
 
     /**

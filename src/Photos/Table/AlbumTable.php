@@ -14,12 +14,12 @@ class AlbumTable extends Table
     protected $entity = Album::class;
 
     /**
-     * Albums with their soirée's photo password, which opens them (PhotoAccess)
+     * Albums with their soirée, for its date
      */
     public function makeAccessQuery() : Query
     {
         return $this->makeQuery()
-            ->select('p.*', 'e.photos_password AS photos_password')
+            ->select('p.*')
             ->join('events AS e', 'e.id = p.event_id');
     }
 
@@ -48,7 +48,6 @@ class AlbumTable extends Table
         return $this->makeAccessQuery()
             ->select(
                 'p.*',
-                'e.photos_password AS photos_password',
                 'e.date AS event_date',
                 '(SELECT COUNT(*) FROM photos WHERE album_id = p.id) AS photo_count',
                 'COALESCE(
@@ -60,7 +59,7 @@ class AlbumTable extends Table
     }
 
     /**
-     * The soirées an album can belong to, newest first, with whether they have a photo password
+     * The soirées an album can belong to, newest first, with their photo password: a new album takes it
      * @return object[] id, title, date, photos_password
      */
     public function findEvents() : array

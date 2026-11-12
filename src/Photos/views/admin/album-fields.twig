@@ -1,4 +1,4 @@
-{#- Title, collection, photographer and soirée of an album (new album, and edit). album is optional #}
+{#- Title, collection, photographer, soirée and password of an album (new album, and edit). album is optional #}
 <div class="input-field">
     <input type="text" id="album-title{{ suffix }}" name="title" value="{{ album.title|default('') }}" maxlength="100" required placeholder="Semaine 5 26-27">
     <label for="album-title{{ suffix }}" class="active">Titre (la soirée)</label>
@@ -12,15 +12,41 @@
     <label for="album-photographer{{ suffix }}" class="active">Photographe</label>
 </div>
 {% set selected = album ? album.eventId : (event ? event.id : null) %}
-<label for="album-event{{ suffix }}">Soirée : son mot de passe des photos ouvre l'album</label>
+<label for="album-event{{ suffix }}">Soirée</label>
 <select id="album-event{{ suffix }}" name="event_id" class="browser-default" style="margin-bottom: 20px">
-    <option value="">Aucune : album visible par l'équipe seulement</option>
+    <option value="">Aucune</option>
     {% for item in events %}
-        <option value="{{ item.id }}" {{ item.id == selected ? 'selected' }}>
-            {{ item.date|date('d/m/Y') }} · {{ item.title }}{{ item.photos_password ? '' : ' (pas de mot de passe)' }}
+        <option value="{{ item.id }}" data-password="{{ item.photos_password }}" {{ item.id == selected ? 'selected' }}>
+            {{ item.date|date('d/m/Y') }} · {{ item.title }}
         </option>
     {% endfor %}
 </select>
+{#- Optional: without one, everyone sees the album (PhotoAccess) #}
+<div class="input-field">
+    <input type="text" id="album-password{{ suffix }}" name="password" value="{{ album ? album.password : '' }}"
+           minlength="4" maxlength="100" autocomplete="off" placeholder="Aucun : tout le monde voit l'album"
+           aria-describedby="album-password-help{{ suffix }}">
+    <label for="album-password{{ suffix }}" class="active">Mot de passe (facultatif)</label>
+    <span class="helper-text" id="album-password-help{{ suffix }}">À donner aux danseurs. Vide, l'album est public.</span>
+</div>
+{% if not album %}
+    {#- A new album takes its soirée's photo password (Événements), which can still be changed or removed #}
+    <script nonce="{{ csp_nonce }}">
+        (function () {
+            var soiree = document.getElementById('album-event{{ suffix }}');
+            var password = document.getElementById('album-password{{ suffix }}');
+            var filled = '';
+            var fill = function () {
+                var option = soiree.options[soiree.selectedIndex];
+                if (password.value === filled) {
+                    filled = password.value = option.dataset.password || '';
+                }
+            };
+            soiree.addEventListener('change', fill);
+            fill();
+        })();
+    </script>
+{% endif %}
 <datalist id="album-collections">
     {% for collection in collections %}<option value="{{ collection }}">{% endfor %}
 </datalist>
