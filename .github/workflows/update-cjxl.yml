@@ -5,8 +5,8 @@ on:
     - cron: '37 4 * * 1'
   workflow_dispatch:
 
-permissions:
-  contents: read
+# Nothing by default: each job asks for what it needs
+permissions: {}
 
 # bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
 defaults:
@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-26.04
     environment: repo-bot
     timeout-minutes: 10
+    permissions:
+      contents: read        # clone the repository (pushing is MAIN_PUSH_KEY's)
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -34,6 +36,9 @@ jobs:
         run: |
           git clone --quiet --branch main \
             "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
+          # Without the token, which the steps below don't need (the repository is public): not left for the downloaded
+          # cjxl to read
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Look for a new version

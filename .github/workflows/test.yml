@@ -16,8 +16,8 @@ concurrency:
   group: test-${{ github.event.pull_request.number || inputs.pr || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
+# Nothing by default: each job asks for what it needs
+permissions: {}
 
 # bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
 defaults:
@@ -33,6 +33,8 @@ jobs:
     # An exact Ubuntu version rather than ubuntu-latest, which GitHub moves to each new release over a few weeks
     runs-on: ubuntu-26.04
     timeout-minutes: 20
+    permissions:
+      contents: read        # fetch the commit to test, and ask whether a pull request merges
     services:
       mariadb:
         image: mariadb:11
@@ -73,6 +75,15 @@ jobs:
           fi
           git fetch --quiet --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$ref"
           git checkout --quiet FETCH_HEAD
+      # zizmor, a security linter for GitHub Actions, over the workflows and .github/dependabot.yml: too-broad
+      # permissions, tokens left behind, template injection, dangerous triggers. Its official image, pinned to a version
+      # and its digest, raised by hand (https://github.com/zizmorcore/zizmor/releases). --offline: its online audits only
+      # look at marketplace actions, which these workflows don't use
+      - name: zizmor
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" -w /repo \
+            ghcr.io/zizmorcore/zizmor:1.32.0@sha256:3014cc8f68f663935f69b3c3e0e41f5ce102b268d97db13db0f62208747f860d \
+            --offline --format=github .
       # Same PHP version as the server, read from .ovhconfig
       - name: Read PHP version
         run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"

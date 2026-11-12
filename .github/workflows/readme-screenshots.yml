@@ -1,7 +1,9 @@
 name: README screenshots
 on:
-  # After each deploy, once the new version is live
-  workflow_run:
+  # After each deploy, once the new version is live. zizmor flags workflow_run because it can run with secrets on what a
+  # fork's pull request made; here it only follows deploy.yml on main, which pull requests never start, and clones main
+  # itself rather than reading anything from the run that started it
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: [Deploy to OVH]
     types: [completed]
     branches: [main]
@@ -14,8 +16,8 @@ concurrency:
   group: readme-screenshots
   cancel-in-progress: false
 
-permissions:
-  contents: read
+# Nothing by default: each job asks for what it needs
+permissions: {}
 
 # Takes .github/assets/desktop.jpg and phones.webp again from the live site (bin/readme-screenshots.mjs) and commits
 # them when they changed. deploy.yml skips the pushes that only change them, and .github isn't uploaded anyway.
@@ -33,6 +35,8 @@ jobs:
     # Holds the key that pushes to main (bin/push-main.sh)
     environment: repo-bot
     timeout-minutes: 10
+    permissions:
+      contents: read        # clone the repository (pushing is MAIN_PUSH_KEY's)
     steps:
       - name: Checkout
         env:
@@ -40,6 +44,8 @@ jobs:
         run: |
           git clone --quiet --depth 1 --branch main \
             "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
+          # Without the token, which the steps below don't need (the repository is public): not left for the script to read
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
       - name: Take the screenshots
         run: node $(node -e WebSocket 2> /dev/null || echo --experimental-websocket) --no-warnings bin/readme-screenshots.mjs
       - name: Commit them if they changed

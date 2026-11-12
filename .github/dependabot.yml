@@ -1,5 +1,5 @@
-# Package updates. Dependabot looks every night but offers a release only a few days after
-# it came out (its default cooldown, kept on purpose: a broken or hijacked release is usually withdrawn by then). It
+# Package updates. Dependabot looks every night but offers a release only a week after it came out (cooldown below: a
+# broken or hijacked release is usually withdrawn by then, and zizmor in test.yml asks for at least 7 days). It
 # opens a pull request for each;
 # .github/workflows/test.yml tests it on a copy of the site and, if it passes, merges and deploys it, major versions
 # included. One that fails stays open with its test output, on the previous version, and is tested again on main after
@@ -24,6 +24,8 @@ updates:
     groups:
       composer:
         update-types: [minor, patch]
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     commit-message:
       prefix: Update
@@ -40,6 +42,8 @@ updates:
     groups:
       javascript:
         update-types: [minor, patch]
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     commit-message:
       prefix: Update

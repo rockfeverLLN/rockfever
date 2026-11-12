@@ -11,8 +11,8 @@ concurrency:
   group: deploy-ovh
   cancel-in-progress: false
 
-permissions:
-  contents: read
+# Nothing by default: each job asks for what it needs
+permissions: {}
 
 # bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
 defaults:
@@ -29,6 +29,8 @@ jobs:
     environment: production
     # A deploy takes 1 to 4 minutes: fail a stuck one instead of letting it block the next ones for 6 hours
     timeout-minutes: 20
+    permissions:
+      contents: read        # clone the repository
     steps:
       - name: Checkout
         env:

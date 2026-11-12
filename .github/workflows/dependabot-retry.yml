@@ -9,8 +9,8 @@ on:
     - cron: '47 12 * * *'
   workflow_dispatch:
 
-permissions:
-  contents: read
+# Nothing by default: each job asks for what it needs
+permissions: {}
 
 # bash -eo pipefail rather than GitHub's default bash -e, so a command that fails on the left of a pipe fails the step
 defaults:
