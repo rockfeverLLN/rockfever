@@ -31,24 +31,25 @@ jobs:
         run: |
           # Whether PHP runs at all: a one-line script and a static file, uploaded, requested, then removed
           name="probe-$RANDOM$RANDOM"
-          # The real index.php for /login, printing each class as it's loaded: a crash (which PHP can't log) shows
-          # after the last one printed. Class names only, no data
+          # index.php's first lines one at a time, as the process dies on entering it (#148)
           cat > "$name.php" <<'PHP'
           <?php
           header('Content-Type: text/plain');
           while (ob_get_level()) { ob_end_flush(); }
           function step($s) { echo $s, "\n"; flush(); }
-          register_shutdown_function(function () { $e = error_get_last(); if ($e) { step('last error: ' . substr($e['message'], 0, 300) . ' @ ' . basename($e['file']) . ':' . $e['line']); } step('end'); });
-          spl_autoload_register(function ($class) { step("load $class"); }, true, true);
-          $_SERVER['REQUEST_URI'] = '/login';
-          $_SERVER['SCRIPT_NAME'] = '/index.php';
-          step('start');
-          try {
-              require __DIR__ . '/index.php';
-              step('index.php done');
-          } catch (Throwable $e) {
-              step(get_class($e) . ': ' . substr($e->getMessage(), 0, 300) . ' @ ' . basename($e->getFile()) . ':' . $e->getLine());
-          }
+          register_shutdown_function(function () { step('end'); });
+          step('start, error_log=' . var_export(ini_get('error_log'), true) . ' log_errors=' . ini_get('log_errors') . ' display_errors=' . ini_get('display_errors'));
+          $log = dirname(__DIR__) . '/php-error.log';
+          step('log file: exists=' . var_export(file_exists($log), true) . ' is_dir=' . var_export(is_dir($log), true) . ' writable dir=' . var_export(is_writable(dirname($log)), true));
+          ini_set('log_errors', '1');
+          step('log_errors set');
+          ini_set('error_log', $log);
+          step('error_log set');
+          error_log('probe: test line');
+          step('error_log written, exists now=' . var_export(file_exists($log), true));
+          chdir(dirname(__DIR__));
+          step('chdir ok, cwd=' . getcwd());
+          step('compile index.php: ' . var_export(opcache_compile_file(__DIR__ . '/index.php'), true));
           PHP
           sed -i 's/^          //' "$name.php"
           echo static-ok > "$name.txt"
