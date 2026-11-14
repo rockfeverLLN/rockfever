@@ -5,6 +5,13 @@ on:
     # The README screenshots (readme-screenshots.yml) aren't uploaded: nothing to deploy
     paths-ignore: ['.github/assets/**']
   workflow_dispatch:
+    inputs:
+      # After the server lost or mixed up files (an OVH move, a failed deploy): every file, vendor/ included, rather
+      # than those changed since the last deploy
+      full:
+        description: Upload every file again, vendor/ included
+        type: boolean
+        default: false
 
 # Never run two uploads to the server at the same time
 concurrency:
@@ -158,6 +165,7 @@ jobs:
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
+          DEPLOY_FULL: ${{ inputs.full && '1' || '' }}
         run: bin/deploy.sh
       # Only the server shows this: PHP's built-in server of the tests ignores www/.htaccess, whose rules once replaced
       # the scripts' policy on every page without anyone seeing it. A browser's User-Agent: OVH refuses curl's
