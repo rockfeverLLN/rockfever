@@ -1,0 +1,32 @@
+name: Diagnose server
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# TEMPORARY, read-only: disk usage and leftover files on the server while the site answers 500. Deleted afterwards.
+# The repository is public: print sizes and file names only, never file contents
+jobs:
+  diagnose:
+    runs-on: ubuntu-26.04
+    environment: production
+    timeout-minutes: 15
+    steps:
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends lftp
+      - name: List
+        env:
+          LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "
+            set sftp:auto-confirm yes;
+            pwd;
+            df -h || echo 'no df';
+            cls -l --sort=size;
+            cls -l --sort=size tmp/ || true;
+            cls -l --sort=size /tmp/ || echo 'no /tmp';
+            du -h -d 1 . || true;
+            du -h -d 1 tmp || true;
+            quit"
