@@ -98,7 +98,7 @@ Text written in the admin (these sections, the events' title and description) go
 
 ## Photos
 
-`/photos` is a gallery of the soirées' photos, each album behind its password, if it has one (the [`Photos`](src/Photos) module). It's dark, like a photographer's gallery: `/photos` lists the albums by collection, and each album (`/photos/semaine-5-26-27`) has a breadcrumb, its photographer, a button to download it all as a .zip, tabs, and the photos in columns, uncropped.
+`/photos` is a gallery of the soirées' photos, each album behind its password, if it has one (the [`Photos`](src/Photos) module). It's dark, like a photographer's gallery: `/photos` lists the albums by collection, and each album (`/photos/semaine-5-26-27`) has a breadcrumb, its photographer, a button for administrators to download it all as a .zip, tabs, and the photos in columns, uncropped.
 
 - **Albums:** one per soirée ("Semaine 5 26-27"), in a collection (the quadrimestre: "Q1-26-27"), with an optional photographer, linked to its event. They're listed by their soirée's date, newest first (albums without a soirée, by when they were made), and albums without photos aren't shown. The cover is the first photo, or the one picked with ☆ on the album's admin page. When uploading, an optional **tab** ("Photobooth") puts the photos in a tab of the album, next to "Toutes les photos".
 
