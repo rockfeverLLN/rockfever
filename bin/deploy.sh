@@ -76,6 +76,8 @@ if [ -d views/critical ]; then
 fi
 # Built by earlier deploys and no longer used (merged into site.css)
 COMMANDS+=" rm -f www/css/materialize.site.css;"
+# Written by the temporary error logging of the outage of 2026-11-14
+COMMANDS+=" rm -f php-error.log;"
 
 LOCK_HASH=$(sha256sum composer.lock | cut -c1-64)
 if [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; then
