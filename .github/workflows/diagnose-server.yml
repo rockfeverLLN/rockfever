@@ -31,40 +31,22 @@ jobs:
         run: |
           # Whether PHP runs at all: a one-line script and a static file, uploaded, requested, then removed
           name="probe-$RANDOM$RANDOM"
-          # The site's start, step by step, flushed after each, so a crash (which PHP can't log) shows where it happens
+          # OPcache's settings and what it holds for index.php, then a reset of it (it may keep serving old code)
           cat > "$name.php" <<'PHP'
           <?php
           header('Content-Type: text/plain');
-          while (ob_get_level()) { ob_end_flush(); }
-          function step($s) { echo $s, "\n"; flush(); }
-          register_shutdown_function(function () { $e = error_get_last(); if ($e) { step('last error: ' . substr($e['message'], 0, 300) . ' @ ' . basename($e['file']) . ':' . $e['line']); } step('end'); });
-          step('php ' . PHP_VERSION . ' opcache=' . var_export(function_exists('opcache_get_status') && @opcache_get_status(false) ? 'on' : 'off', true) . ' jit=' . ini_get('opcache.jit') . ' mem=' . ini_get('memory_limit'));
-          chdir(dirname(__DIR__));
-          require dirname(__DIR__) . '/vendor/autoload.php';
-          step('autoload ok');
-          try {
-              $app = (new Framework\App(dirname(__DIR__) . '/config/config.php'))
-                  ->addModule(App\Admin\AdminModule::class)->addModule(App\Auth\AuthModule::class)
-                  ->addModule(App\Events\EventsModule::class)->addModule(App\Main\MainModule::class)
-                  ->addModule(App\Photos\PhotosModule::class);
-              $c = $app->getContainer();
-              step('container ok, env=' . $c->get('env'));
-              $c->get(PDO::class)->query('SELECT 1');
-              step('database ok');
-              $c->get(Framework\Renderer\RendererInterface::class);
-              step('renderer ok');
-              foreach ([App\Admin\AdminModule::class, App\Auth\AuthModule::class, App\Events\EventsModule::class, App\Main\MainModule::class, App\Photos\PhotosModule::class] as $m) {
-                  $c->get($m);
-                  step("module $m ok");
-              }
-          } catch (Throwable $e) {
-              step(get_class($e) . ': ' . substr($e->getMessage(), 0, 300) . ' @ ' . basename($e->getFile()) . ':' . $e->getLine());
-          }
+          foreach (['opcache.enable', 'opcache.validate_timestamps', 'opcache.revalidate_freq', 'opcache.file_cache', 'opcache.file_cache_only'] as $k) { echo $k, '=', var_export(ini_get($k), true), "\n"; }
+          $index = dirname(__FILE__) . '/index.php';
+          echo 'index.php md5=', md5_file($index), ' mtime=', date('c', filemtime($index)), "\n";
+          $st = @opcache_get_status(true);
+          foreach (($st['scripts'] ?? []) as $path => $info) { if (str_ends_with($path, 'www/index.php') || str_ends_with($path, 'Framework/App.php')) { echo 'cached ', $path, ' at ', date('c', $info['timestamp'] ?? 0), "\n"; } }
+          echo 'cached scripts: ', count($st['scripts'] ?? []), "\n";
+          echo 'reset: ', var_export(opcache_reset(), true), "\n";
           PHP
           sed -i 's/^          //' "$name.php"
           echo static-ok > "$name.txt"
           lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "set sftp:auto-confirm yes; set net:timeout 20; put $name.php -o www/$name.php; put $name.txt -o www/$name.txt; quit"
-          for f in "$name.txt" "$name.php"; do
+          for f in "$name.txt" "$name.php" "" "login"; do
             curl -sS -m 60 -A 'Mozilla/5.0 (rockfever probe)' -w "  -> %{http_code} in %{time_total}s\n" "https://rockfever.be/$f" || true
           done
           lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "set sftp:auto-confirm yes; set cmd:fail-exit no; rm -f www/$name.php www/$name.txt; cls -l --sort=date | head -20; quit"
