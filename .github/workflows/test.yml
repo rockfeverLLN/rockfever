@@ -73,9 +73,9 @@ jobs:
           fi
           git fetch --quiet --depth 1 "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$ref"
           git checkout --quiet FETCH_HEAD
-      # Same PHP version as the server, read from .ovhconfig
+      # Same PHP version as the server (set in OVH's control panel), from composer.json's config.platform
       - name: Read PHP version
-        run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
+        run: echo "PHP_VERSION=$(jq -r .config.platform.php composer.json)" >> "$GITHUB_ENV"
       - name: Start a test database
         run: |
           printf 'FROM php:%s-cli\nRUN docker-php-ext-install pdo_mysql\n' "$PHP_VERSION" | docker build -q -t site-php -
