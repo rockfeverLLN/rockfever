@@ -15,12 +15,16 @@ jobs:
     steps:
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends lftp
-      - name: PHP errors
+      - name: Permissions
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: |
-          lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "set sftp:auto-confirm yes; set net:timeout 20; set net:max-retries 2; get php-error.log; quit" || { echo "No log"; exit 0; }
-          wc -l php-error.log
-          # The errors only (their messages and stack frames), not the requests' data
-          grep -E "PHP |Uncaught|Exception|Error|#[0-9]+ " php-error.log | cut -c1-400 | tail -60
+          echo test > perm-test.txt
+          lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "
+            set sftp:auto-confirm yes; set cmd:fail-exit no; set net:timeout 20; set net:max-retries 2;
+            pwd; cls -ld . www www/index.php config vendor views tmp;
+            put perm-test.txt -o perm-test.txt; put perm-test.txt -o www/perm-test.txt; put perm-test.txt -o tmp/perm-test.txt;
+            cls -l perm-test.txt www/perm-test.txt tmp/perm-test.txt;
+            rm -f perm-test.txt www/perm-test.txt tmp/perm-test.txt;
+            quit" 2>&1
