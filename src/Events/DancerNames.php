@@ -357,14 +357,16 @@ class DancerNames
     }
 
     /**
-     * The sign-ups of the past soirées, the ones the statistics count
+     * The sign-ups of the past soirées and tonight's, the ones the statistics count
      */
     private function signUps(): array
     {
-        return $this->pdo->query(
+        $statement = $this->pdo->prepare(
             'SELECT d.firstname, d.lastname FROM dancers d JOIN events e ON e.id = d.event_id
-             WHERE e.date < CURDATE() ORDER BY e.date ASC, e.id ASC, d.id ASC'
-        )->fetchAll(\PDO::FETCH_OBJ);
+             WHERE e.date <= ? ORDER BY e.date ASC, e.id ASC, d.id ASC'
+        );
+        $statement->execute([(new \DateTimeImmutable('now', new \DateTimeZone(\App\Main\Calendar::TIMEZONE)))->format('Y-m-d')]);
+        return $statement->fetchAll(\PDO::FETCH_OBJ);
     }
 
     private function matches(): array
