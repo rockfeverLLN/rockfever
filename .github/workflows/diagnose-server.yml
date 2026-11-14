@@ -31,24 +31,37 @@ jobs:
         run: |
           # Whether PHP runs at all: a one-line script and a static file, uploaded, requested, then removed
           name="probe-$RANDOM$RANDOM"
-          # The real index.php for /login, printing each class as it's loaded (registered after Composer's loader,
-          # in front of it, so it sees them): a crash, which PHP can't log, shows after the last one. Class names only
+          # PHP's building blocks one at a time: the site dies while rendering (#151), in plain PHP code. A crash
+          # shows after the last step printed
           cat > "$name.php" <<'PHP'
           <?php
           header('Content-Type: text/plain');
+          // Before any output, which a session needs
+          $session = var_export(session_start() && session_write_close(), true);
           while (ob_get_level()) { ob_end_flush(); }
           function step($s) { echo $s, "\n"; flush(); }
-          register_shutdown_function(function () { $e = error_get_last(); if ($e) { step('last error: ' . substr($e['message'], 0, 300) . ' @ ' . basename($e['file']) . ':' . $e['line']); } step('end'); });
-          require dirname(__DIR__) . '/vendor/autoload.php';
-          spl_autoload_register(function ($class) { step("load $class " . round(memory_get_usage() / 1048576) . 'MB'); }, true, true);
-          $_SERVER['REQUEST_URI'] = '/login';
-          $_SERVER['SCRIPT_NAME'] = '/index.php';
-          step('start');
-          try {
-              require __DIR__ . '/index.php';
-              step('index.php done');
-          } catch (Throwable $e) {
-              step(get_class($e) . ': ' . substr($e->getMessage(), 0, 300) . ' @ ' . basename($e->getFile()) . ':' . $e->getLine());
+          register_shutdown_function(function () { step('end'); });
+          step("session: $session");
+          step('pcre.jit=' . ini_get('pcre.jit') . ' ' . PCRE_VERSION . ' mbstring=' . var_export(extension_loaded('mbstring'), true) . ' intl=' . var_export(extension_loaded('intl'), true) . ' session.save_path=' . ini_get('session.save_path'));
+          $tests = [
+              'htmlspecialchars' => fn () => htmlspecialchars('<a> é', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+              'preg_match' => fn () => preg_match('/a+b/', 'aaab'),
+              'preg_match /u' => fn () => preg_match('/\\w+/u', 'héllo'),
+              'preg_replace_callback /u' => fn () => preg_replace_callback('/[^a-z]/u', fn ($m) => '-', 'héllo wörld'),
+              'preg_split /u' => fn () => preg_split('//u', 'héllo', -1, PREG_SPLIT_NO_EMPTY),
+              'mb_strtolower' => fn () => mb_strtolower('ÉCOLE'),
+              'mb_convert_encoding' => fn () => mb_convert_encoding('é', 'UTF-16BE', 'UTF-8'),
+              'iconv' => fn () => iconv('UTF-8', 'UTF-16BE', 'é'),
+              'json_encode' => fn () => json_encode(['a' => 'é']),
+              'number_format' => fn () => number_format(1234.5, 2, ',', ' '),
+              'strftime-free date' => fn () => date('c'),
+              'IntlDateFormatter' => fn () => class_exists('IntlDateFormatter') ? (new IntlDateFormatter('fr_BE', IntlDateFormatter::FULL, IntlDateFormatter::NONE))->format(time()) : 'no intl',
+              'random_bytes' => fn () => bin2hex(random_bytes(4)),
+              'hash xxh128' => fn () => hash('xxh128', 'x'),
+          ];
+          foreach ($tests as $label => $test) {
+              step("$label ...");
+              try { $r = $test(); step("  ok " . substr(is_scalar($r) ? (string) $r : json_encode($r), 0, 60)); } catch (Throwable $e) { step('  ' . get_class($e) . ': ' . $e->getMessage()); }
           }
           PHP
           sed -i 's/^          //' "$name.php"
