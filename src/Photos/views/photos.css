@@ -831,3 +831,11 @@
         border-color: #d9e2ec !important;
     }
 }
+
+/* The download page's progress, while the album's .zip is prepared (zip.twig) */
+.photos-zip-progress {
+    display: block;
+    width: 100%;
+    margin: 1rem 0;
+    accent-color: currentColor;
+}

@@ -20,7 +20,7 @@ use Framework\Middleware\NotFoundMiddleware;
 use Framework\Middleware\RouterMiddleware;
 use Framework\Middleware\TrailingSlashMiddleWare;
 use GuzzleHttp\Psr7\ServerRequest;
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Laminas\HttpHandlerRunner\Emitter\SapiStreamEmitter;
 use Middlewares\Whoops;
 
 // Errors go to php-error.log, next to www/ (not web-accessible): OVH's logs don't show PHP's errors, so the 500s of
@@ -72,5 +72,6 @@ $app->pipe(MarkdownMiddleware::class)
 
 if (php_sapi_name() !== "cli") {
     $response = $app->run(ServerRequest::fromGlobals());
-    (new SapiEmitter())->emit($response);
+    // In chunks: an album's .zip (AlbumZipAction) is far bigger than PHP's memory
+    (new SapiStreamEmitter(1024 * 1024))->emit($response);
 }

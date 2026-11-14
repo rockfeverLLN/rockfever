@@ -2,6 +2,7 @@
 
 namespace App\Photos\Actions;
 
+use App\Photos\AlbumZip;
 use App\Photos\PhotoUpload;
 use App\Photos\Table\AlbumTable;
 use App\Photos\Table\PhotoTable;
@@ -44,18 +45,25 @@ class AlbumDeleteAction
      */
     private $flash;
 
+    /**
+     * @var AlbumZip
+     */
+    private $zip;
+
     public function __construct(
         Router $router,
         AlbumTable $albumTable,
         PhotoTable $photoTable,
         PhotoUpload $upload,
-        FlashService $flash
+        FlashService $flash,
+        AlbumZip $zip
     ) {
         $this->router = $router;
         $this->albumTable = $albumTable;
         $this->photoTable = $photoTable;
         $this->upload = $upload;
         $this->flash = $flash;
+        $this->zip = $zip;
     }
 
     public function __invoke(Request $request) : ResponseInterface
@@ -68,6 +76,7 @@ class AlbumDeleteAction
         foreach ($this->photoTable->findByAlbum($album->id)->fetchAll() as $photo) {
             $this->upload->delete($photo->filename);
         }
+        $this->zip->delete($album);
         // Its photos and their deletion requests go with it (ON DELETE CASCADE)
         $this->albumTable->delete($album->id);
         $this->flash->success('L\'album « ' . htmlspecialchars($album->title) . ' » et ses photos ont été supprimés');
