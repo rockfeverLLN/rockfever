@@ -16,6 +16,13 @@ $root = dirname(__DIR__);
 chdir($root);
 putenv('ENV=production');
 require $root . '/www/index.php';
+// The app that index.php sets up (it only runs it outside the command line)
+$app = $GLOBALS['app'] ?? null;
+if (!$app instanceof Framework\App) {
+    fwrite(STDERR, "www/index.php didn't set up the app\n");
+    exit(1);
+}
+$container = $app->getContainer();
 
 // The modules add their templates' folders when they start (App::run)
 foreach (Closure::bind(fn () => $this->modules, $app, Framework\App::class)() as $module) {
