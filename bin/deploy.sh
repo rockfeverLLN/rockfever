@@ -100,9 +100,18 @@ fi
 # Empty the caches once the new files are up
 OLD_CACHE="tmp/old-cache-$(date +%s)"
 COMMANDS+=" mkdir -f $OLD_CACHE;"
-for cache in views routes di proxies; do
+for cache in routes di proxies; do
     COMMANDS+=" mv tmp/$cache $OLD_CACHE/$cache || echo 'No tmp/$cache cache';"
 done
+# The templates compiled by bin/twig-cache.php in deploy.yml replace the server's: PHP there dies while compiling
+# one (since 2026-11-14). Uploaded next to it first, so the switch is two renames
+if [ -d tmp/views ]; then
+    echo "  upload tmp/views/ (compiled templates)"
+    COMMANDS+=" rm -r -f tmp/views-new; mirror --reverse tmp/views/ tmp/views-new/;"
+    COMMANDS+=" mv tmp/views $OLD_CACHE/views || echo 'No tmp/views cache'; mv tmp/views-new tmp/views;"
+else
+    COMMANDS+=" mv tmp/views $OLD_CACHE/views || echo 'No tmp/views cache';"
+fi
 
 # Record the deployed commit last, so a failed upload is retried in full next time
 git rev-parse HEAD > .deployed-sha
