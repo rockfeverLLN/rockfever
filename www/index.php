@@ -23,6 +23,15 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Middlewares\Whoops;
 
+// OVH keeps no PHP error log: without this, a 500 leaves no trace (the outage of 2026-11-14). In storage/, outside the
+// web root and never touched by deploys; download it over SFTP. Kept under 5 MB: a full one becomes php-error.log.1
+$errorLog = dirname(__DIR__) . '/storage/php-error.log';
+if (@filesize($errorLog) > 5000000) {
+    @rename($errorLog, $errorLog . '.1');
+}
+ini_set('log_errors', '1');
+ini_set('error_log', $errorLog);
+
 chdir(dirname(__DIR__));
 
 // From __DIR__, not the current folder: on OVH, PHP sometimes can't resolve the current folder (getcwd() fails),

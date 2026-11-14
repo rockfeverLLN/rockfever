@@ -1,0 +1,57 @@
+name: Uptime
+on:
+  schedule:
+    # Every 10 minutes. GitHub can start scheduled runs a few minutes late
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+# One check at a time: a late run never opens a second issue next to one still being opened
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+defaults:
+  run:
+    shell: bash
+
+# Loads the live site's main pages (bin/check-live.sh). When one fails, opens an issue titled "Site down", which
+# GitHub sends to the repository's watchers by email and on their phone; when the site answers again, says so on it and
+# closes it. On 2026-11-14 an OVH move broke every page and nobody heard of it from GitHub.
+# Same rule as deploy.yml: no marketplace actions
+jobs:
+  check:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Checkout
+        run: |
+          git init --quiet .
+          git fetch --quiet --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" "$GITHUB_SHA"
+          git checkout --quiet FETCH_HEAD
+      - name: Check the live site
+        run: |
+          set +e
+          bin/check-live.sh > result.txt 2>&1
+          status=$?
+          cat result.txt
+          issue=$(gh issue list --state open --search 'in:title "Site down"' --json number,title \
+            --jq '[.[] | select(.title | startswith("Site down"))][0].number // empty')
+          if [ $status -ne 0 ]; then
+            body=$(printf 'rockfever.be fails its check (%s):\n\n```\n%s\n```\n\nTo find why: `storage/php-error.log` on the server (SFTP). This issue closes on its own once every page answers again.' "$RUN_URL" "$(cat result.txt)")
+            if [ -z "$issue" ]; then
+              gh issue create --title "Site down: rockfever.be fails its check" --body "$body"
+            fi
+            exit 1
+          fi
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "Every page answers again ($RUN_URL)."
+            gh issue close "$issue"
+          fi

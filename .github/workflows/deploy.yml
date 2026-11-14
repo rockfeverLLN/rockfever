@@ -159,6 +159,11 @@ jobs:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: bin/deploy.sh
+      # The live site after the upload: a page that fails here fails the deploy, and GitHub emails whoever pushed.
+      # What the test copy can't catch: the server itself (on 2026-11-14 an OVH move broke every page). Same pages as
+      # .github/workflows/uptime.yml
+      - name: Check the live site
+        run: bin/check-live.sh
       # Only the server shows this: PHP's built-in server of the tests ignores www/.htaccess, whose rules once replaced
       # the scripts' policy on every page without anyone seeing it. A browser's User-Agent: OVH refuses curl's
       - name: Check the live pages' Content-Security-Policy

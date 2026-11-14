@@ -33,6 +33,11 @@ class Upload
         if ($path) {
             $this->path = $path;
         }
+        // $path is from the site's folder ('storage/photos'): made absolute, as the current folder can't be trusted
+        // (PHP on OVH once couldn't resolve it, and every page failed)
+        if ($this->path !== null && !str_starts_with($this->path, '/')) {
+            $this->path = dirname(__DIR__, 2) . '/' . $this->path;
+        }
     }
 
     /**

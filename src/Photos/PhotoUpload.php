@@ -15,7 +15,7 @@ class PhotoUpload extends Upload
 {
     const EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
-    protected $path = 'storage/photos';
+    protected $path = 'storage/photos'; // made absolute by Upload::__construct
 
     protected $maxSize = 2400;
 

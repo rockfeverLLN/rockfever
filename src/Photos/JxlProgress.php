@@ -13,7 +13,7 @@ class JxlProgress
     /**
      * Folders of images, with their sizes/ copies: the gallery's photos and the images of the pages
      */
-    const FOLDERS = ['storage/photos', 'www/images/about', 'www/images/body'];
+    const FOLDERS = ['storage/photos', 'www/images/about', 'www/images/body']; // made absolute by root()
 
     /**
      * @return array{total: int, done: int, percent: int}

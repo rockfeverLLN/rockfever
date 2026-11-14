@@ -15,9 +15,10 @@ class Throttle
      */
     private $path;
 
-    public function __construct(string $path = 'tmp/throttle')
+    public function __construct(?string $path = null)
     {
-        $this->path = $path;
+        // From __DIR__: never the current folder, which PHP on OVH once couldn't resolve
+        $this->path = $path ?? dirname(__DIR__, 2) . '/tmp/throttle';
     }
 
     /**
