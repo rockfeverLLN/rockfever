@@ -44,9 +44,9 @@ jobs:
           git clone --quiet "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" .
           git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
           git checkout --quiet "$GITHUB_SHA"
-      # Same PHP version as the server, read from .ovhconfig
+      # Same PHP version as the server (set in OVH's control panel), from composer.json's config.platform
       - name: Read PHP version
-        run: echo "PHP_VERSION=$(sed -n 's/^app\.engine\.version=//p' .ovhconfig)" >> "$GITHUB_ENV"
+        run: echo "PHP_VERSION=$(jq -r .config.platform.php composer.json)" >> "$GITHUB_ENV"
       # Things that only need time, started first so they run during the steps below rather than one after the other:
       # for the copy of the site that the checks and bin/critical-css.php read, the test database (rather than a
       # service container, which the job waits for before its first step) and the site's PHP image (pdo_mysql is

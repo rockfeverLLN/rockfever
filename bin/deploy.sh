@@ -16,8 +16,9 @@ set -euo pipefail
 : "${FTP_HOST:?Set FTP_HOST to the SFTP host}"
 SERVER=(lftp --env-password -u rockfevexj "sftp://$FTP_HOST")
 SETTINGS="set sftp:auto-confirm yes; set cmd:fail-exit yes; set mirror:parallel-transfer-count 8; set mirror:parallel-directories true;"
-# Repo files that never go to the server
-EXCLUDE=(':!.github' ':!.gitignore' ':!.editorconfig' ':!README.md')
+# Repo files that never go to the server. .ovhconfig is OVH's own (its control panel writes it): never uploaded, and
+# never deleted on the server because it was removed from the repo
+EXCLUDE=(':!.ovhconfig' ':!.github' ':!.gitignore' ':!.editorconfig' ':!README.md')
 
 # A file that the last deploy recorded on the server, read with the others below
 remote_cat() {

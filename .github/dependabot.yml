@@ -6,7 +6,7 @@
 # each change to it and every day (.github/workflows/dependabot-retry.yml) until it passes or a newer release replaces it.
 version: 2
 updates:
-  # The PHP packages, for the PHP version in composer.json's config.platform (the server's, in .ovhconfig)
+  # The PHP packages, for the PHP version in composer.json's config.platform (the server's, set in OVH's control panel)
   - package-ecosystem: composer
     directory: /
     schedule:
