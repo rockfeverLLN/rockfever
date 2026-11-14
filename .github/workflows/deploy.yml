@@ -147,6 +147,10 @@ jobs:
           site php bin/critical-css.php https://rockfever.be http://127.0.0.1:8000 home-no-event.html \
             || site php bin/critical-css.php http://127.0.0.1:8000 home-no-event.html
           docker rm -f site
+          # The templates compiled here, which bin/deploy.sh uploads: PHP on the server dies while compiling one
+          # (since 2026-11-14), so it never has to. After the trimmed CSS, which the templates include
+          rm -rf tmp/views
+          site php bin/twig-cache.php
           rm config/database.php home-no-event.html
       - name: Remove the dev dependencies
         run: |
