@@ -15,17 +15,12 @@ jobs:
     steps:
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends lftp
-      - name: Write test
+      - name: PHP errors
         env:
           LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_HOST: ${{ secrets.FTP_HOST }}
         run: |
-          head -c 20000000 /dev/zero > write-test.bin
-          lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "
-            set sftp:auto-confirm yes; set cmd:fail-exit no;
-            put write-test.bin -o tmp/write-test.bin;
-            cls -l tmp/write-test.bin;
-            rm -f tmp/write-test.bin;
-            cls -l tmp/ tmp/views/ storage/;
-            du -h -d 2 storage;
-            quit" 2>&1 | head -80
+          lftp --env-password -u rockfevexj "sftp://$FTP_HOST" -e "set sftp:auto-confirm yes; set net:timeout 20; set net:max-retries 2; get php-error.log; quit" || { echo "No log"; exit 0; }
+          wc -l php-error.log
+          # The errors only (their messages and stack frames), not the requests' data
+          grep -E "PHP |Uncaught|Exception|Error|#[0-9]+ " php-error.log | cut -c1-400 | tail -60
