@@ -43,22 +43,22 @@ jobs:
           register_shutdown_function(function () { step('end'); });
           step("session: $session");
           step('pcre.jit=' . ini_get('pcre.jit') . ' ' . PCRE_VERSION . ' mbstring=' . var_export(extension_loaded('mbstring'), true) . ' intl=' . var_export(extension_loaded('intl'), true) . ' session.save_path=' . ini_get('session.save_path'));
-          $tests = [
-              'htmlspecialchars' => fn () => htmlspecialchars('<a> é', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-              'preg_match' => fn () => preg_match('/a+b/', 'aaab'),
-              'preg_match /u' => fn () => preg_match('/\\w+/u', 'héllo'),
-              'preg_replace_callback /u' => fn () => preg_replace_callback('/[^a-z]/u', fn ($m) => '-', 'héllo wörld'),
-              'preg_split /u' => fn () => preg_split('//u', 'héllo', -1, PREG_SPLIT_NO_EMPTY),
-              'mb_strtolower' => fn () => mb_strtolower('ÉCOLE'),
-              'mb_convert_encoding' => fn () => mb_convert_encoding('é', 'UTF-16BE', 'UTF-8'),
-              'iconv' => fn () => iconv('UTF-8', 'UTF-16BE', 'é'),
-              'json_encode' => fn () => json_encode(['a' => 'é']),
-              'number_format' => fn () => number_format(1234.5, 2, ',', ' '),
-              'strftime-free date' => fn () => date('c'),
-              'IntlDateFormatter' => fn () => class_exists('IntlDateFormatter') ? (new IntlDateFormatter('fr_BE', IntlDateFormatter::FULL, IntlDateFormatter::NONE))->format(time()) : 'no intl',
-              'random_bytes' => fn () => bin2hex(random_bytes(4)),
-              'hash xxh128' => fn () => hash('xxh128', 'x'),
-          ];
+          step('zend.max_allowed_stack_size=' . ini_get('zend.max_allowed_stack_size') . ' zend.reserved_stack_size=' . ini_get('zend.reserved_stack_size') . ' fiber.stack_size=' . ini_get('fiber.stack_size'));
+          function depth($n) { return $n ? depth($n - 1) + 1 : 0; }
+          function gen($n) { if ($n) { yield from gen($n - 1); } yield $n; }
+          $tests = [];
+          foreach ([50, 200, 1000, 5000, 20000, 100000] as $n) {
+              $tests["recursion $n"] = fn () => depth($n);
+          }
+          foreach ([10, 50, 200, 1000] as $n) {
+              $tests["nested generators $n"] = fn () => iterator_count(gen($n));
+          }
+          // Through PHP's own C functions, which use the process' stack (plain PHP recursion doesn't)
+          function cdepth($n) { return $n ? array_map(fn ($x) => cdepth($x), [$n - 1])[0] + 1 : 0; }
+          foreach ([50, 200, 1000, 3000, 10000, 30000] as $n) {
+              $tests["C-stack recursion $n"] = fn () => cdepth($n);
+          }
+          $tests['fiber'] = fn () => (new Fiber(fn () => depth(500)))->start();
           foreach ($tests as $label => $test) {
               step("$label ...");
               try { $r = $test(); step("  ok " . substr(is_scalar($r) ? (string) $r : json_encode($r), 0, 60)); } catch (Throwable $e) { step('  ' . get_class($e) . ': ' . $e->getMessage()); }
