@@ -1,0 +1,29 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Téléchargement - {{ album.title }} - Photos - Rock Fever{% endblock %}
+
+{% block head %}
+    {% include '@photos/head.twig' %}
+    {#- Each reload adds the next photos to the .zip, the last one sends it #}
+    <meta http-equiv="refresh" content="{{ done == total ? 0 : 1 }}">
+    <meta name="robots" content="noindex">
+{% endblock %}
+
+{% block bodyColor %}photos-dark{% endblock %}
+
+{% block body %}
+    <div class="photos-lock">
+        <div class="photos-lock-card">
+            <div class="photos-lock-icon" aria-hidden="true"><i class="mdi mdi-download"></i></div>
+            <p class="photos-lock-collection">{{ album.collection }}</p>
+            <h1>{{ album.title }}</h1>
+            {% if done == total %}
+                <p role="status">Le .zip est prêt, le téléchargement commence.</p>
+            {% else %}
+                <p role="status">Préparation du .zip : {{ done }} photos sur {{ total }}. Garde cette page ouverte, le téléchargement commence tout seul.</p>
+                <progress class="photos-zip-progress" value="{{ done }}" max="{{ total }}">{{ (done * 100 / total)|round }} %</progress>
+            {% endif %}
+            <a class="photos-lock-back" href="{{ path('photos.album', {slug: album.slug}) }}">Retour à l'album</a>
+        </div>
+    </div>
+{% endblock %}
