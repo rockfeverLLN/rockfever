@@ -12,7 +12,7 @@ class RouterFactory
     {
         $cache = null;
         if ($container->get('env') === 'production') {
-            $cache = 'tmp/routes';
+            $cache = dirname(__DIR__, 3) . '/tmp/routes';
         }
         return new Router($cache);
     }

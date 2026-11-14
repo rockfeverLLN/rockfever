@@ -15,9 +15,9 @@ class Throttle
      */
     private $path;
 
-    public function __construct(string $path = 'tmp/throttle')
+    public function __construct(?string $path = null)
     {
-        $this->path = $path;
+        $this->path = $path ?? dirname(__DIR__, 2) . '/tmp/throttle';
     }
 
     /**

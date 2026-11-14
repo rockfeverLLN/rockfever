@@ -23,11 +23,18 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Middlewares\Whoops;
 
+// Errors go to php-error.log, next to www/ (not web-accessible): OVH's logs don't show PHP's errors, so the 500s of
+// the outage of 2026-11-14 had no visible cause. Read with the "Diagnose server" workflow
+ini_set('log_errors', '1');
+ini_set('error_log', dirname(__DIR__) . '/php-error.log');
+
 chdir(dirname(__DIR__));
 
-require "vendor/autoload.php";
+// From __DIR__, not the current folder: since OVH moved the hosting (/homez.315 to /home, 2026-11-14), PHP there
+// can't always resolve its current folder, which made every path loaded from it relative (Twig looked for /./views)
+require dirname(__DIR__) . "/vendor/autoload.php";
 
-$app = (new App('config/config.php'))
+$app = (new App(dirname(__DIR__) . '/config/config.php'))
     ->addModule(AdminModule::class)
     ->addModule(AuthModule::class)
     ->addModule(EventsModule::class)

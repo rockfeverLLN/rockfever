@@ -100,7 +100,7 @@ class App implements RequestHandlerInterface
             $builder = new ContainerBuilder();
             $env = getenv('ENV') ?: 'production';
             if ($env === 'production') {
-                 $builder->writeProxiesToFile(true, 'tmp/proxies');
+                 $builder->writeProxiesToFile(true, dirname(__DIR__, 2) . '/tmp/proxies');
             }
             $builder->addDefinitions($this->definition);
             foreach ($this->modules as $module) {
