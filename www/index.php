@@ -23,6 +23,10 @@ use GuzzleHttp\Psr7\ServerRequest;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Middlewares\Whoops;
 
+// TEMPORARY: OVH doesn't record PHP errors, so write them next to www/ (not web-accessible)
+ini_set('log_errors', '1');
+ini_set('error_log', dirname(__DIR__) . '/php-error.log');
+
 chdir(dirname(__DIR__));
 
 require "vendor/autoload.php";
