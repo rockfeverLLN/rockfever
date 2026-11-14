@@ -96,7 +96,7 @@ class AlbumShowAction
             $photos->where('p.section = :section')->params(['album' => $album->id, 'section' => $section]);
         }
         $photos = $photos->fetchAll();
-        $zip = class_exists(\ZipArchive::class);
+        $zip = class_exists(\ZipArchive::class) && $this->access->isAdmin();
         return new Response(200, PhotoIndexAction::HEADERS, $this->renderer->render(
             '@photos/album',
             compact('album', 'sections', 'section', 'photos', 'zip')

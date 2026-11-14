@@ -13,7 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * All the photos of an album in one .zip, as uploaded
+ * All the photos of an album in one .zip, as uploaded. Administrators only (PhotoAccess::isAdmin)
  */
 class AlbumZipAction
 {
@@ -52,7 +52,7 @@ class AlbumZipAction
         } catch (NoRecordException $e) {
             return new Response(404, ['X-Robots-Tag' => 'noindex'], 'Album introuvable');
         }
-        if (!$this->access->canView($request, $album)) {
+        if (!$this->access->isAdmin() || !$this->access->canView($request, $album)) {
             return new Response(403, ['X-Robots-Tag' => 'noindex'], 'Accès refusé');
         }
         if (!class_exists(\ZipArchive::class)) {

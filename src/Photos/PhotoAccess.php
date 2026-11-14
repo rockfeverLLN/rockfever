@@ -55,6 +55,15 @@ class PhotoAccess
         return $this->team;
     }
 
+    /**
+     * The album's .zip is for administrators only: not visitors, not the photographers' login
+     */
+    public function isAdmin() : bool
+    {
+        $user = $this->auth->getUser();
+        return $user !== null && $user->getRole() === 'administrator';
+    }
+
     public function canView(ServerRequestInterface $request, Album $album) : bool
     {
         if (!$this->isLocked($album)) {
