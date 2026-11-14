@@ -14,7 +14,7 @@ class AboutUpload extends Upload
 {
     const EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
-    protected $path = 'www/images/about';
+    protected $path = __DIR__ . '/../../www/images/about';
 
     protected $maxSize = 1600;
 

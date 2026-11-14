@@ -36,3 +36,4 @@ Thumbs.db
 # The JPEG XL encoder, downloaded by deploy.yml
 /bin/cjxl
 /bin/.cjxl-hash
+/php-error.log
