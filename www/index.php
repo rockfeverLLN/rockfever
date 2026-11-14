@@ -25,11 +25,9 @@ use Middlewares\Whoops;
 
 chdir(dirname(__DIR__));
 
-// From __DIR__, not the current folder: on OVH, PHP sometimes can't resolve the current folder (getcwd() fails),
-// which left every __DIR__ below relative and Twig looking for its templates at /./views (the outage of 2026-11-14)
-require dirname(__DIR__) . "/vendor/autoload.php";
+require "vendor/autoload.php";
 
-$app = (new App(dirname(__DIR__) . '/config/config.php'))
+$app = (new App('config/config.php'))
     ->addModule(AdminModule::class)
     ->addModule(AuthModule::class)
     ->addModule(EventsModule::class)
