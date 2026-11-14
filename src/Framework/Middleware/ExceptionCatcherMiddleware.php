@@ -46,8 +46,6 @@ class ExceptionCatcherMiddleware implements MiddlewareInterface
                 $this->renderer->render("403")
             );
         } catch (\Exception $e) {
-            // Logged, or the server's 500s give no clue (OVH shows its own page in place of this one)
-            error_log((string) $e);
             return new Response(
                 500,
                 [],

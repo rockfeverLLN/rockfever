@@ -5,7 +5,6 @@
 #   (full mirror when there is no record yet). OVH's SFTP doesn't keep file times, so lftp
 #   can't detect changes by itself.
 # - vendor/: only re-synced when composer.lock changed since the last deploy.
-# - DEPLOY_FULL=1 (deploy.yml's "full" option) uploads every file and vendor/ whatever changed.
 # - config/database.php and storage/ (the gallery's photos) are not in git and stay on the server untouched.
 # - The caches under tmp/ are emptied by renaming them to tmp/old-cache-*: one request, where removing them takes one
 #   per file (30 to 40 seconds). `bin/deploy.sh clean` removes those, during the checks of the next deploy.
@@ -41,7 +40,7 @@ REMOTE=$(mktemp -d)
 COMMANDS="$SETTINGS"
 
 DEPLOYED_SHA=$(remote_cat .deployed-sha | tr -d '[:space:]')
-if [ -z "${DEPLOY_FULL:-}" ] && [ -n "$DEPLOYED_SHA" ] && git cat-file -e "$DEPLOYED_SHA^{commit}" 2>/dev/null; then
+if [ -n "$DEPLOYED_SHA" ] && git cat-file -e "$DEPLOYED_SHA^{commit}" 2>/dev/null; then
     echo "Uploading changes since $DEPLOYED_SHA"
     while IFS= read -r -d '' status && IFS= read -r -d '' path; do
         case "$status" in
@@ -58,7 +57,7 @@ if [ -z "${DEPLOY_FULL:-}" ] && [ -n "$DEPLOYED_SHA" ] && git cat-file -e "$DEPL
         esac
     done < <(git -c core.quotePath=false diff -z --name-status --no-renames "$DEPLOYED_SHA" HEAD -- . "${EXCLUDE[@]}")
 else
-    echo "Full upload, or no previous deploy recorded: uploading everything"
+    echo "No previous deploy recorded, uploading everything"
     COMMANDS+=" mirror --reverse --verbose --exclude '^\.git' --exclude '^\.editorconfig$' --exclude '^README\.md$' --exclude '^vendor/' --exclude '^tmp/' --exclude '^storage/' --exclude '^config/database\.php$' ./ ./;"
 fi
 
@@ -77,11 +76,9 @@ if [ -d views/critical ]; then
 fi
 # Built by earlier deploys and no longer used (merged into site.css)
 COMMANDS+=" rm -f www/css/materialize.site.css;"
-# Written by the temporary error logging of the outage of 2026-11-14
-COMMANDS+=" rm -f php-error.log;"
 
 LOCK_HASH=$(sha256sum composer.lock | cut -c1-64)
-if [ -n "${DEPLOY_FULL:-}" ] || [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; then
+if [ "$LOCK_HASH" != "$(remote_cat vendor/.lock-hash | tr -d '[:space:]')" ]; then
     echo "composer.lock changed, syncing vendor/"
     echo "$LOCK_HASH" > vendor/.lock-hash
     COMMANDS+=" mirror --reverse --delete vendor/ vendor/;"
@@ -92,7 +89,7 @@ fi
 # The JPEG XL encoder that deploy.yml downloads (not in git): only when it's another version than the server's
 if [ -f bin/cjxl ]; then
     CJXL_HASH=$(sha256sum bin/cjxl | cut -c1-64)
-    if [ -n "${DEPLOY_FULL:-}" ] || [ "$CJXL_HASH" != "$(remote_cat bin/.cjxl-hash | tr -d '[:space:]')" ]; then
+    if [ "$CJXL_HASH" != "$(remote_cat bin/.cjxl-hash | tr -d '[:space:]')" ]; then
         echo "  upload bin/cjxl (downloaded)"
         echo "$CJXL_HASH" > bin/.cjxl-hash
         COMMANDS+=" put bin/cjxl -o bin/cjxl; chmod 755 bin/cjxl; put bin/.cjxl-hash -o bin/.cjxl-hash;"
