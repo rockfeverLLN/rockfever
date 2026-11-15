@@ -48,8 +48,10 @@
     .photos-admin-viewer .prev, .photos-admin-viewer .next { position: absolute; top: 50%; transform: translateY(-50%); }
     .photos-admin-viewer .prev { left: 12px; }
     .photos-admin-viewer .next { right: 12px; }
-    .photos-admin-tile [type="checkbox"].filled-in + span { position: absolute; top: 8px; left: 8px; }
-    .photos-admin-tile [type="checkbox"].filled-in:not(:checked) + span:after { background: rgba(255, 255, 255, .85); }
+    .photos-admin-tile [type="checkbox"] { position: absolute; top: 8px; left: 8px; }
+    /* On the photo, whatever its colours and the admin's theme: a white box, and a focus ring of two tones */
+    .photos-admin-tile [type="checkbox"]:not(:checked) { border-color: #5a5a5a; background-color: rgba(255, 255, 255, .85); }
+    .photos-admin-tile [type="checkbox"]:focus-visible { outline-color: #ffffff; box-shadow: 0 0 0 2px #072d55; }
     .photos-admin-tile:has(:checked) { outline: 4px solid #072d55; outline-offset: -4px; }
     .photos-admin-tile:has(:checked) img { opacity: .75; }
     .photos-admin-tile .badge-bottom { pointer-events: none; position: absolute; left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 2px 8px; border-radius: 10px; background: rgba(0, 0, 0, .65); color: #fff; font-size: .75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

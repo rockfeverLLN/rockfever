@@ -246,6 +246,11 @@
             filterList();
         } else if (event.key === 'Enter') {
             event.preventDefault();
+            // Not the Enter that confirms a character being composed (Chinese, Japanese, Korean keyboards): Safari
+            // reports that one as key 229 rather than as composing
+            if (event.isComposing || event.keyCode === 229) {
+                return;
+            }
             if (matches.length !== 1) {
                 if (matches.length > 1) {
                     toast(matches.length + ' danseurs correspondent, précisez le nom');

@@ -95,8 +95,7 @@
                                     <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}" alt="" width="{{ photo.width }}" height="{{ photo.height }}" loading="lazy">
                                 </a>
                                 <label>
-                                    <input type="checkbox" class="filled-in" name="ids[]" value="{{ photo.id }}" aria-label="Cocher la photo {{ loop.index }}">
-                                    <span></span>
+                                    <input type="checkbox" name="ids[]" value="{{ photo.id }}" aria-label="Cocher la photo {{ loop.index }}">
                                 </label>
                                 {% if photo.id == cover %}
                                     <span class="cover is-cover" title="La couverture de l'album">★ Couverture</span>

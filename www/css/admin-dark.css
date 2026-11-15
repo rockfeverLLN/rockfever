@@ -172,6 +172,18 @@ html[data-theme="dark"] [type="radio"]:checked + span {
     color: var(--admin-muted);
 }
 
+/* Checkboxes (base.css): a box that shows on the dark surfaces, and a dark tick on the lighter teal once checked */
+html[data-theme="dark"] [type="checkbox"] {
+    border-color: var(--admin-muted);
+    color: var(--admin-bg);
+}
+
+html[data-theme="dark"] [type="checkbox"]:checked,
+html[data-theme="dark"] [type="checkbox"]:indeterminate {
+    border-color: var(--admin-teal);
+    background-color: var(--admin-teal);
+}
+
 html[data-theme="dark"] .input-field > label.active,
 html[data-theme="dark"] .input-field .prefix.active {
     color: var(--admin-accent);
