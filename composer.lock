@@ -255,26 +255,25 @@
         },
         {
             "name": "intervention/gif",
-            "version": "5.0.1",
+            "version": "5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/gif.git",
-                "reference": "bb395af960deffe64d70c976b4df9283f68e762d"
+                "reference": "1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/gif/zipball/bb395af960deffe64d70c976b4df9283f68e762d",
-                "reference": "bb395af960deffe64d70c976b4df9283f68e762d",
+                "url": "https://api.github.com/repos/Intervention/gif/zipball/1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12",
+                "reference": "1a7ff8a0784a32d97f9374fbe625ea5db5f8ef12",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.3"
             },
             "require-dev": {
+                "intervention/coding-standard": "^1",
                 "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^12.0",
-                "slevomat/coding-standard": "~8.0",
-                "squizlabs/php_codesniffer": "^4"
+                "phpunit/phpunit": "^12.0"
             },
             "type": "library",
             "autoload": {
@@ -303,7 +302,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Intervention/gif/issues",
-                "source": "https://github.com/Intervention/gif/tree/5.0.1"
+                "source": "https://github.com/Intervention/gif/tree/5.0.2"
             },
             "funding": [
                 {
@@ -319,7 +318,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2026-05-03T06:04:47+00:00"
+            "time": "2026-11-15T07:30:24+00:00"
         },
         {
             "name": "intervention/image",
@@ -2123,16 +2122,16 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "2.5.0",
+            "version": "2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozarts/assert.git",
-                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819"
+                "reference": "e578132c01bd0c64108386ab20d8217cd175ddec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/8a163706bbcac613733dba03f51e13b5eb1bb819",
-                "reference": "8a163706bbcac613733dba03f51e13b5eb1bb819",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/e578132c01bd0c64108386ab20d8217cd175ddec",
+                "reference": "e578132c01bd0c64108386ab20d8217cd175ddec",
                 "shasum": ""
             },
             "require": {
@@ -2183,9 +2182,9 @@
             ],
             "support": {
                 "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/2.5.0"
+                "source": "https://github.com/webmozarts/assert/tree/2.5.1"
             },
-            "time": "2026-10-05T23:14:19+00:00"
+            "time": "2026-11-15T13:41:13+00:00"
         }
     ],
     "packages-dev": [
@@ -2720,11 +2719,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/645a1bd6bead15fc1b8474137467961d0fa30a79",
-                "reference": "645a1bd6bead15fc1b8474137467961d0fa30a79",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
                 "shasum": ""
             },
             "require": {
@@ -2780,7 +2779,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-03T12:14:22+00:00"
+            "time": "2026-11-15T19:58:26+00:00"
         },
         {
             "name": "psr/clock",
