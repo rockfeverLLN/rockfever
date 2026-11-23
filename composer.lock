@@ -135,16 +135,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "3.4.0",
+            "version": "3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "180bd6fcebd1dc289cbec5c576135f4b6f576e02"
+                "reference": "ef2058cc884d864affa6ef7cd23a68d45e015c2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/180bd6fcebd1dc289cbec5c576135f4b6f576e02",
-                "reference": "180bd6fcebd1dc289cbec5c576135f4b6f576e02",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/ef2058cc884d864affa6ef7cd23a68d45e015c2f",
+                "reference": "ef2058cc884d864affa6ef7cd23a68d45e015c2f",
                 "shasum": ""
             },
             "require": {
@@ -167,6 +167,7 @@
                 "phpunit/phpunit": "^9.6.34"
             },
             "suggest": {
+                "ext-intl": "Convert internationalized hosts with Idna",
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
             "type": "library",
@@ -235,7 +236,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/3.4.0"
+                "source": "https://github.com/guzzle/psr7/tree/3.5.1"
             },
             "funding": [
                 {
@@ -251,7 +252,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-11-13T03:03:24+00:00"
+            "time": "2026-11-19T20:35:18+00:00"
         },
         {
             "name": "intervention/gif",
@@ -2248,8 +2249,65 @@
             "time": "2026-09-06T02:30:12+00:00"
         },
         {
+            "name": "cakephp/collection",
+            "version": "5.4.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cakephp/collection.git",
+                "reference": "2b5a5d149ceefcbdc9fa1ace13c1dd3eef36fbe9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cakephp/collection/zipball/2b5a5d149ceefcbdc9fa1ace13c1dd3eef36fbe9",
+                "reference": "2b5a5d149ceefcbdc9fa1ace13c1dd3eef36fbe9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-5.next": "5.5.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "psr-4": {
+                    "Cake\\Collection\\": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "CakePHP Community",
+                    "homepage": "https://github.com/cakephp/collection/graphs/contributors"
+                }
+            ],
+            "description": "Work easily with arrays and iterators by having a battery of utility traversal methods",
+            "homepage": "https://cakephp.org",
+            "keywords": [
+                "arrays",
+                "cakephp",
+                "collections",
+                "iterators"
+            ],
+            "support": {
+                "forum": "https://stackoverflow.com/tags/cakephp",
+                "irc": "irc://irc.freenode.org/cakephp",
+                "issues": "https://github.com/cakephp/cakephp/issues",
+                "source": "https://github.com/cakephp/collection"
+            },
+            "time": "2026-10-09T16:48:13+00:00"
+        },
+        {
             "name": "cakephp/core",
-            "version": "5.4.4",
+            "version": "5.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/core.git",
@@ -2316,16 +2374,16 @@
         },
         {
             "name": "cakephp/database",
-            "version": "5.4.4",
+            "version": "5.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/database.git",
-                "reference": "515bd17e18490ef20492c6072b7381b37ccf383d"
+                "reference": "bdca4b2d116b00399ec71b4cba6e1fcf6a004f90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/database/zipball/515bd17e18490ef20492c6072b7381b37ccf383d",
-                "reference": "515bd17e18490ef20492c6072b7381b37ccf383d",
+                "url": "https://api.github.com/repos/cakephp/database/zipball/bdca4b2d116b00399ec71b4cba6e1fcf6a004f90",
+                "reference": "bdca4b2d116b00399ec71b4cba6e1fcf6a004f90",
                 "shasum": ""
             },
             "require": {
@@ -2342,9 +2400,10 @@
                 "cakephp/utility": "^5.4.0"
             },
             "suggest": {
+                "cakephp/cache": "If you want to cache schema metadata without providing a cacher yourself.",
                 "cakephp/i18n": "If you are using locale-aware datetime formats.",
                 "cakephp/log": "If you want to use query logging without providing a logger yourself.",
-                "cakephp/utility": "If you want to use EnumLabelTrait."
+                "cakephp/utility": "If you want to use EnumLabelTrait or the UUID types."
             },
             "type": "library",
             "extra": {
@@ -2382,36 +2441,34 @@
                 "issues": "https://github.com/cakephp/cakephp/issues",
                 "source": "https://github.com/cakephp/database"
             },
-            "time": "2026-10-24T05:10:44+00:00"
+            "time": "2026-11-17T07:37:48+00:00"
         },
         {
             "name": "cakephp/datasource",
-            "version": "5.4.4",
+            "version": "5.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/datasource.git",
-                "reference": "cec80f34828d4aeaf24f75097055cd1466e1aec7"
+                "reference": "2489db4370823600e49dbad5c553472c7c407c2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/datasource/zipball/cec80f34828d4aeaf24f75097055cd1466e1aec7",
-                "reference": "cec80f34828d4aeaf24f75097055cd1466e1aec7",
+                "url": "https://api.github.com/repos/cakephp/datasource/zipball/2489db4370823600e49dbad5c553472c7c407c2d",
+                "reference": "2489db4370823600e49dbad5c553472c7c407c2d",
                 "shasum": ""
             },
             "require": {
+                "cakephp/collection": "^5.4.0",
                 "cakephp/core": "^5.4.0",
+                "cakephp/utility": "^5.4.0",
                 "php": ">=8.2",
                 "psr/simple-cache": "^2.0 || ^3.0"
             },
             "require-dev": {
-                "cakephp/cache": "^5.4.0",
-                "cakephp/collection": "^5.4.0",
-                "cakephp/utility": "^5.4.0"
+                "cakephp/cache": "^5.4.0"
             },
             "suggest": {
-                "cakephp/cache": "If you decide to use Query caching.",
-                "cakephp/collection": "If you decide to use ResultSetInterface.",
-                "cakephp/utility": "If you decide to use EntityTrait."
+                "cakephp/cache": "If you decide to use Query caching."
             },
             "type": "library",
             "extra": {
@@ -2449,11 +2506,11 @@
                 "issues": "https://github.com/cakephp/cakephp/issues",
                 "source": "https://github.com/cakephp/datasource"
             },
-            "time": "2026-08-24T11:32:41+00:00"
+            "time": "2026-11-13T15:47:30+00:00"
         },
         {
             "name": "cakephp/event",
-            "version": "5.4.4",
+            "version": "5.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/event.git",
@@ -2508,16 +2565,16 @@
         },
         {
             "name": "cakephp/utility",
-            "version": "5.4.4",
+            "version": "5.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/utility.git",
-                "reference": "d16a4e08984b28be9daf111e9f78f38358393d25"
+                "reference": "bc60a49daac4fdf05bcd3203873055b4669ac364"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/utility/zipball/d16a4e08984b28be9daf111e9f78f38358393d25",
-                "reference": "d16a4e08984b28be9daf111e9f78f38358393d25",
+                "url": "https://api.github.com/repos/cakephp/utility/zipball/bc60a49daac4fdf05bcd3203873055b4669ac364",
+                "reference": "bc60a49daac4fdf05bcd3203873055b4669ac364",
                 "shasum": ""
             },
             "require": {
@@ -2525,6 +2582,7 @@
                 "php": ">=8.2"
             },
             "suggest": {
+                "cakephp/i18n": "To translate the default conjunction of Text::toList()",
                 "ext-intl": "To use Text::transliterate() or Text::slug()",
                 "lib-ICU": "To use Text::transliterate() or Text::slug()"
             },
@@ -2568,7 +2626,7 @@
                 "issues": "https://github.com/cakephp/cakephp/issues",
                 "source": "https://github.com/cakephp/utility"
             },
-            "time": "2026-10-09T17:01:52+00:00"
+            "time": "2026-11-13T15:48:05+00:00"
         },
         {
             "name": "fakerphp/faker",
@@ -2719,11 +2777,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.6",
+            "version": "2.3.7",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/00cedebb76cc82c1592414fa4f616cefdccda16f",
-                "reference": "00cedebb76cc82c1592414fa4f616cefdccda16f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
+                "reference": "90c91c2498849ab8cc4e873864bbf1cb2bf6ea12",
                 "shasum": ""
             },
             "require": {
@@ -2779,7 +2837,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-11-15T19:58:26+00:00"
+            "time": "2026-11-19T10:31:11+00:00"
         },
         {
             "name": "psr/clock",
