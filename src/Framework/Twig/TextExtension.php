@@ -7,8 +7,22 @@
 
 namespace Framework\Twig;
 
+use Framework\Background;
+use Framework\Upload;
+
 class TextExtension extends \Twig\Extension\AbstractExtension
 {
+
+    /**
+     * Makes the smaller copies of the images that have none (config/config.php). Without it, they're shown as they are
+     * @var Upload|null
+     */
+    private $upload;
+
+    public function __construct(?Upload $upload = null)
+    {
+        $this->upload = $upload;
+    }
 
     /**
      * @return \Twig\TwigFilter[]
@@ -243,6 +257,34 @@ class TextExtension extends \Twig\Extension\AbstractExtension
     }
 
     /**
+     * Makes the smaller copies of an image that has none, for the next visits: one pasted into the editor
+     * (pastedToFile), or whose copies couldn't be made when it was uploaded. Once the page is sent, and tried once per
+     * image: the mark it leaves keeps an image GD can't read from being tried at every visit
+     */
+    private function makeCopies(string $file) : void
+    {
+        $upload = $this->upload;
+        $mark = dirname($file) . '/sizes/' . basename($file) . '.tried';
+        if (!$upload || is_file($mark)) {
+            return;
+        }
+        $file = realpath($file) ?: $file;
+        Background::defer(function () use ($upload, $file, $mark) {
+            if (!is_dir(dirname($mark))) {
+                @mkdir(dirname($mark), 0755, true);
+            }
+            // Fails if another visit got there first
+            $handle = @fopen($mark, 'x');
+            if (!$handle) {
+                return;
+            }
+            fclose($handle);
+            $upload->generateWidths($file);
+            $upload->generateJxl($file);
+        });
+    }
+
+    /**
      * URL of a file of www/images/. Spaces or commas in a file name would split a srcset entry
      */
     private static function imageUrl(string $path) : string
@@ -279,6 +321,7 @@ class TextExtension extends \Twig\Extension\AbstractExtension
             }
         }
         if (!$candidates) {
+            $this->makeCopies($file);
             return $tag;
         }
         ksort($candidates);

@@ -158,7 +158,7 @@ Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/dep
 
 **Who can change the site:** `main` only takes pull requests whose `test` check passed (the **Protect main** ruleset in the repository's settings), and force pushes and deleting it are refused. The `production` and `repo-bot` environments only give their secrets to workflows running on `main`, so one pushed to another branch can't read them. Only a deploy key can skip the ruleset: `MAIN_PUSH_KEY`, in `repo-bot`, with which `readme-screenshots.yml` and `update-cjxl.yml` commit by themselves ([`bin/push-main.sh`](bin/push-main.sh)).
 
-The PHP version on OVH is set in OVH's control panel (Hosting > General information > Global configuration), which writes `.ovhconfig` in the hosting root: that file isn't in the repo, and the deploy never uploads or deletes it. Keep only that one: an `.ovhconfig` in `www/` or an editor backup (`.ovhconfig~`) next to it took the site down on 2026-11-14. When you change the version there, change `config.platform.php` in `composer.json` to match: the checks read it.
+The PHP version on OVH is set in OVH's control panel (Hosting > General information > Global configuration), which writes `.ovhconfig` in the hosting root: that file isn't in the repo, and the deploy never uploads or deletes it. Keep only that one: an `.ovhconfig` in `www/` or an editor backup (`.ovhconfig~`) next to it took the site down on 2026-11-14. Keep the environment it offers there on **production**: in development, OVH tells browsers not to cache anything (the deploy warns if that comes back). When you change the version there, change `config.platform.php` in `composer.json` to match: the checks read it.
 
 ## Package updates
 

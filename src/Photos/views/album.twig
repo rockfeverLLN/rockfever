@@ -4,6 +4,7 @@
 
 {% block head %}
     {% include '@photos/head.twig' %}
+    <noscript><style>.photos-tile img[data-src] { display: none; }</style></noscript>
     <script src="{{ asset('/js/photos.js') }}" defer nonce="{{ csp_nonce }}"></script>
 {% endblock %}
 
@@ -58,18 +59,21 @@
                            {%- if photo.description %} data-description="{{ photo.description }}"{% endif %}
                            {#- The link's name is what screen readers say for the photo: its description when it has one #}
                            aria-label="Agrandir la photo {{ loop.index }}{{ photo.description ? ' : ' ~ photo.description }}">
-                            <img src="{{ path('photos.file', {id: photo.id, size: '480'}) }}"
-                                 srcset="{{ path('photos.file', {id: photo.id, size: '480'}) }} 480w, {{ path('photos.file', {id: photo.id, size: '960'}) }} 960w"
+                            {%- set src = path('photos.file', {id: photo.id, size: '480'}) %}
+                            {%- set srcset = src ~ ' 480w, ' ~ path('photos.file', {id: photo.id, size: '960'}) ~ ' 960w' %}
+                            {#- After the first ones, photos.js gives the photos their address as they come near the screen.
+                                loading="lazy" isn't enough: a browser extension that copies the page (password managers, ad
+                                blockers) makes the browser load the copy's lazy images at once, 25 MB for 500 photos #}
+                            <img {% if loop.index > 12 %}data-{% endif %}src="{{ src }}" {% if loop.index > 12 %}data-{% endif %}srcset="{{ srcset }}"
                                  sizes="(max-width: 600px) 50vw, (max-width: 1100px) 33vw, 25vw"
                                  width="{{ photo.width }}" height="{{ photo.height }}"
+                                 style="aspect-ratio: {{ photo.width }} / {{ photo.height }}"
                                  alt="" {% if loop.index > 12 %}loading="lazy" {% endif %}decoding="async">
+                            {%- if loop.index > 12 %}<noscript><img src="{{ src }}" alt="" loading="lazy"></noscript>{% endif %}
+
                         </a>
                         <a class="photos-tile-download" href="{{ path('photos.file', {id: photo.id, size: 'full'}) }}?download"
-                           download aria-label="Télécharger la photo {{ loop.index }}" title="Télécharger">
-                            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/>
-                            </svg>
-                        </a>
+                           download aria-label="Télécharger la photo {{ loop.index }}" title="Télécharger"></a>
                     </li>
                 {% endfor %}
             </ul>

@@ -2,6 +2,30 @@
 // next one (arrows, keyboard, swipe), downloads it, and sends a deletion request without leaving the page.
 // Without this script, each photo is a plain link to the file.
 (function () {
+    // The album's photos that aren't near the screen yet have no address (album.twig): they get it as they come near
+    var waiting = Array.prototype.slice.call(document.querySelectorAll('.photos-tile img[data-src]'));
+    function load(photo) {
+        photo.srcset = photo.dataset.srcset;
+        photo.src = photo.dataset.src;
+        photo.removeAttribute('data-srcset');
+        photo.removeAttribute('data-src');
+    }
+    if (window.IntersectionObserver) {
+        var near = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    near.unobserve(entry.target);
+                    load(entry.target);
+                }
+            });
+        }, {rootMargin: '1000px 0px'});
+        waiting.forEach(function (photo) {
+            near.observe(photo);
+        });
+    } else {
+        waiting.forEach(load);
+    }
+
     var viewer = document.getElementById('photos-viewer');
     var links = Array.prototype.slice.call(document.querySelectorAll('.photos-tile > a[data-large]'));
     if (!viewer || !links.length || typeof viewer.showModal !== 'function') {

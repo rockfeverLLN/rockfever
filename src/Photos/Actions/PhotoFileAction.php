@@ -85,6 +85,8 @@ class PhotoFileAction
             // A photo never changes under its URL: deleting it removes the URL. Unless its JPEG XL copy comes next:
             // kept a minute only, so the browser gets the copy instead the next time
             'Cache-Control' => $waitingForJxl ? 'private, max-age=60' : 'private, max-age=31536000, immutable',
+            // The same length: without an Expires of its own, Apache's mod_expires (www/.htaccess) adds its year to this
+            'Expires' => gmdate('D, d M Y H:i:s', time() + ($waitingForJxl ? 60 : 31536000)) . ' GMT',
             'X-Robots-Tag' => 'noindex'
         ];
         if ($download) {

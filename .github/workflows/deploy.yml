@@ -178,6 +178,14 @@ jobs:
           headers=$(curl -sS -D - -o /dev/null -A 'Mozilla/5.0 (rockfever deploy check)' https://rockfever.be/login)
           grep -i '^content-security-policy:.*script-src' <<< "$headers"
           grep -i '^content-security-policy:.*frame-ancestors' <<< "$headers"
+      # Only a warning: the site works without, but every page downloads everything again: OVH's "development" environment
+      # sent no-store with everything, until 2026-11-24
+      - name: Check that browsers may cache the live images
+        run: |
+          headers=$(curl -sS -D - -o /dev/null -A 'Mozilla/5.0 (rockfever deploy check)' https://rockfever.be/images/body/bg.webp)
+          if grep -i '^cache-control:.*no-store' <<< "$headers" || ! grep -i '^cache-control:.*max-age' <<< "$headers"; then
+            echo "::warning::The live images can't be cached: check that OVH's control panel has the site in its production environment"
+          fi
       # The site is live by now: this only lets bin/deploy.sh clean finish, and never fails the deploy
       - name: Wait for the old caches to be removed
         continue-on-error: true
