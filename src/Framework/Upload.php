@@ -101,6 +101,8 @@ class Upload
                 // And the WebP copy from before the copies were JPEG
                 array_push($files, $resized, substr($resized, 0, -3) . 'webp');
             }
+            // The mark of TextExtension::makeCopies: a new file of that name gets its own copies
+            $files[] = dirname($oldFile) . '/sizes/' . basename($oldFile) . '.tried';
             foreach ($files as $file) {
                 // With its JPEG XL copy (bin/jpeg-xl.php): left behind, it would be sent for a new file of that name
                 $jxl = self::getJxlPath($file);

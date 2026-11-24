@@ -153,7 +153,9 @@
     if (parallaxImages.length) {
         var updateParallax = function () {
             var windowHeight = window.innerHeight;
-            parallaxImages.forEach(function (image) {
+            // All the sizes are read before any image moves: reading one after moving another makes the browser lay the
+            // page out again for each image
+            parallaxImages.map(function (image) {
                 var container = image.closest('.parallax-container');
                 var containerHeight = container.offsetHeight || 500;
                 var top = container.getBoundingClientRect().top;
@@ -161,7 +163,11 @@
                 // less motion sees, and 1 its top
                 var scrolled = reducedMotion.matches ? 0 : (windowHeight - top) / (containerHeight + windowHeight);
                 if (reducedMotion.matches || (top + containerHeight > 0 && top < windowHeight)) {
-                    image.style.transform = 'translate3d(-50%, ' + (containerHeight - image.offsetHeight) * (1 - scrolled) + 'px, 0)';
+                    return 'translate3d(-50%, ' + (containerHeight - image.offsetHeight) * (1 - scrolled) + 'px, 0)';
+                }
+            }).forEach(function (transform, index) {
+                if (transform) {
+                    parallaxImages[index].style.transform = transform;
                 }
             });
         };

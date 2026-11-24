@@ -475,17 +475,17 @@
     justify-content: center;
     width: 48px;
     height: 46px;
-    color: #fff;
-    background: #5fbf6a;
+    /* The icon here rather than an <svg> in each tile: an album has hundreds of them */
+    background: #5fbf6a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15'/%3E%3C/svg%3E") center / 26px no-repeat;
     border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     opacity: 0;
     transform: translateY(4px);
-    transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
+    transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.2s ease;
 }
 
 .photos-tile .photos-tile-download:hover {
-    background: #4caf57;
+    background-color: #4caf57;
 }
 
 .photos-tile-download:focus-visible {
@@ -510,6 +510,11 @@
     width: 100%;
     height: auto;
     transition: opacity 0.3s ease;
+}
+
+/* Not loaded yet (album.twig): the tile's grey until then, or its <noscript> copy without scripts */
+.photos-tile img[data-src] {
+    visibility: hidden;
 }
 
 .photos-tile a:hover img {

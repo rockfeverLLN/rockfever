@@ -1,5 +1,6 @@
 <?php
 
+use App\Main\AboutUpload;
 use Framework\Renderer\RendererInterface;
 use Framework\Renderer\TwigRendererFactory;
 use Framework\Router\Route;
@@ -34,6 +35,8 @@ return [
         \DI\get(FlashExtension::class),
         \DI\get(FormExtension::class)
     ],
+    // The images of the "À propos" sections that have no smaller copies get them (TextExtension::makeCopies)
+    TextExtension::class    => \DI\autowire()->constructorParameter('upload', \DI\get(AboutUpload::class)),
     SessionInterface::class => \DI\autowire(PHPSession::class),
     Route::class            => \DI\factory(RouterFactory::class),
     RendererInterface::class=> \DI\factory(TwigRendererFactory::class),
