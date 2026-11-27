@@ -21,6 +21,11 @@
         button.addEventListener('click', function () {
             var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', theme);
+            // The browser's own parts (scrollbars, form controls) follow: the layout's meta
+            var scheme = document.querySelector('meta[name="color-scheme"]');
+            if (scheme) {
+                scheme.content = theme;
+            }
             try {
                 localStorage.setItem('admin-theme', theme);
             } catch (e) {
